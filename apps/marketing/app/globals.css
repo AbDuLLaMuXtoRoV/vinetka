@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@import "@snapbell/ui/styles.css";
+@source "../../../packages/ui/src";
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Smart Match explainer: the three frames light up in turn. With reduced motion
+   all frames stay fully visible and nothing moves. */
+@keyframes sb-match-step {
+  0%,
+  28% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  36%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(4px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .match-frame {
+    animation: sb-match-step 6s var(--ease-out) infinite;
+    opacity: 0.35;
+  }
+  .match-frame:nth-child(3) {
+    animation-delay: 2s;
+  }
+  .match-frame:nth-child(5) {
+    animation-delay: 4s;
+  }
+}

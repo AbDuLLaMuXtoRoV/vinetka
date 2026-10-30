@@ -1,0 +1,10 @@
+{
+  "extends": "@snapbell/config/tsconfig/library.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["src"]
+}

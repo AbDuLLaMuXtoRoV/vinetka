@@ -1,0 +1,192 @@
+/*
+ * Snapbell design tokens (build plan, section 6).
+ *
+ * Usage in an app's globals.css:
+ *   @import "tailwindcss";
+ *   @import "@snapbell/ui/styles.css";
+ *   @source "../../../packages/ui/src";
+ *
+ * Colors are CSS variables so the Family Store can swap the accent for a
+ * studio's brand color at runtime, and Studio/Store can switch to dark mode
+ * with <html data-theme="dark"> (or "system" to follow the OS).
+ * The marketing site is light only.
+ */
+
+:root {
+  --sb-bg: #faf7f2;
+  --sb-surface: #ffffff;
+  --sb-sunken: #f3efe8;
+  --sb-ink: #1c1b1f;
+  --sb-muted: #6b6770;
+  --sb-border: #e7e2da;
+  --sb-accent: #f5b700;
+  /* Text/icon color on top of the accent. Recomputed when a studio brand color is applied. */
+  --sb-accent-ink: #1c1b1f;
+  --sb-sage: #6b8f71;
+  --sb-success: #2e7d4f;
+  --sb-warning: #b7791f;
+  /* #b7791f is 3.3:1 on white, so warning *text* uses this darker step to meet AA. */
+  --sb-warning-ink: #8a5a12;
+  --sb-danger: #c2410c;
+  --sb-overlay: rgb(28 27 31 / 0.48);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --sb-bg: #141316;
+  --sb-surface: #1c1b1f;
+  --sb-sunken: #242228;
+  --sb-ink: #f3efe8;
+  --sb-muted: #a8a3ab;
+  --sb-border: #34313a;
+  --sb-sage: #8fb395;
+  --sb-success: #5cb683;
+  --sb-warning: #e0a548;
+  --sb-warning-ink: #e0a548;
+  --sb-danger: #f07a4a;
+  --sb-overlay: rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --sb-bg: #141316;
+    --sb-surface: #1c1b1f;
+    --sb-sunken: #242228;
+    --sb-ink: #f3efe8;
+    --sb-muted: #a8a3ab;
+    --sb-border: #34313a;
+    --sb-sage: #8fb395;
+    --sb-success: #5cb683;
+    --sb-warning: #e0a548;
+    --sb-warning-ink: #e0a548;
+    --sb-danger: #f07a4a;
+    --sb-overlay: rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--sb-bg);
+  --color-surface: var(--sb-surface);
+  --color-sunken: var(--sb-sunken);
+  --color-ink: var(--sb-ink);
+  --color-muted: var(--sb-muted);
+  --color-border: var(--sb-border);
+  --color-accent: var(--sb-accent);
+  --color-accent-ink: var(--sb-accent-ink);
+  --color-sage: var(--sb-sage);
+  --color-success: var(--sb-success);
+  --color-warning: var(--sb-warning);
+  --color-warning-ink: var(--sb-warning-ink);
+  --color-danger: var(--sb-danger);
+  --color-overlay: var(--sb-overlay);
+
+  /* next/font sets --font-inter and --font-fraunces on <html>. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Display face: marketing site only. Fraunces has no Cyrillic, so Russian glyphs fall
+     through to --font-display-cyrillic (the marketing layout loads Lora for it). */
+  --font-display: var(--font-fraunces), var(--font-display-cyrillic, Georgia), ui-serif, Georgia, "Times New Roman", serif;
+}
+
+@theme {
+  /* Breakpoints: 375 is the mobile design base (no prefix), then 768 / 1024 / 1440. */
+  --breakpoint-*: initial;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 90rem;
+
+  /* Wide marketing layouts cap content at 1200px: max-w-content. */
+  --container-content: 75rem;
+
+  /* Type scale 12 / 14 / 16 / 18 / 24 / 32 / 48 / 64. */
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.5rem;
+  --text-xl--line-height: 2rem;
+  --text-2xl: 2rem;
+  --text-2xl--line-height: 2.5rem;
+  --text-3xl: 3rem;
+  --text-3xl--line-height: 3.375rem;
+  --text-4xl: 4rem;
+  --text-4xl--line-height: 4.25rem;
+
+  /* Radius: 8 inputs and chips, 16 cards, 24 sheets and hero media. */
+  --radius-input: 8px;
+  --radius-card: 16px;
+  --radius-sheet: 24px;
+
+  /* Shadows: one level for menus/sheets, one for hover. Nothing at rest. */
+  --shadow-overlay: 0 16px 40px -12px rgb(28 27 31 / 0.22), 0 2px 8px rgb(28 27 31 / 0.08);
+  --shadow-hover: 0 8px 20px -8px rgb(28 27 31 / 0.18);
+
+  /* Motion: 150ms hover, 250ms sheets, ease-out. Disabled under reduced motion (below). */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-sheet-up: sheet-up 250ms var(--ease-out);
+  --animate-fade-in: fade-in 250ms var(--ease-out);
+  --animate-pop-in: pop-in 150ms var(--ease-out);
+
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+
+@layer base {
+  html {
+    background: var(--sb-bg);
+    color: var(--sb-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :focus-visible {
+    outline: 2px solid var(--sb-ink);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--sb-accent) 45%, transparent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility tap {
+  /* 44px minimum touch target (WCAG 2.2 AA / Apple HIG). */
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@utility no-save {
+  /* Photo protection: no long-press save, no drag, no selection. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}

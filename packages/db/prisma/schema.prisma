@@ -1,0 +1,701 @@
+// Snapbell production data model (PostgreSQL + pgvector).
+// Mirrors the domain types in packages/sdk/src/types.ts. Money is integer cents.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ---------------------------------------------------------------------------
+// Studios and staff
+// ---------------------------------------------------------------------------
+
+enum Market {
+  schools
+  sports
+  dance
+  preschool
+  seniors
+  events
+}
+
+enum Role {
+  owner
+  admin
+  photographer
+}
+
+enum StripeStatus {
+  not_connected
+  pending
+  active
+  restricted
+}
+
+model Studio {
+  id                     String       @id @default(cuid())
+  name                   String
+  slug                   String       @unique
+  logoUrl                String?
+  brandColor             String       @default("#F5B700")
+  markets                Market[]
+  albumDomain            String?      @unique
+  defaultLabId           String?
+  stripeStatus           StripeStatus @default(not_connected)
+  stripeAccountId        String?      @unique
+  payoutSchedule         String       @default("weekly")
+  taxLegalName           String?
+  taxEin                 String?
+  taxAddress             Json?
+  onboardingCompleted    String[]
+  bigOrderThresholdCents Int          @default(15000)
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  defaultLab    Lab?           @relation(fields: [defaultLabId], references: [id])
+  members       Member[]
+  organizations Organization[]
+  jobs          Job[]
+  priceSheets   PriceSheet[]
+  promos        Promo[]
+  passOffers    PassOffer[]
+  orders        Order[]
+  carts         Cart[]
+  messages      MessageLog[]
+}
+
+model Member {
+  id               String    @id @default(cuid())
+  studioId         String
+  name             String
+  email            String    @unique
+  passwordHash     String?
+  googleSub        String?   @unique
+  role             Role
+  invitedAt        DateTime?
+  joinedAt         DateTime?
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  studio Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+
+  @@index([studioId])
+}
+
+enum OrganizationType {
+  school
+  league
+  dance_studio
+  preschool
+  client
+}
+
+model Organization {
+  id           String           @id @default(cuid())
+  studioId     String
+  name         String
+  type         OrganizationType
+  contactName  String
+  contactEmail String
+  contactPhone String?
+  address      Json?
+  /// Token for the read-only results link shared with the school or league.
+  resultsToken String           @unique @default(cuid())
+  createdAt    DateTime         @default(now())
+
+  studio Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  jobs   Job[]
+
+  @@index([studioId])
+}
+
+// ---------------------------------------------------------------------------
+// Jobs, rosters, photos, matching
+// ---------------------------------------------------------------------------
+
+enum AlbumType {
+  personal
+  team
+  open
+}
+
+enum JobStatus {
+  draft
+  live
+  closed
+}
+
+model Job {
+  id               String    @id @default(cuid())
+  studioId         String
+  organizationId   String
+  priceSheetId     String
+  name             String
+  market           Market
+  pictureDay       DateTime
+  albumType        AlbumType
+  status           JobStatus @default(draft)
+  shipHome         Boolean   @default(true)
+  shipSchoolPickup Boolean   @default(false)
+  sharedAccessCode String?   @unique
+  publishAt        DateTime?
+  deadline         DateTime?
+  expiresAt        DateTime?
+  /// { watermark, identityOverlay, blurOnFocusLoss, blockDownload }
+  protection       Json
+  allowDigital     Boolean   @default(true)
+  allowDownloadAll Boolean   @default(true)
+  autoMatchThreshold Float   @default(0.9)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  studio            Studio             @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  organization      Organization       @relation(fields: [organizationId], references: [id])
+  priceSheet        PriceSheet         @relation(fields: [priceSheetId], references: [id])
+  subjects          Subject[]
+  photos            Photo[]
+  matches           Match[]
+  scheduledMessages ScheduledMessage[]
+  exports           ExportJob[]
+  passOffers        PassOffer[]
+  orders            Order[]
+  bulkBatches       BulkBatch[]
+
+  @@index([studioId, status])
+}
+
+model Subject {
+  id                String   @id @default(cuid())
+  jobId             String
+  firstName         String
+  lastName          String
+  group             String
+  /// Personal albums: unique per subject. Team/Open albums use Job.sharedAccessCode.
+  accessCode        String?  @unique
+  referencePhotoKey String?
+  createdAt         DateTime @default(now())
+
+  job        Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  matches    Match[]
+  faces      FaceEmbedding[]
+  unlockedBy ParentSubject[]
+
+  @@index([jobId])
+}
+
+enum PhotoStatus {
+  uploading
+  processing
+  ready
+  failed
+}
+
+model Photo {
+  id            String      @id @default(cuid())
+  jobId         String
+  filename      String
+  /// Private bucket key. Originals are never publicly reachable.
+  originalKey   String
+  /// Watermarked derivatives (AVIF/WebP), served through signed, expiring URLs.
+  previewKey    String?
+  thumbKey      String?
+  width         Int?
+  height        Int?
+  sizeBytes     Int?
+  sha256        String?
+  status        PhotoStatus @default(uploading)
+  tags          String[]
+  group         String?
+  labels        String[]
+  duplicateOfId String?
+  uploadedAt    DateTime    @default(now())
+
+  job         Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  duplicateOf Photo?          @relation("Duplicates", fields: [duplicateOfId], references: [id])
+  duplicates  Photo[]         @relation("Duplicates")
+  matches     Match[]
+  faces       FaceEmbedding[]
+
+  @@unique([jobId, sha256])
+  @@index([jobId, status])
+}
+
+/// One detected face. Deleted by the retention job after the season (biometrics policy).
+model FaceEmbedding {
+  id          String                       @id @default(cuid())
+  photoId     String?
+  subjectId   String?
+  /// Reference photo from check-in (subject set) or a face found in an uploaded photo (photo set).
+  source      String
+  embedding   Unsupported("vector(512)")?
+  boundingBox Json?
+  createdAt   DateTime                     @default(now())
+  deleteAfter DateTime
+
+  photo   Photo?   @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([deleteAfter])
+}
+
+enum MatchStatus {
+  auto
+  review
+  accepted
+  rejected
+}
+
+model Match {
+  id         String      @id @default(cuid())
+  jobId      String
+  photoId    String
+  subjectId  String
+  confidence Float
+  status     MatchStatus
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime    @default(now())
+
+  job     Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  photo   Photo   @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([photoId, subjectId])
+  @@index([jobId, status])
+}
+
+// ---------------------------------------------------------------------------
+// Labs, products, price sheets, promos, passes
+// ---------------------------------------------------------------------------
+
+enum ProductCategory {
+  print
+  digital
+  keepsake
+  group
+}
+
+model Lab {
+  id             String   @id
+  name           String
+  region         String
+  turnaroundDays Int
+  apiBaseUrl     String?
+  active         Boolean  @default(true)
+
+  products    LabProduct[]
+  priceSheets PriceSheet[]
+  studios     Studio[]
+  submissions LabSubmission[]
+}
+
+model LabProduct {
+  id            String          @id
+  labId         String
+  sku           String
+  name          String
+  category      ProductCategory
+  aspectRatio   Float
+  slots         Int             @default(1)
+  customizable  Boolean         @default(false)
+  minLongEdgePx Int             @default(0)
+  labCostCents  Int
+  active        Boolean         @default(true)
+
+  lab   Lab              @relation(fields: [labId], references: [id])
+  items PriceSheetItem[]
+
+  @@unique([labId, sku])
+}
+
+model PriceSheet {
+  id        String   @id @default(cuid())
+  studioId  String
+  labId     String
+  name      String
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studio   Studio           @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  lab      Lab              @relation(fields: [labId], references: [id])
+  items    PriceSheetItem[]
+  packages Package[]
+  jobs     Job[]
+}
+
+model PriceSheetItem {
+  id           String  @id @default(cuid())
+  priceSheetId String
+  labProductId String
+  priceCents   Int
+  enabled      Boolean @default(true)
+  soldOut      Boolean @default(false)
+  position     Int     @default(0)
+
+  priceSheet PriceSheet    @relation(fields: [priceSheetId], references: [id], onDelete: Cascade)
+  labProduct LabProduct    @relation(fields: [labProductId], references: [id])
+  packageLines PackageLine[]
+}
+
+model Package {
+  id           String  @id @default(cuid())
+  priceSheetId String
+  name         String
+  description  String
+  priceCents   Int
+  featured     Boolean @default(false)
+  enabled      Boolean @default(true)
+  position     Int     @default(0)
+
+  priceSheet PriceSheet    @relation(fields: [priceSheetId], references: [id], onDelete: Cascade)
+  lines      PackageLine[]
+}
+
+model PackageLine {
+  id        String @id @default(cuid())
+  packageId String
+  itemId    String
+  quantity  Int    @default(1)
+
+  package Package        @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  item    PriceSheetItem @relation(fields: [itemId], references: [id])
+}
+
+enum PromoKind {
+  percent
+  fixed
+  free_shipping
+}
+
+model Promo {
+  id               String    @id @default(cuid())
+  studioId         String
+  code             String
+  kind             PromoKind
+  /// Basis points for percent, cents for fixed.
+  value            Int
+  minSubtotalCents Int       @default(0)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  jobIds           String[]
+  usageLimit       Int?
+  usageCount       Int       @default(0)
+  active           Boolean   @default(true)
+
+  studio Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+
+  @@unique([studioId, code])
+}
+
+model PassOffer {
+  id          String   @id @default(cuid())
+  studioId    String
+  jobId       String
+  amountsCents Int[]
+  bonusBps    Int      @default(0)
+  endsAt      DateTime
+  active      Boolean  @default(true)
+
+  studio Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  job    Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  passes Pass[]
+}
+
+model Pass {
+  id                    String   @id @default(cuid())
+  offerId               String
+  parentId              String
+  amountPaidCents       Int
+  creditCents           Int
+  remainingCents        Int
+  stripePaymentIntentId String?  @unique
+  createdAt             DateTime @default(now())
+
+  offer  PassOffer @relation(fields: [offerId], references: [id])
+  parent Parent    @relation(fields: [parentId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// Parents (no passwords: code + one-time verification per device)
+// ---------------------------------------------------------------------------
+
+model Parent {
+  id                  String    @id @default(cuid())
+  name                String?
+  email               String?   @unique
+  phone               String?   @unique
+  /// en | ru | uz: language for texts and emails
+  locale              String    @default("en")
+  smsUpdates          Boolean   @default(false)
+  marketingOptIn      Boolean   @default(false)
+  biometricsConsentAt DateTime?
+  notifications       Json
+  deletionRequestedAt DateTime?
+  createdAt           DateTime  @default(now())
+
+  subjects  ParentSubject[]
+  favorites Favorite[]
+  carts     Cart[]
+  orders    Order[]
+  passes    Pass[]
+}
+
+model ParentSubject {
+  parentId   String
+  subjectId  String
+  albumCode  String
+  unlockedAt DateTime @default(now())
+
+  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([parentId, subjectId])
+}
+
+model Favorite {
+  parentId  String
+  photoId   String
+  albumCode String
+  createdAt DateTime @default(now())
+
+  parent Parent @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@id([parentId, photoId])
+}
+
+model OtpChallenge {
+  id          String   @id @default(cuid())
+  destination String
+  codeHash    String
+  attempts    Int      @default(0)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([destination, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Carts and orders
+// ---------------------------------------------------------------------------
+
+enum DeliveryMethod {
+  home
+  school_pickup
+}
+
+model Cart {
+  id             String         @id @default(cuid())
+  studioId       String
+  parentId       String?
+  items          Json
+  promoCode      String?
+  deliveryMethod DeliveryMethod @default(home)
+  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime       @default(now())
+
+  studio Studio  @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  parent Parent? @relation(fields: [parentId], references: [id])
+}
+
+enum OrderStatus {
+  pending_payment
+  paid
+  at_lab
+  shipped
+  delivered
+  refunded
+  partially_refunded
+}
+
+model Order {
+  id                    String         @id @default(cuid())
+  number                String         @unique
+  studioId              String
+  jobId                 String
+  parentId              String
+  contact               Json
+  deliveryMethod        DeliveryMethod
+  address               Json?
+  status                OrderStatus    @default(pending_payment)
+  subtotalCents         Int
+  discountCents         Int
+  shippingCents         Int
+  taxCents              Int
+  totalCents            Int
+  passCreditCents       Int
+  chargedCents          Int
+  labCostCents          Int
+  platformFeeBps        Int
+  platformFeeCents      Int
+  cardFeeCents          Int
+  studioPayoutCents     Int
+  promoCode             String?
+  stripePaymentIntentId String?        @unique
+  trackingCarrier       String?
+  trackingNumber        String?
+  trackingUrl           String?
+  bulkBatchId           String?
+  paidAt                DateTime?
+  atLabAt               DateTime?
+  shippedAt             DateTime?
+  deliveredAt           DateTime?
+  createdAt             DateTime       @default(now())
+
+  studio      Studio          @relation(fields: [studioId], references: [id])
+  job         Job             @relation(fields: [jobId], references: [id])
+  parent      Parent          @relation(fields: [parentId], references: [id])
+  bulkBatch   BulkBatch?      @relation(fields: [bulkBatchId], references: [id])
+  items       OrderItem[]
+  refunds     Refund[]
+  reprints    Reprint[]
+  submissions LabSubmission[]
+  messages    MessageLog[]
+
+  @@index([studioId, createdAt])
+  @@index([jobId])
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  kind           String
+  refId          String
+  name           String
+  quantity       Int
+  unitPriceCents Int
+  lineTotalCents Int
+  labCostCents   Int
+  subjectId      String?
+  subjectName    String
+  photoIds       String[]
+  customization  Json?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Refund {
+  id             String   @id @default(cuid())
+  orderId        String
+  amountCents    Int
+  reason         String
+  stripeRefundId String?  @unique
+  createdBy      String?
+  createdAt      DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Reprint {
+  id        String   @id @default(cuid())
+  orderId   String
+  itemIds   String[]
+  reason    String
+  status    String   @default("requested")
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model BulkBatch {
+  id         String    @id @default(cuid())
+  jobId      String
+  status     String    @default("collecting")
+  releasedAt DateTime?
+
+  job    Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  orders Order[]
+}
+
+model LabSubmission {
+  id          String   @id @default(cuid())
+  orderId     String
+  labId       String
+  status      String   @default("queued")
+  attempts    Int      @default(0)
+  lastError   String?
+  externalRef String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  lab   Lab   @relation(fields: [labId], references: [id])
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Messaging, exports, flags
+// ---------------------------------------------------------------------------
+
+model ScheduledMessage {
+  id        String    @id @default(cuid())
+  jobId     String
+  kind      String
+  channel   String
+  sendAt    DateTime?
+  subject   String
+  body      String
+  enabled   Boolean   @default(true)
+  sentCount Int       @default(0)
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([sendAt, enabled])
+}
+
+model MessageLog {
+  id          String   @id @default(cuid())
+  studioId    String?
+  channel     String
+  to          String
+  template    String
+  body        String
+  status      String
+  providerRef String?
+  jobId       String?
+  orderId     String?
+  createdAt   DateTime @default(now())
+
+  studio Studio? @relation(fields: [studioId], references: [id])
+  order  Order?  @relation(fields: [orderId], references: [id])
+
+  @@index([studioId, createdAt])
+}
+
+/// SMS opt-outs (STOP) and email unsubscribes; checked before every send.
+model Suppression {
+  id          String   @id @default(cuid())
+  destination String   @unique
+  channel     String
+  reason      String
+  createdAt   DateTime @default(now())
+}
+
+model ExportJob {
+  id        String   @id @default(cuid())
+  jobId     String
+  type      String
+  label     String?
+  status    String   @default("queued")
+  fileKey   String?
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model FeatureFlag {
+  key         String   @id
+  description String
+  enabled     Boolean  @default(false)
+  studioIds   String[]
+  updatedAt   DateTime @updatedAt
+}

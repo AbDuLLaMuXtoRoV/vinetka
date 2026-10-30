@@ -1,0 +1,255 @@
+import { defineMessages } from "@snapbell/sdk";
+
+export const homeMsgs = defineMessages(
+  {
+    meta: {
+      title: "Snapbell — school and sports photo sales, no monthly fee",
+      ogTitle: "Snapbell — picture-day sales without the monthly fee",
+    },
+    offer: (std: string, threshold: string, vol: string) => `No monthly fee. ${std} platform fee on the first ${threshold} of yearly sales, ${vol} above.`,
+    hero: {
+      badge: "No monthly fee. Pay only when you sell.",
+      title: "From picture day to paid orders, without the paper.",
+      lead: "Check in every child on your phone, let Smart Match sort the photos, and send families a link that goes from text message to paid order in four taps.",
+      start: "Start free",
+      sample: "See a sample store",
+      perks: ["Set up in 15 minutes", "Your brand, not ours", "Free migration"],
+      phoneLabel: "The Family Store on a phone: Ava's album with four watermarked photos and a Shop these photos button",
+    },
+    trust: { noMonthly: "No monthly fee", noSetup: "No setup fee", noContract: "No contract" },
+    how: {
+      eyebrow: "How it works",
+      title: "Four steps. Most of them happen on their own.",
+      steps: [
+        { title: "Add your roster", body: "Import the school's CSV once. Every student gets a private access code automatically." },
+        { title: "Check in", body: "Tap a name and snap a quick reference photo on the check-in app. Works offline." },
+        { title: "Upload and match", body: "Drop your card in. Smart Match sorts every photo to the right child while you drive home." },
+        { title: "Families order", body: "Parents get a text, tap the link, pick a bundle and pay with Apple Pay. Done." },
+      ],
+    },
+    markets: {
+      eyebrow: "Built for your market",
+      title: "One platform, set up the way your picture day actually runs.",
+      tabsAria: "Markets",
+      seeWorkflow: (market: string) => `See the ${market.toLowerCase()} workflow`,
+    },
+    trio: {
+      eyebrow: "Everything in one place",
+      title: "Run the day, fill the store, remind the families.",
+      workflow: {
+        title: "Workflow",
+        link: "Explore workflow",
+        alt: "Illustration of a class group photo",
+        bullets: ["Roster import with access codes", "Offline check-in app", "Smart Match with a review queue"],
+      },
+      marketing: {
+        title: "Marketing",
+        link: "Explore marketing",
+        sms: ["Ava's Fall Picture Day photos are ready! 📸 brightside.photo/a/SAMPLE", "They're adorable 😍"],
+        bullets: ["Automatic texts and emails", "Picture Day Pass pre-pay", "Promo codes with limits"],
+      },
+      store: {
+        title: "Store",
+        link: "Explore the store",
+        alt: "Illustration of a watermarked portrait proof",
+        bullets: ["Your logo and colors", "Bundles built from favorites", "Live product previews"],
+      },
+    },
+    protect: {
+      eyebrow: "Photo protection",
+      title: "Families see proofs. Nobody walks away with the originals.",
+      body: "Originals never leave private storage. Parents browse watermarked previews through links that expire, and the store makes casual copying awkward.",
+      bullets: [
+        "Watermark overlay on every preview, with the viewer's name if you want it",
+        "Screenshot deterrence: no long-press save, no right-click download, no drag",
+        "Photos blur when the tab loses focus, so screen recorders get nothing useful",
+      ],
+      overlay: "Viewed by elena.martinez@example.com",
+      watermarkAlt: "Proof with a diagonal watermark and the viewer's email across the bottom",
+      watermarkCaption: "Watermark + identity",
+      blurAlt: "The same proof blurred because the browser tab lost focus",
+      blurCaption: "Blur on focus loss",
+      signed: "Signed preview links expire automatically",
+    },
+    fees: {
+      eyebrow: "Simple pricing",
+      title: "Slide to your yearly sales. See what you keep.",
+      lead: (std: string, threshold: string, vol: string) =>
+        `${std} on your first ${threshold} a year, ${vol} after that, card processing at cost. No monthly fee, no setup fee, no per-photo charges.`,
+      link: "Full pricing and calculator",
+    },
+    cases: {
+      eyebrow: "Results",
+      title: "What changes when ordering gets easy",
+      trySample: "Try the sample store yourself",
+    },
+  },
+  {
+    ru: {
+      meta: {
+        title: "Snapbell — продажа школьных и спортивных фото без абонентской платы",
+        ogTitle: "Snapbell — продажи после дня съёмки без абонентской платы",
+      },
+      offer: (std, threshold, vol) => `Без абонентской платы. Комиссия платформы ${std} с первых ${threshold} продаж за год, ${vol} — сверх этой суммы.`,
+      hero: {
+        badge: "Без абонентской платы. Платите, только когда продаёте.",
+        title: "От дня съёмки до оплаченных заказов — без бумажек.",
+        lead: "Отмечайте каждого ребёнка в телефоне, доверьте сортировку фото Smart Match и отправьте семьям ссылку: от SMS до оплаченного заказа — четыре касания.",
+        start: "Начать бесплатно",
+        sample: "Посмотреть демо-магазин",
+        perks: ["Настройка за 15 минут", "Ваш бренд, а не наш", "Бесплатный переезд"],
+        phoneLabel: "Family Store на телефоне: альбом Авы с четырьмя фото с водяными знаками и кнопкой «Купить эти фото»",
+      },
+      trust: { noMonthly: "Без абонентской платы", noSetup: "Без платы за подключение", noContract: "Без договора" },
+      how: {
+        eyebrow: "Как это работает",
+        title: "Четыре шага. Большинство из них проходит само.",
+        steps: [
+          { title: "Загрузите список", body: "Один раз импортируйте CSV от школы. Каждый ученик автоматически получит личный код доступа." },
+          { title: "Отметьте детей", body: "Нажмите на имя и сделайте контрольное фото в приложении для регистрации. Работает без интернета." },
+          { title: "Загрузите и сопоставьте", body: "Загрузите карту памяти — пока вы едете домой, Smart Match разложит каждое фото по нужным детям." },
+          { title: "Семьи заказывают", body: "Родители получают SMS, открывают ссылку, выбирают набор и платят через Apple Pay. Готово." },
+        ],
+      },
+      markets: {
+        eyebrow: "Под ваше направление",
+        title: "Одна платформа, настроенная под то, как на самом деле проходит ваш день съёмки.",
+        tabsAria: "Направления",
+        seeWorkflow: (market) => `Сценарий для направления «${market}»`,
+      },
+      trio: {
+        eyebrow: "Всё в одном месте",
+        title: "Проведите съёмку, наполните магазин, напомните семьям.",
+        workflow: {
+          title: "Процесс",
+          link: "Подробнее о процессе",
+          alt: "Иллюстрация: групповое фото класса",
+          bullets: ["Импорт списка с кодами доступа", "Приложение для регистрации без интернета", "Smart Match с очередью проверки"],
+        },
+        marketing: {
+          title: "Маркетинг",
+          link: "Подробнее о маркетинге",
+          sms: ["Фото Авы с осеннего дня съёмки готовы! 📸 brightside.photo/a/SAMPLE", "Какие милые 😍"],
+          bullets: ["Автоматические SMS и письма", "Предоплата Picture Day Pass", "Промокоды с ограничениями"],
+        },
+        store: {
+          title: "Магазин",
+          link: "Подробнее о магазине",
+          alt: "Иллюстрация: портрет с водяным знаком",
+          bullets: ["Ваш логотип и цвета", "Наборы из избранных фото", "Живой предпросмотр товаров"],
+        },
+      },
+      protect: {
+        eyebrow: "Защита фото",
+        title: "Семьи видят пробные снимки. Оригиналы никто не унесёт.",
+        body: "Оригиналы не покидают закрытого хранилища. Родители смотрят превью с водяными знаками по ссылкам с ограниченным сроком действия, а магазин мешает просто скопировать фото.",
+        bullets: [
+          "Водяной знак на каждом превью — при желании с именем того, кто смотрит",
+          "Защита от скриншотов: нельзя сохранить долгим нажатием, скачать правым кликом или перетащить",
+          "Фото размываются, когда вкладка теряет фокус, — запись экрана ничего не даст",
+        ],
+        overlay: "Просмотр: elena.martinez@example.com",
+        watermarkAlt: "Пробный снимок с диагональным водяным знаком и email зрителя внизу",
+        watermarkCaption: "Водяной знак + личность",
+        blurAlt: "Тот же снимок размыт, потому что вкладка браузера потеряла фокус",
+        blurCaption: "Размытие при потере фокуса",
+        signed: "Подписанные ссылки на превью истекают автоматически",
+      },
+      fees: {
+        eyebrow: "Простые цены",
+        title: "Укажите продажи за год — и увидите, сколько останется вам.",
+        lead: (std, threshold, vol) =>
+          `${std} с первых ${threshold} продаж за год, дальше ${vol}, эквайринг по себестоимости. Без абонентской платы, без платы за подключение и без оплаты за каждое фото.`,
+        link: "Все цены и калькулятор",
+      },
+      cases: {
+        eyebrow: "Результаты",
+        title: "Что меняется, когда заказывать становится легко",
+        trySample: "Попробуйте демо-магазин сами",
+      },
+    },
+    uz: {
+      meta: {
+        title: "Snapbell — maktab va sport suratlarini oylik toʻlovsiz soting",
+        ogTitle: "Snapbell — suratga olish kunidan keyingi savdo, oylik toʻlovsiz",
+      },
+      offer: (std, threshold, vol) => `Oylik toʻlov yoʻq. Yillik savdoning dastlabki ${threshold} qismiga ${std}, undan yuqorisiga ${vol} platforma komissiyasi.`,
+      hero: {
+        badge: "Oylik toʻlov yoʻq. Faqat sotganingizda toʻlaysiz.",
+        title: "Suratga olish kunidan toʻlangan buyurtmalargacha — qogʻozsiz.",
+        lead: "Har bir bolani telefonda belgilang, suratlarni Smart Match saralasin, oilalarga esa havola yuboring: SMS xabardan toʻlangan buyurtmagacha atigi toʻrt bosish.",
+        start: "Bepul boshlash",
+        sample: "Namuna doʻkonni koʻrish",
+        perks: ["15 daqiqada sozlash", "Bizning emas, sizning brendingiz", "Bepul koʻchish"],
+        phoneLabel: "Telefondagi Family Store: Avaning albomi, suv belgili toʻrtta surat va «Shu suratlarni xarid qilish» tugmasi",
+      },
+      trust: { noMonthly: "Oylik toʻlov yoʻq", noSetup: "Ulanish toʻlovi yoʻq", noContract: "Shartnoma yoʻq" },
+      how: {
+        eyebrow: "Qanday ishlaydi",
+        title: "Toʻrt qadam. Aksariyati oʻz-oʻzidan bajariladi.",
+        steps: [
+          { title: "Roʻyxatni qoʻshing", body: "Maktabdan olingan CSV faylni bir marta import qiling. Har bir oʻquvchi avtomatik ravishda shaxsiy kirish kodini oladi." },
+          { title: "Belgilang", body: "Ismni bosing va roʻyxatga olish ilovasida tezkor nazorat suratini oling. Internetsiz ham ishlaydi." },
+          { title: "Yuklang va moslashtiring", body: "Xotira kartasini yuklang. Uyga qaytguningizcha Smart Match har bir suratni tegishli bolaga ajratib chiqadi." },
+          { title: "Oilalar buyurtma beradi", body: "Ota-onalar SMS oladi, havolani ochadi, toʻplam tanlaydi va Apple Pay orqali toʻlaydi. Tamom." },
+        ],
+      },
+      markets: {
+        eyebrow: "Yoʻnalishingizga moslangan",
+        title: "Suratga olish kuningiz qanday oʻtsa, shunga moslab sozlanadigan yagona platforma.",
+        tabsAria: "Yoʻnalishlar",
+        seeWorkflow: (market) => `«${market}» yoʻnalishi uchun ish jarayoni`,
+      },
+      trio: {
+        eyebrow: "Hammasi bir joyda",
+        title: "Suratga olishni oʻtkazing, doʻkonni toʻldiring, oilalarga eslating.",
+        workflow: {
+          title: "Ish jarayoni",
+          link: "Ish jarayoni haqida batafsil",
+          alt: "Sinfning guruh surati tasviri",
+          bullets: ["Kirish kodlari bilan roʻyxat importi", "Oflayn roʻyxatga olish ilovasi", "Tekshiruv navbatiga ega Smart Match"],
+        },
+        marketing: {
+          title: "Marketing",
+          link: "Marketing haqida batafsil",
+          sms: ["Avaning kuzgi suratga olish kuni suratlari tayyor! 📸 brightside.photo/a/SAMPLE", "Juda yoqimli chiqibdi 😍"],
+          bullets: ["Avtomatik SMS va xatlar", "Picture Day Pass oldindan toʻlovi", "Cheklovli promokodlar"],
+        },
+        store: {
+          title: "Doʻkon",
+          link: "Doʻkon haqida batafsil",
+          alt: "Suv belgili portret namunasi tasviri",
+          bullets: ["Logotipingiz va ranglaringiz", "Sevimli suratlardan tuzilgan toʻplamlar", "Mahsulotlarni jonli oldindan koʻrish"],
+        },
+      },
+      protect: {
+        eyebrow: "Suratlarni himoyalash",
+        title: "Oilalar namunalarni koʻradi. Asl nusxani hech kim olib keta olmaydi.",
+        body: "Asl suratlar yopiq xotiradan chiqmaydi. Ota-onalar suv belgili suratlarni muddati tugaydigan havolalar orqali koʻradi, doʻkon esa ularni oddiygina nusxalashga yoʻl qoʻymaydi.",
+        bullets: [
+          "Har bir suratda suv belgisi — xohlasangiz, koʻruvchining ismi bilan",
+          "Skrinshotdan himoya: uzoq bosib saqlash, oʻng tugma bilan yuklab olish va sudrab olish yoʻq",
+          "Varaq faolligini yoʻqotganda suratlar xiralashadi — ekranni yozib olish foyda bermaydi",
+        ],
+        overlay: "Koʻruvchi: elena.martinez@example.com",
+        watermarkAlt: "Diagonal suv belgisi va pastda koʻruvchining emaili bor namuna surat",
+        watermarkCaption: "Suv belgisi + shaxs",
+        blurAlt: "Brauzer varagʻi faolligini yoʻqotgani uchun xiralashgan oʻsha surat",
+        blurCaption: "Faollik yoʻqolganda xiralashish",
+        signed: "Imzolangan havolalar muddati avtomatik tugaydi",
+      },
+      fees: {
+        eyebrow: "Oddiy narxlar",
+        title: "Yillik savdo hajmingizni belgilang — sizda qancha qolishini koʻring.",
+        lead: (std, threshold, vol) =>
+          `Yiliga dastlabki ${threshold} uchun ${std}, undan keyin ${vol}, karta toʻlovlari tannarxda. Oylik toʻlov, ulanish toʻlovi va har bir surat uchun toʻlov yoʻq.`,
+        link: "Barcha narxlar va kalkulyator",
+      },
+      cases: {
+        eyebrow: "Natijalar",
+        title: "Buyurtma berish oson boʻlganda nima oʻzgaradi",
+        trySample: "Namuna doʻkonni oʻzingiz sinab koʻring",
+      },
+    },
+  },
+);
