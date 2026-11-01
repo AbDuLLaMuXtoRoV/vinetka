@@ -2,6 +2,7 @@ import { normalizeCode } from "@snapbell/sdk";
 import type { Metadata } from "next";
 import { LanguageSwitcher } from "@snapbell/ui/locale";
 import { CodeEntry } from "@/components/code-entry";
+import { DemoNotice } from "@/components/demo-notice";
 import { getLocale } from "@/lib/i18n";
 import { metaMsgs } from "@/messages/meta";
 
@@ -18,6 +19,7 @@ export default async function EnterCodePage({ searchParams }: { searchParams: Pr
         <LanguageSwitcher variant="pills" />
       </div>
       <CodeEntry initialCode={initial} />
+      <DemoNotice locale={await getLocale()} />
     </main>
   );
 }

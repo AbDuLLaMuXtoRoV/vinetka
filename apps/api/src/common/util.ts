@@ -1,11 +1,28 @@
+import { timingSafeEqual } from "node:crypto";
 import type { Request } from "express";
+import { config } from "../config";
 import { err } from "../i18n";
 import { tooMany } from "./errors";
 
 export const nowIso = () => new Date().toISOString();
 export const DAY_MS = 86_400_000;
 
+function sameSecret(a: string, b: string): boolean {
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
+}
+
+/**
+ * The visitor's IP for rate limits. Our web apps call the API server-to-server, so
+ * they pass the visitor's IP in X-Snapbell-Client-IP, signed with the shared
+ * INTERNAL_PROXY_SECRET; anything else falls back to Express's proxy-aware req.ip.
+ */
 export function clientIp(req: Request): string {
+  const secret = config.internalProxySecret;
+  const forwarded = req.header("x-snapbell-client-ip");
+  const presented = req.header("x-snapbell-proxy-secret");
+  if (secret && forwarded && presented && sameSecret(presented, secret)) return forwarded.trim();
   return req.ip ?? req.socket.remoteAddress ?? "unknown";
 }
 

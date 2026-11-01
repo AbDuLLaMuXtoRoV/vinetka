@@ -1,0 +1,116 @@
+# Render Blueprint: the public demo of all four sites plus the API.
+# Deploy: render.com → New → Blueprint → pick this repository → Apply.
+#
+# Free instances sleep after ~15 minutes without traffic; the first visit after
+# that takes about a minute while the service wakes. The API keeps data in
+# memory, so the demo data resets whenever the API restarts or wakes up.
+#
+# The URLs below assume Render grants these service names. If Render adds a
+# suffix to any of them (name already taken), update the URLs in the
+# vinetka-shared group to the real ones and redeploy.
+
+envVarGroups:
+  - name: vinetka-shared
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: TURBO_TELEMETRY_DISABLED
+        value: "1"
+      # Shows demo credentials/codes and returns one-time codes on screen (no SMS provider).
+      - key: DEMO_MODE
+        value: "true"
+      - key: NEXT_PUBLIC_DEMO_MODE
+        value: "true"
+      # Lets the web apps pass each visitor's IP to the API for per-visitor rate limits.
+      - key: INTERNAL_PROXY_SECRET
+        generateValue: true
+      - key: API_URL
+        value: https://vinetka-api.onrender.com/v1
+      - key: NEXT_PUBLIC_API_URL
+        value: https://vinetka-api.onrender.com/v1
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://vinetka-site.onrender.com
+      - key: NEXT_PUBLIC_STORE_URL
+        value: https://vinetka-photos.onrender.com
+      - key: NEXT_PUBLIC_STUDIO_URL
+        value: https://vinetka-studio.onrender.com
+      - key: NEXT_PUBLIC_ADMIN_URL
+        value: https://vinetka-admin.onrender.com
+
+services:
+  - type: web
+    name: vinetka-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install -g pnpm@10.34.9 && pnpm install --frozen-lockfile --filter "@snapbell/api..." --filter snapbell && pnpm exec turbo run build --filter=@snapbell/api
+    startCommand: NODE_ENV=production node apps/api/dist/main.js
+    healthCheckPath: /v1/health
+    envVars:
+      - fromGroup: vinetka-shared
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: PUBLIC_API_URL
+        value: https://vinetka-api.onrender.com
+      - key: STORE_URL
+        value: https://vinetka-photos.onrender.com
+      - key: STUDIO_URL
+        value: https://vinetka-studio.onrender.com
+      - key: WEB_ORIGINS
+        value: https://vinetka-site.onrender.com,https://vinetka-photos.onrender.com,https://vinetka-studio.onrender.com,https://vinetka-admin.onrender.com
+    buildFilter:
+      paths: [apps/api/**, packages/sdk/**, packages/config/**, package.json, pnpm-lock.yaml, turbo.json]
+
+  - type: web
+    name: vinetka-site
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install -g pnpm@10.34.9 && pnpm install --frozen-lockfile --filter "@snapbell/marketing..." --filter snapbell && pnpm exec turbo run build --filter=@snapbell/marketing
+    startCommand: cd apps/marketing && ./node_modules/.bin/next start -p $PORT -H 0.0.0.0
+    healthCheckPath: /
+    envVars:
+      - fromGroup: vinetka-shared
+    buildFilter:
+      paths: [apps/marketing/**, packages/sdk/**, packages/ui/**, packages/config/**, package.json, pnpm-lock.yaml, turbo.json]
+
+  - type: web
+    name: vinetka-photos
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install -g pnpm@10.34.9 && pnpm install --frozen-lockfile --filter "@snapbell/store..." --filter snapbell && pnpm exec turbo run build --filter=@snapbell/store
+    startCommand: cd apps/store && ./node_modules/.bin/next start -p $PORT -H 0.0.0.0
+    healthCheckPath: /
+    envVars:
+      - fromGroup: vinetka-shared
+    buildFilter:
+      paths: [apps/store/**, packages/sdk/**, packages/ui/**, packages/config/**, package.json, pnpm-lock.yaml, turbo.json]
+
+  - type: web
+    name: vinetka-studio
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install -g pnpm@10.34.9 && pnpm install --frozen-lockfile --filter "@snapbell/studio..." --filter snapbell && pnpm exec turbo run build --filter=@snapbell/studio
+    startCommand: cd apps/studio && ./node_modules/.bin/next start -p $PORT -H 0.0.0.0
+    healthCheckPath: /login
+    envVars:
+      - fromGroup: vinetka-shared
+    buildFilter:
+      paths: [apps/studio/**, packages/sdk/**, packages/ui/**, packages/config/**, package.json, pnpm-lock.yaml, turbo.json]
+
+  - type: web
+    name: vinetka-admin
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install -g pnpm@10.34.9 && pnpm install --frozen-lockfile --filter "@snapbell/admin..." --filter snapbell && pnpm exec turbo run build --filter=@snapbell/admin
+    startCommand: cd apps/admin && ./node_modules/.bin/next start -p $PORT -H 0.0.0.0
+    healthCheckPath: /login
+    envVars:
+      - fromGroup: vinetka-shared
+    buildFilter:
+      paths: [apps/admin/**, packages/sdk/**, packages/ui/**, packages/config/**, package.json, pnpm-lock.yaml, turbo.json]

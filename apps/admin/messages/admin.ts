@@ -22,7 +22,7 @@ export const adminMsgs = defineMessages(
     status: "Status",
     actionFailed: "Action failed",
     errors: { session: "Session expired. Log in again.", unreachable: "Couldn't reach the API.", missing: "Enter your email and password.", wrong: "Wrong email or password." },
-    login: { subtitle: "Internal support tool. Access is logged.", email: "Email", password: "Password", submit: "Log in", dev: "Dev: admin@snapbell.com / admin-dev-only" },
+    login: { subtitle: "Internal support tool. Access is logged.", email: "Email", password: "Password", submit: "Log in", dev: "Demo login: admin@snapbell.com / admin-dev-only" },
     notFound: { title: "Not found", description: "That record doesn't exist or was deleted.", back: "Back to studios" },
     error: { title: "This page failed to load", reference: (digest: string) => `Error reference ${digest}. Check Sentry for details.`, apiDown: "Is the API running?", retry: "Try again" },
     labels: {
@@ -171,7 +171,7 @@ export const adminMsgs = defineMessages(
       status: "Статус",
       actionFailed: "Действие не выполнено",
       errors: { session: "Сеанс истёк. Войдите снова.", unreachable: "Не удалось связаться с API.", missing: "Введите email и пароль.", wrong: "Неверный email или пароль." },
-      login: { subtitle: "Внутренний инструмент поддержки. Все входы записываются.", email: "Email", password: "Пароль", submit: "Войти", dev: "Разработка: admin@snapbell.com / admin-dev-only" },
+      login: { subtitle: "Внутренний инструмент поддержки. Все входы записываются.", email: "Email", password: "Пароль", submit: "Войти", dev: "Демо-вход: admin@snapbell.com / admin-dev-only" },
       notFound: { title: "Не найдено", description: "Такой записи нет, или она удалена.", back: "К списку студий" },
       error: { title: "Не удалось загрузить страницу", reference: (digest) => `Код ошибки ${digest}. Подробности — в Sentry.`, apiDown: "API запущен?", retry: "Попробовать ещё раз" },
       labels: {
@@ -319,7 +319,7 @@ export const adminMsgs = defineMessages(
       status: "Holat",
       actionFailed: "Amal bajarilmadi",
       errors: { session: "Seans muddati tugadi. Qaytadan kiring.", unreachable: "API bilan bogʻlanib boʻlmadi.", missing: "Email va parolni kiriting.", wrong: "Email yoki parol notoʻgʻri." },
-      login: { subtitle: "Ichki yordam vositasi. Kirishlar qayd etiladi.", email: "Email", password: "Parol", submit: "Kirish", dev: "Ishlab chiqish: admin@snapbell.com / admin-dev-only" },
+      login: { subtitle: "Ichki yordam vositasi. Kirishlar qayd etiladi.", email: "Email", password: "Parol", submit: "Kirish", dev: "Demo kirish: admin@snapbell.com / admin-dev-only" },
       notFound: { title: "Topilmadi", description: "Bunday yozuv yoʻq yoki u oʻchirilgan.", back: "Studiyalarga qaytish" },
       error: { title: "Sahifani yuklab boʻlmadi", reference: (digest) => `Xato kodi ${digest}. Batafsil maʼlumot Sentry tizimida.`, apiDown: "API ishga tushirilganmi?", retry: "Qayta urinish" },
       labels: {

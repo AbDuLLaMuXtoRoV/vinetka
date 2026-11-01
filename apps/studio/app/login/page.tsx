@@ -12,6 +12,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { next, expired } = await searchParams;
   const t = authMsgs[await getLocale()];
   const googleConfigured = Boolean(process.env.GOOGLE_CLIENT_ID);
+  const showDemoCredentials = process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NODE_ENV !== "production";
   return (
     <main id="main" className="grid min-h-dvh place-items-center px-4 py-12">
       <div className="grid w-full max-w-sm gap-8">
@@ -26,6 +27,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <p className="text-sm text-muted">{t.subtitle}</p>
         </div>
         <LoginForm next={next ?? ""} expired={expired === "1"} googleConfigured={googleConfigured} />
+        {showDemoCredentials && <p className="rounded-input bg-accent/15 p-3 text-center text-sm">{t.demoLogin}</p>}
       </div>
     </main>
   );

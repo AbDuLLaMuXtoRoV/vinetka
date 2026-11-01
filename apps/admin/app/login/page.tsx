@@ -33,7 +33,9 @@ export default function AdminLogin() {
         <Button type="submit" block loading={pending}>
           {t.login.submit}
         </Button>
-        <p className="text-xs text-muted">{t.login.dev}</p>
+        {(process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NODE_ENV !== "production") && (
+          <p className="rounded-input bg-accent/15 p-3 text-center text-sm">{t.login.dev}</p>
+        )}
       </form>
     </main>
   );

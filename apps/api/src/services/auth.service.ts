@@ -187,7 +187,7 @@ export class AuthService {
       logBody: notices().magicLink.logBody,
       kind: "transactional",
     });
-    return { sent: true, devLink: config.production ? null : link };
+    return { sent: true, devLink: config.production && !config.demoMode ? null : link };
   }
 
   // --- Parents: one-time codes ------------------------------------------------------------
@@ -244,7 +244,7 @@ export class AuthService {
       destination,
       channel: input.channel,
       resendAfterSec: OTP_RESEND_MS / 1000,
-      devCode: config.production ? null : code,
+      devCode: config.production && !config.demoMode ? null : code,
     };
   }
 

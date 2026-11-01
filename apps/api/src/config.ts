@@ -12,6 +12,13 @@ function list(value: string | undefined, fallback: string[]): string[] {
 export const config = {
   port: Number(process.env.PORT ?? 4000),
   production: process.env.NODE_ENV === "production",
+  /** Public demo: return one-time codes and magic links in responses even in production (no SMS/email provider). */
+  demoMode: process.env.DEMO_MODE === "true",
+  /**
+   * Shared with the web apps. When a request carries this secret, the API trusts its
+   * X-Snapbell-Client-IP header for per-visitor rate limits, whatever proxies sit in between.
+   */
+  internalProxySecret: process.env.INTERNAL_PROXY_SECRET || null,
   authSecret: process.env.AUTH_SECRET ?? DEV_SECRET,
   /** Absolute origin used in signed media/upload/download URLs. Defaults to http://localhost:<port>. */
   publicApiUrl: (process.env.PUBLIC_API_URL ?? "").replace(/\/$/, ""),

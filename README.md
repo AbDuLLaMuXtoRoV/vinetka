@@ -66,6 +66,25 @@ scripts/smoke.mjs   Cross-surface smoke test
 
 **Design tokens.** `packages/ui/src/styles/tokens.css` defines the type scale, which is remapped: `text-xl` is 24px, `2xl` 32, `3xl` 48, `4xl` 64. Breakpoints are `md` 768, `lg` 1024 and `xl` 1440 only. It also sets `max-w-content` (1200px), the radii and the dark mode used by Studio and Store. The Family Store swaps the accent color for each studio's brand color with `brandStyle()` from `@snapbell/ui/lib/brand`.
 
+## Public demo (Render)
+
+`render.yaml` deploys the API and all four sites as free Render web services:
+
+| Site | URL |
+|---|---|
+| Marketing | https://vinetka-site.onrender.com |
+| Family Store | https://vinetka-photos.onrender.com |
+| Studio | https://vinetka-studio.onrender.com |
+| Admin | https://vinetka-admin.onrender.com |
+| API | https://vinetka-api.onrender.com/v1/health |
+
+**One-time setup:** sign in at render.com with GitHub → **New → Blueprint** → choose this repository → **Apply**. After that, every push to `main` redeploys only the services whose code changed.
+
+- Demo mode (`DEMO_MODE` / `NEXT_PUBLIC_DEMO_MODE`) shows the demo logins and codes on screen and returns one-time codes in responses, since no SMS provider is connected. Search engines are told not to index the demo.
+- Free services sleep after ~15 minutes without visitors. The first visit after that takes about a minute.
+- The API keeps data in memory, so the demo resets to the seed data whenever it restarts.
+- If Render can't grant a service name, it adds a suffix to the URL. In that case, update the URLs in the `vinetka-shared` env group (and the API's own URL variables) to the real ones, then redeploy.
+
 ## Languages
 
 Every surface is available in **English, Russian and Uzbek** (Latin script).

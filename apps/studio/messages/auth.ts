@@ -20,7 +20,8 @@ export const authMsgs = defineMessages(
     sentTo: (email: string) => `We sent a sign-in link to ${email}.`,
     devMode: "Dev mode:",
     openLink: "open the link",
-    twoFactorNote: "Owners can turn on two-factor authentication in Settings. Demo: owner@brightside.photo / picture-day.",
+    twoFactorNote: "Owners can turn on two-factor authentication in Settings.",
+    demoLogin: "Demo login: owner@brightside.photo / picture-day (photographer view: sam@brightside.photo, same password).",
     errors: {
       missing: "Enter your email and password.",
       tooMany: "Too many attempts. Wait a minute and try again.",
@@ -49,7 +50,8 @@ export const authMsgs = defineMessages(
       sentTo: (email) => `Мы отправили ссылку для входа на ${email}.`,
       devMode: "Режим разработки:",
       openLink: "открыть ссылку",
-      twoFactorNote: "Владельцы могут включить двухфакторную аутентификацию в настройках. Демо: owner@brightside.photo / picture-day.",
+      twoFactorNote: "Владельцы могут включить двухфакторную аутентификацию в настройках.",
+      demoLogin: "Демо-вход: owner@brightside.photo / picture-day (вид фотографа: sam@brightside.photo, тот же пароль).",
       errors: {
         missing: "Введите email и пароль.",
         tooMany: "Слишком много попыток. Подождите минуту и попробуйте снова.",
@@ -77,7 +79,8 @@ export const authMsgs = defineMessages(
       sentTo: (email) => `${email} manziliga kirish havolasini yubordik.`,
       devMode: "Ishlab chiqish rejimi:",
       openLink: "havolani ochish",
-      twoFactorNote: "Egalar sozlamalarda ikki bosqichli autentifikatsiyani yoqishi mumkin. Demo: owner@brightside.photo / picture-day.",
+      twoFactorNote: "Egalar sozlamalarda ikki bosqichli autentifikatsiyani yoqishi mumkin.",
+      demoLogin: "Demo kirish: owner@brightside.photo / picture-day (fotograf koʻrinishi: sam@brightside.photo, parol oʻsha).",
       errors: {
         missing: "Email va parolni kiriting.",
         tooMany: "Urinishlar juda koʻp. Bir daqiqa kutib, qayta urinib koʻring.",
