@@ -75,10 +75,10 @@ describe("studio staff", () => {
 
 describe("parents", () => {
   it("verifies by one-time code (devCode outside production)", async () => {
-    const destination = "(555) 555-0199";
+    const destination = "90 555 01 99";
     const sent = await api.call("POST", "/auth/otp/send", { body: { destination, channel: "sms" } });
     assert.equal(sent.status, 200);
-    assert.equal(sent.data.destination, "+15555550199");
+    assert.equal(sent.data.destination, "+998905550199");
     assert.match(sent.data.devCode, /^\d{6}$/);
     assert.equal(sent.data.resendAfterSec, 30);
 

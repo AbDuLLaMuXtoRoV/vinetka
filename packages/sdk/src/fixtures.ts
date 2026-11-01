@@ -40,7 +40,7 @@ export const DEMO_CREDENTIALS = {
   admin: { email: "priya@brightside.photo", password: "picture-day" },
   photographer: { email: "sam@brightside.photo", password: "picture-day" },
   internalAdmin: { email: "admin@snapbell.com", password: "admin-dev-only" },
-  parent: { phone: "+15555550123", email: "parent@example.com" },
+  parent: { phone: "+998901234567", email: "parent@example.com" },
 } as const;
 
 export const DEMO_CODES = {
@@ -289,7 +289,7 @@ export function createDemoData(nowInput: Date = new Date()): DemoData {
 
   // --- Organizations ------------------------------------------------------
   const org = (id: string, name: string, type: Organization["type"], contactName: string, contactEmail: string, studioId: string = DEMO_IDS.studio): Organization => ({
-    id, studioId, name, type, contactName, contactEmail, contactPhone: "(503) 555-0142", address: null, jobCount: 0, lifetimeSalesCents: 0,
+    id, studioId, name, type, contactName, contactEmail, contactPhone: "+998 71 555 01 42", address: null, jobCount: 0, lifetimeSalesCents: 0,
   });
   const organizations: Organization[] = [
     org("org_maple", "Maple Grove Elementary", "school", "Dr. Alicia Rivera", "office@maplegrove.k12.example"),
@@ -575,7 +575,7 @@ export function createDemoData(nowInput: Date = new Date()): DemoData {
     const last = pick(LAST);
     const p: Parent = {
       id: `par_${parents.length + 1}`, name: `${first} ${last}`, email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
-      phone: `+1555555${(1000 + parents.length).toString().slice(-4)}`,
+      phone: `+99890555${(1000 + parents.length).toString().slice(-4)}`,
       locale: "en",
       consent: { smsUpdates: rand() < 0.8, marketing: rand() < 0.3, biometricsAt: null },
       notifications: { orderUpdates: true, galleryReady: true, deadlineReminders: true, channel: rand() < 0.7 ? "sms" : "email" },
@@ -654,12 +654,12 @@ export function createDemoData(nowInput: Date = new Date()): DemoData {
   }
   for (const j of jobs.filter((x) => x.status === "live" && x.studioId === DEMO_IDS.studio)) {
     messages.push({
-      id: `msg_${messages.length + 1}`, studioId: DEMO_IDS.studio, channel: "sms", to: "+15555550199", template: "gallery_published",
+      id: `msg_${messages.length + 1}`, studioId: DEMO_IDS.studio, channel: "sms", to: "+998905550199", template: "gallery_published",
       body: `Brightside Photo Co.: photos from ${j.name} are ready to view.`, status: "delivered", jobId: j.id, orderId: null, createdAt: j.publishAt!,
     });
   }
   messages.push({
-    id: `msg_${messages.length + 1}`, studioId: DEMO_IDS.studio, channel: "sms", to: "+15555550177", template: "gallery_published",
+    id: `msg_${messages.length + 1}`, studioId: DEMO_IDS.studio, channel: "sms", to: "+998905550177", template: "gallery_published",
     body: "Brightside Photo Co.: photos from Fall Picture Day are ready to view.", status: "suppressed", jobId: DEMO_IDS.maple, orderId: null, createdAt: jobs[0]!.publishAt!,
   });
 

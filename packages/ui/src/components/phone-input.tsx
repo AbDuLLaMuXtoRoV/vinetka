@@ -1,42 +1,50 @@
 "use client";
 
+import {
+  DEFAULT_PHONE_COUNTRY,
+  PHONE_COUNTRIES,
+  formatPhoneDisplay,
+  formatPhoneNational,
+  toE164 as toE164For,
+  type PhoneCountry,
+} from "@snapbell/sdk";
 import type { ComponentProps } from "react";
 import { cn } from "../lib/cn";
 import { inputClass } from "./input";
 
-/** Formats US numbers as you type: (555) 555-0123. */
-export function formatUsPhone(raw: string): string {
-  const d = raw.replace(/\D/g, "").replace(/^1(?=\d{10})/, "").slice(0, 10);
-  if (d.length <= 3) return d;
-  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+export { formatPhoneDisplay, formatPhoneNational };
+
+/** "90 123 45 67" → "+998901234567", or null when incomplete (Uzbekistan unless `country` says otherwise). */
+export function toE164(raw: string, country: PhoneCountry = DEFAULT_PHONE_COUNTRY): string | null {
+  return toE164For(raw, country);
 }
 
-/** "(555) 555-0123" → "+15555550123", or null when incomplete. */
-export function toE164(raw: string): string | null {
-  const d = raw.replace(/\D/g, "").replace(/^1(?=\d{10})/, "");
-  return d.length === 10 ? `+1${d}` : null;
-}
-
+/** National number field with the country code shown as a fixed prefix (+998 by default). */
 export function PhoneInput({
   value,
   onValueChange,
+  country = DEFAULT_PHONE_COUNTRY,
   className,
   ...props
-}: Omit<ComponentProps<"input">, "value" | "onChange" | "type"> & { value: string; onValueChange: (formatted: string) => void }) {
+}: Omit<ComponentProps<"input">, "value" | "onChange" | "type"> & {
+  value: string;
+  onValueChange: (formatted: string) => void;
+  country?: PhoneCountry;
+}) {
+  const { dial, placeholder } = PHONE_COUNTRIES[country];
   return (
     <div className="relative">
       <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted" aria-hidden>
-        +1
+        +{dial}
       </span>
       <input
         type="tel"
         inputMode="tel"
         autoComplete="tel-national"
         value={value}
-        onChange={(e) => onValueChange(formatUsPhone(e.target.value))}
-        placeholder="(555) 555-0123"
-        className={cn(inputClass, "pl-9", className)}
+        onChange={(e) => onValueChange(formatPhoneNational(e.target.value, country))}
+        placeholder={placeholder}
+        className={cn(inputClass, dial.length > 1 ? "pl-14" : "pl-9", className)}
         {...props}
       />
     </div>

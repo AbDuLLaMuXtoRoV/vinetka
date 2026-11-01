@@ -9,7 +9,7 @@ import { Field, describedBy } from "@snapbell/ui/field";
 import { Input } from "@snapbell/ui/input";
 import { useFormatters, useLocale, useMessages } from "@snapbell/ui/locale";
 import { Modal } from "@snapbell/ui/overlay";
-import { PhoneInput, formatUsPhone, toE164 } from "@snapbell/ui/phone-input";
+import { PhoneInput, formatPhoneNational, toE164 } from "@snapbell/ui/phone-input";
 import { RadioGroup } from "@snapbell/ui/radio-group";
 import type { Stripe } from "@stripe/stripe-js";
 import { CreditCard, FlaskConical, Lock, ShieldCheck } from "lucide-react";
@@ -41,7 +41,7 @@ export function CheckoutForm({ cart: initial, initialContact, shippingOptions }:
   const [cart, setCart] = useState(initial);
   const [name, setName] = useState(initialContact.name);
   const [email, setEmail] = useState(initialContact.email);
-  const [phone, setPhone] = useState(initialContact.phone ? formatUsPhone(initialContact.phone) : "");
+  const [phone, setPhone] = useState(initialContact.phone ? formatPhoneNational(initialContact.phone) : "");
   const [method, setMethod] = useState<DeliveryMethod>(
     shippingOptions.some((o) => o.method === initial.deliveryMethod) ? initial.deliveryMethod : (shippingOptions[0]?.method ?? "home"),
   );

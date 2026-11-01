@@ -6,3 +6,4 @@ export * from "./client";
 export * from "./placeholder";
 export * from "./fixtures";
 export * from "./i18n";
+export * from "./phone";

@@ -26,7 +26,7 @@ export function clientIp(req: Request): string {
   return req.ip ?? req.socket.remoteAddress ?? "unknown";
 }
 
-/** "parent@example.com" → "p•••@example.com", "+15555550123" → "•••-•••-0123". */
+/** "parent@example.com" → "p•••@example.com", "+998901234567" → "•••-•••-4567". */
 export function maskDestination(value: string | null | undefined): string | null {
   if (!value) return null;
   if (value.includes("@")) {

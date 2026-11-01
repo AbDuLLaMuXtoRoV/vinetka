@@ -32,7 +32,7 @@ The API boots with an in-memory store seeded from `packages/sdk/src/fixtures.ts`
 | Studio owner | `owner@brightside.photo` / `picture-day` (studio :3002) |
 | Photographer (restricted role) | `sam@brightside.photo` / `picture-day` |
 | Internal admin | `admin@snapbell.com` / `admin-dev-only` (admin :3003) |
-| Parent | `parent@example.com` or `+1 555 555 0123`; the one-time code is shown on screen in dev |
+| Parent | `parent@example.com` or `+998 90 123 45 67`; the one-time code is shown on screen in dev |
 
 | Album code (store :3001) | What it shows |
 |---|---|

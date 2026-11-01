@@ -11,7 +11,7 @@ import { brandStyle } from "@snapbell/ui/lib/brand";
 import { cn } from "@snapbell/ui/lib/cn";
 import { initials } from "@snapbell/ui/lib/format";
 import { useLocale, useMessages } from "@snapbell/ui/locale";
-import { PhoneInput, formatUsPhone, toE164 } from "@snapbell/ui/phone-input";
+import { PhoneInput, formatPhoneDisplay, toE164 } from "@snapbell/ui/phone-input";
 import { Mail, ShieldCheck, Smartphone } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { sendCode, verifyCode } from "@/app/actions";
@@ -77,7 +77,7 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
     });
   };
 
-  const shown = channel === "sms" ? formatUsPhone(destination) : destination;
+  const shown = channel === "sms" ? formatPhoneDisplay(destination) : destination;
 
   return (
     <div className="grid gap-8" style={brandStyle(studio?.brandColor)}>

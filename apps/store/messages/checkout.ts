@@ -5,7 +5,7 @@ export const checkoutMsgs = defineMessages(
     errors: {
       name: "Enter your name.",
       email: "Enter a valid email for your receipt.",
-      phone: "Enter a 10-digit number or leave it empty.",
+      phone: "Enter a 9-digit number, like 90 123 45 67, or leave it empty.",
       line1: "Enter your street address.",
       city: "Enter your city.",
       state: "Use the 2-letter state code.",
@@ -56,7 +56,7 @@ export const checkoutMsgs = defineMessages(
       errors: {
         name: "Введите имя.",
         email: "Введите корректный email для чека.",
-        phone: "Введите 10-значный номер или оставьте поле пустым.",
+        phone: "Введите 9-значный номер, например 90 123 45 67, или оставьте поле пустым.",
         line1: "Укажите адрес.",
         city: "Укажите город.",
         state: "Укажите двухбуквенный код штата.",
@@ -106,7 +106,7 @@ export const checkoutMsgs = defineMessages(
       errors: {
         name: "Ismingizni kiriting.",
         email: "Chek uchun toʻgʻri email kiriting.",
-        phone: "10 xonali raqam kiriting yoki boʻsh qoldiring.",
+        phone: "9 xonali raqam kiriting (masalan, 90 123 45 67) yoki boʻsh qoldiring.",
         line1: "Manzilni kiriting.",
         city: "Shaharni kiriting.",
         state: "Shtatning 2 harfli kodini kiriting.",

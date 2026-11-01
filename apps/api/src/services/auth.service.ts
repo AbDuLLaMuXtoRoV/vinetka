@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import type { MessageChannel, OtpSendResult, ParentSession, Role, StaffSession, Studio } from "@snapbell/sdk";
+import { toE164, type MessageChannel, type OtpSendResult, type ParentSession, type Role, type StaffSession, type Studio } from "@snapbell/sdk";
 import type { Request } from "express";
 import { config, twilioVerifyEnabled } from "../config";
 import {
@@ -198,10 +198,9 @@ export class AuthService {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw badRequest("invalid_destination", err().auth.invalidEmail);
       return email;
     }
-    const digits = raw.replace(/\D/g, "");
-    if (digits.length === 10) return `+1${digits}`;
-    if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
-    if (raw.trim().startsWith("+") && digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+    // National numbers are Uzbek (+998); other countries must be written with "+".
+    const e164 = toE164(raw);
+    if (e164) return e164;
     throw badRequest("invalid_destination", err().auth.invalidPhone);
   }
 
