@@ -5,4 +5,10 @@ export const env = {
   storeUrl: process.env.NEXT_PUBLIC_STORE_URL ?? "http://localhost:3001",
   studioUrl: process.env.NEXT_PUBLIC_STUDIO_URL ?? "http://localhost:3002",
   adminUrl: process.env.NEXT_PUBLIC_ADMIN_URL ?? "http://localhost:3003",
+  /** Direct channels on /contact; each is shown only when set. Telegram is a username without "@". */
+  contact: {
+    phone: process.env.NEXT_PUBLIC_CONTACT_PHONE?.trim() || null,
+    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null,
+    telegram: process.env.NEXT_PUBLIC_CONTACT_TELEGRAM?.trim().replace(/^@/, "") || null,
+  },
 };

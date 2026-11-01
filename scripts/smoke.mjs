@@ -151,23 +151,81 @@ await section("Internal admin", async () => {
   const { token } = await createClient({ baseUrl: API }).admin.login(DEMO_CREDENTIALS.internalAdmin);
   await expectPage(`${ADMIN}/studios`, `sb_admin=${token}`, "Brightside", "/studios");
   await expectPage(`${ADMIN}/lab-queue`, `sb_admin=${token}`, null, "/lab-queue");
+  await expectPage(`${ADMIN}/requests`, `sb_admin=${token}`, null, "/requests (contact requests)");
 });
 
 await section("Marketing site", async () => {
   for (const [path, needle] of [
-    ["/", "Start free"],
+    ["/", "/contact"],
     ["/pricing", "250"],
     ["/markets", null],
     ["/features/family-store", null],
     ["/find-my-photos", null],
-    ["/signup", null],
+    ["/contact", null],
     ["/blog", null],
     ["/help", null],
     ["/privacy", "Draft"],
-    ["/sitemap.xml", "/pricing"],
+    ["/sitemap.xml", "/contact"],
   ]) {
     await expectPage(`${SITE}${path}`, null, needle, path);
   }
+  const home = await page(`${SITE}/`);
+  check(!home.text.includes("Start free") && !/href="[^"]*\/signup"/.test(home.text.replace(/\/signup\?lang/g, "")), "no studio self-signup links on the home page");
+  check(home.text.includes(`${STORE}/signin`) && home.text.includes(`${STORE}/signup`), "header links parents to shop sign in / sign up");
+  const signup = await page(`${SITE}/signup`);
+  check(signup.status === 308 && signup.location?.includes("/contact"), `/signup → ${signup.status} ${signup.location ?? ""}`);
+});
+
+await section("Studios are created by Snapbell only", async () => {
+  const anon = createClient({ baseUrl: API });
+  const selfSignup = await fetch(`${API}/auth/signup`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+  check(selfSignup.status === 404, `self-signup endpoint is gone (${selfSignup.status})`);
+
+  const stamp = Date.now().toString(36);
+  const sent = await anon.contact.submit({
+    kind: "partner",
+    name: `Smoke Tester ${stamp}`,
+    company: `Smoke Test Studio ${stamp}`,
+    phone: "90 555 12 34",
+    city: "Tashkent",
+    message: "Automated smoke test: please ignore.",
+  });
+  check(sent.received === true, "contact form request accepted");
+
+  const { token: adminToken } = await anon.admin.login(DEMO_CREDENTIALS.internalAdmin);
+  const admin = createClient({ baseUrl: API, token: adminToken }).admin;
+  const [request] = await admin.contactRequests({ q: stamp });
+  check(request?.kind === "partner" && request.phone === "+998905551234", "request visible in Admin with +998 phone");
+
+  const created = await admin.createStudio({
+    studioName: `Smoke Test Studio ${stamp}`,
+    ownerName: `Smoke Tester ${stamp}`,
+    ownerEmail: `smoke-${stamp}@example.com`,
+    contactRequestId: request?.id ?? null,
+  });
+  const setupToken = new URL(created.setupLink.url).searchParams.get("token");
+  check(Boolean(setupToken) && created.owner.status === "invited", "Admin created the studio and an owner setup link");
+  const [converted] = await admin.contactRequests({ q: stamp });
+  check(converted?.status === "converted", "request marked converted");
+
+  await expectPage(`${STUDIO}/setup?token=${setupToken}`, null, `Smoke Test Studio ${stamp}`, "/setup page shows the new studio");
+  const session = await anon.auth.completeSetup({ token: setupToken, password: `smoke-${stamp}-password` });
+  check(session.studio.name === `Smoke Test Studio ${stamp}`, "owner chose a password and is signed in");
+  const reuse = await fetch(`${API}/auth/setup/${setupToken}`);
+  check(reuse.status === 404 || reuse.status === 410, `setup link works only once (${reuse.status})`);
+  const owner = createClient({ baseUrl: API, token: session.token });
+  check((await owner.jobs.list()).length === 0 && (await owner.orders.list()).length === 0, "new studio sees only its own (empty) data");
+  const onboarding = await page(`${STUDIO}/onboarding`, `sb_studio=${session.token}`);
+  check(onboarding.status === 200, `new owner lands in the setup wizard (${onboarding.status})`);
+
+  if (request) await admin.updateContactRequest(request.id, { status: "archived", note: "Smoke test" });
+});
+
+await section("Shop accounts for parents", async () => {
+  await expectPage(`${STORE}/signin`, null, null, "/signin");
+  await expectPage(`${STORE}/signup`, null, null, "/signup");
+  const gated = await page(`${STORE}/account`);
+  check(gated.status >= 300 && gated.status < 400 && gated.location?.includes("/signin"), `/account without session → ${gated.location ?? gated.status}`);
 });
 
 await section("Languages (en / ru / uz)", async () => {

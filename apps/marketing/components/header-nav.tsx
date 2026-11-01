@@ -4,7 +4,7 @@ import { Button } from "@snapbell/ui/button";
 import { cn } from "@snapbell/ui/lib/cn";
 import { LanguageSwitcher, useLocale } from "@snapbell/ui/locale";
 import { Sheet } from "@snapbell/ui/overlay";
-import { BookOpen, Camera, ChevronDown, CircleHelp, Images, Megaphone, Menu, Repeat, ShoppingBag, type LucideIcon } from "lucide-react";
+import { BookOpen, Camera, ChevronDown, CircleHelp, Images, LogIn, Megaphone, Menu, Repeat, ShoppingBag, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
@@ -33,6 +33,7 @@ export function DesktopNav({ sampleStoreUrl }: { sampleStoreUrl: string }) {
   const productId = useId();
   const resourcesId = useId();
   const pricingHref = localePath(locale, "/pricing");
+  const contactHref = localePath(locale, "/contact");
 
   useEffect(() => setOpen(null), [pathname]);
 
@@ -79,6 +80,9 @@ export function DesktopNav({ sampleStoreUrl }: { sampleStoreUrl: string }) {
         {t.pricing}
       </Link>
       {trigger("resources", t.resources, resourcesId)}
+      <Link href={contactHref} className={linkClass(contactHref)} aria-current={pathname === contactHref ? "page" : undefined}>
+        {t.contact}
+      </Link>
 
       <div
         id={productId}
@@ -145,8 +149,8 @@ export function DesktopNav({ sampleStoreUrl }: { sampleStoreUrl: string }) {
   );
 }
 
-/** Mobile hamburger menu with "Find my photos" pinned at the top for parents. */
-export function MobileNav({ loginUrl }: { loginUrl: string }) {
+/** Mobile hamburger menu: parent entry points (find photos, shop sign in/up) pinned at the top. */
+export function MobileNav({ signInUrl, signUpUrl, studioLoginUrl }: { signInUrl: string; signUpUrl: string; studioLoginUrl: string }) {
   const locale = useLocale();
   const t = commonMsgs[locale].nav;
   const [open, setOpen] = useState(false);
@@ -172,14 +176,15 @@ export function MobileNav({ loginUrl }: { loginUrl: string }) {
         }
         footer={
           <div className="grid w-full gap-2">
-            <Button asChild variant="primary" size="lg" block>
-              <Link href={localePath(locale, "/signup")} onClick={close}>
-                {t.startFree}
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="lg" block>
-              <a href={loginUrl}>{t.login}</a>
-            </Button>
+            <p className="text-xs font-semibold tracking-wide text-muted uppercase">{t.forParents}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button asChild variant="primary" size="lg" block>
+                <a href={signUpUrl}>{t.signUp}</a>
+              </Button>
+              <Button asChild variant="outline" size="lg" block>
+                <a href={signInUrl}>{t.signIn}</a>
+              </Button>
+            </div>
           </div>
         }
       >
@@ -214,6 +219,15 @@ export function MobileNav({ loginUrl }: { loginUrl: string }) {
             <Link href={localePath(locale, "/about")} className={item} onClick={close}>
               {t.about}
             </Link>
+          </div>
+          <div className="grid gap-1">
+            <p className="px-3 text-xs font-semibold tracking-wide text-muted uppercase">{t.forStudios}</p>
+            <Link href={localePath(locale, "/contact")} className={cn(item, "font-medium")} onClick={close}>
+              {t.partner}
+            </Link>
+            <a href={studioLoginUrl} className={cn(item, "gap-2")}>
+              <LogIn className="size-4 text-muted" aria-hidden /> {t.studioLogin}
+            </a>
           </div>
         </nav>
       </Sheet>

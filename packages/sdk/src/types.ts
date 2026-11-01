@@ -725,8 +725,12 @@ export interface OtpSendResult {
 // ---------------------------------------------------------------------------
 
 export interface AdminStudioRow {
-  studio: Pick<Studio, "id" | "name" | "slug" | "createdAt" | "markets"> & { stripeStatus: StripeStatus };
+  studio: Pick<Studio, "id" | "name" | "slug" | "createdAt" | "markets"> & { stripeStatus: StripeStatus; onboardingDone: boolean };
+  ownerName: string;
   ownerEmail: string;
+  /** "invited" until the owner opens the setup link and chooses a password. */
+  ownerStatus: Member["status"];
+  ownerMemberId: ID;
   jobs: number;
   liveJobs: number;
   salesCents: Cents;
@@ -768,4 +772,83 @@ export interface ApiErrorBody {
   error: string;
   message: string;
   details?: unknown;
+}
+
+// ---------------------------------------------------------------------------
+// Onboarding by Snapbell staff (no self-signup) and contact requests
+// ---------------------------------------------------------------------------
+
+/**
+ * One-time link a new studio owner or invited team member opens to choose a
+ * password (studio app /setup?token=…). Valid for 7 days, single use.
+ */
+export interface SetupLink {
+  url: string;
+  expiresAt: ISODate;
+}
+
+/** What the /setup page shows before the person chooses a password. */
+export interface AccountSetupInfo {
+  name: string;
+  email: string;
+  studioName: string;
+  role: Role;
+  expiresAt: ISODate;
+}
+
+export interface AdminCreateStudioInput {
+  studioName: string;
+  ownerName: string;
+  ownerEmail: string;
+  /** E.164; national numbers are Uzbek. */
+  ownerPhone?: string | null;
+  markets?: Market[];
+  /** Marks that contact request as converted. */
+  contactRequestId?: ID | null;
+}
+
+export interface AdminCreateStudioResult {
+  studio: AdminStudioRow;
+  owner: Member;
+  setupLink: SetupLink;
+}
+
+/** partner: a photographer who wants to sell with Snapbell (the /contact page). */
+export type ContactRequestKind = "partner" | "contact" | "demo" | "switch" | "data_request";
+export type ContactRequestStatus = "new" | "contacted" | "converted" | "archived";
+
+export interface ContactRequestInput {
+  kind: ContactRequestKind;
+  name: string;
+  /** Studio or company name. */
+  company?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  city?: string | null;
+  message: string;
+  /** Extra form fields: market, yearly volume, preferred demo time, request type… */
+  details?: Record<string, string>;
+  /** Honeypot: must be empty (bots fill every field). */
+  website?: string;
+}
+
+export interface ContactRequest {
+  id: ID;
+  kind: ContactRequestKind;
+  status: ContactRequestStatus;
+  name: string;
+  company: string | null;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
+  message: string;
+  details: Record<string, string>;
+  /** Language the visitor wrote in. */
+  locale: Locale;
+  /** Set when a studio was created from this request. */
+  studioId: ID | null;
+  /** Internal note from the Snapbell team. */
+  note: string | null;
+  createdAt: ISODate;
+  updatedAt: ISODate;
 }

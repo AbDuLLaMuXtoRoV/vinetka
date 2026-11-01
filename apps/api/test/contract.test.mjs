@@ -37,9 +37,15 @@ it("implements the whole client contract", async () => {
   const home = await staff.studio.home();
   assert.ok(home.openJobs.length >= 2 && home.recentOrders.length > 0 && home.todos.length > 0);
   assert.ok((await staff.studio.members()).length >= 4);
-  const invitee = await staff.studio.invite({ email: "new.shooter@brightside.photo", name: "New Shooter", role: "photographer" });
+  const { member: invitee, setupLink } = await staff.studio.invite({ email: "new.shooter@brightside.photo", name: "New Shooter", role: "photographer" });
   assert.equal(invitee.status, "invited");
+  assert.match(setupLink.url, /\/setup\?token=/);
   assert.equal((await staff.studio.updateMember(invitee.id, { role: "admin" })).role, "admin");
+  const freshLink = await staff.studio.memberSetupLink(invitee.id);
+  const setupToken = new URL(freshLink.url).searchParams.get("token");
+  assert.equal((await anon.auth.setupInfo(setupToken)).studioName, "Brightside Photo Co.");
+  const shooter = await anon.auth.completeSetup({ token: setupToken, password: "shooter-password" });
+  assert.equal(shooter.member.status, "active");
   assert.equal((await staff.studio.connectStripe()).studio.stripe.status, "active");
 
   const orgs = await staff.organizations.list();
@@ -294,6 +300,22 @@ it("implements the whole client contract", async () => {
   const flags = await admin.admin.flags();
   assert.ok(flags.length >= 4);
   assert.equal((await admin.admin.updateFlag("ai_retouch", { enabled: true })).enabled, true);
+
+  // --- Contact requests and staff-created studios --------------------------------------------
+  const received = await anon.contact.submit({ kind: "partner", name: "Kamola Rahimova", company: "Kamola Foto", phone: "90 777 66 55", city: "Buxoro", message: "Maktab suratlari." });
+  assert.equal(received.received, true);
+  const requests = await admin.admin.contactRequests({ kind: "partner", q: "kamola" });
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].phone, "+998907776655");
+  assert.equal((await admin.admin.updateContactRequest(received.id, { status: "contacted", note: "Called" })).note, "Called");
+  const created = await admin.admin.createStudio({ studioName: "Kamola Foto", ownerName: "Kamola Rahimova", ownerEmail: "kamola@kamolafoto.example", contactRequestId: received.id });
+  assert.equal(created.owner.status, "invited");
+  assert.equal(created.studio.ownerStatus, "invited");
+  assert.equal((await admin.admin.contactRequests({ status: "converted", q: "kamola" }))[0].studioId, created.studio.studio.id);
+  const ownerLink = await admin.admin.memberSetupLink(created.owner.id);
+  const kamola = await anon.auth.completeSetup({ token: new URL(ownerLink.url).searchParams.get("token"), password: "kamola-password" });
+  assert.equal(kamola.studio.name, "Kamola Foto");
+  assert.equal(kamola.studio.onboarding.done, false);
 
   // Photographer can't manage the team.
   const photographer = createClient({ baseUrl: api.base, token: (await anon.auth.login({ email: "sam@brightside.photo", password: "picture-day" })).token });

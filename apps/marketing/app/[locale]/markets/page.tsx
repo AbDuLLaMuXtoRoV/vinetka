@@ -86,7 +86,7 @@ export default async function MarketsPage({ params }: PageProps<"/[locale]/marke
 
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg">
-                  <Link href={localePath(locale, "/signup")}>
+                  <Link href={localePath(locale, "/contact")}>
                     {t.startFor(m.label)} <ArrowRight aria-hidden />
                   </Link>
                 </Button>

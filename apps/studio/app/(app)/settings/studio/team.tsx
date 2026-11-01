@@ -1,6 +1,6 @@
 "use client";
 
-import type { Member, Role } from "@snapbell/sdk";
+import type { Member, Role, SetupLink } from "@snapbell/sdk";
 import { Avatar } from "@snapbell/ui/avatar";
 import { Badge } from "@snapbell/ui/badge";
 import { Button } from "@snapbell/ui/button";
@@ -11,12 +11,14 @@ import { useLocale } from "@snapbell/ui/locale";
 import { Modal } from "@snapbell/ui/overlay";
 import { RadioGroup } from "@snapbell/ui/radio-group";
 import { Select } from "@snapbell/ui/select";
-import { ShieldCheck, UserPlus } from "lucide-react";
+import { Link2, ShieldCheck, UserPlus } from "lucide-react";
 import { useState } from "react";
+import { SetupLinkDialog } from "@/components/setup-link-dialog";
 import { useAction } from "@/components/use-action";
-import { inviteMember, updateMemberRole } from "@/lib/actions";
+import { inviteMember, newMemberSetupLink, updateMemberRole } from "@/lib/actions";
 import { useLabels } from "@/components/use-labels";
 import { settingsMsgs } from "@/messages/settings";
+import { setupMsgs } from "@/messages/setup";
 
 export function TeamSection({ members, me }: { members: Member[]; me: Member }) {
   const { run, pending } = useAction();
@@ -27,6 +29,9 @@ export function TeamSection({ members, me }: { members: Member[]; me: Member }) 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<Role>("photographer");
+  // Setup link to pass on after an invite or a "New setup link".
+  const [shared, setShared] = useState<{ name: string; link: SetupLink } | null>(null);
+  const ts = setupMsgs[locale];
   const isOwner = me.role === "owner";
   const canInvite = me.role !== "photographer";
 
@@ -61,10 +66,11 @@ export function TeamSection({ members, me }: { members: Member[]; me: Member }) 
                       run(() => inviteMember({ email: email.trim(), name: name.trim(), role }), {
                         success: t.inviteSent,
                         description: email,
-                        onSuccess: () => {
+                        onSuccess: ({ member, setupLink }) => {
                           setOpen(false);
                           setEmail("");
                           setName("");
+                          setShared({ name: member.name, link: setupLink });
                         },
                       })
                     }
@@ -110,6 +116,16 @@ export function TeamSection({ members, me }: { members: Member[]; me: Member }) 
                 </p>
                 <p className="truncate text-xs text-muted">{m.email}</p>
               </div>
+              {canInvite && m.status === "invited" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={pending}
+                  onClick={() => run(() => newMemberSetupLink(m.id), { success: ts.newLinkMade, onSuccess: (link) => setShared({ name: m.name, link }) })}
+                >
+                  <Link2 /> {ts.newLink}
+                </Button>
+              )}
               {isOwner && m.role !== "owner" ? (
                 <Select
                   aria-label={t.roleFor(m.name)}
@@ -127,6 +143,7 @@ export function TeamSection({ members, me }: { members: Member[]; me: Member }) 
             </li>
           ))}
         </ul>
+        <SetupLinkDialog name={shared?.name ?? ""} link={shared?.link ?? null} onClose={() => setShared(null)} />
         {isOwner && !me.twoFactorEnabled && (
           <p className="flex items-start gap-2 rounded-input bg-sunken p-3 text-sm text-muted">
             <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { DEMO_CREDENTIALS, createDemoData, type ExportJob } from "@snapbell/sdk";
+import { DEMO_CREDENTIALS, createDemoData, type ContactRequest, type ExportJob } from "@snapbell/sdk";
 import { hashPassword } from "../common/crypto";
 import {
   Repository,
@@ -15,6 +15,7 @@ import {
   type ParentSubjectRow,
   type PhotoRow,
   type PhotoSetRow,
+  type SetupTokenRow,
   type SuppressionRow,
   type Table,
   type UploadRow,
@@ -100,8 +101,68 @@ function buildSeed() {
     parents: data.parents.map((p): ParentRow => ({ ...p, deletionRequestedAt: null, exportRequestedAt: null, createdAt: data.now })),
     parentSubjects: data.parentSubjects.map((ps): ParentSubjectRow => ({ id: `${ps.parentId}:${ps.subjectId}`, ...ps, unlockedAt: data.now })),
     adminHash: hashPassword(DEMO_CREDENTIALS.internalAdmin.password),
+    contactRequests: demoContactRequests(Date.parse(data.now)),
     orderSeq: Math.max(10_400, ...data.orders.map((o) => Number(o.number.replace(/\D/g, "")) || 0)),
   };
+}
+
+/** A few partner and demo requests so the internal admin's Requests screen isn't empty. */
+function demoContactRequests(now: number): ContactRequest[] {
+  const at = (hoursAgo: number) => new Date(now - hoursAgo * 3_600_000).toISOString();
+  const base = { studioId: null, note: null };
+  return [
+    {
+      ...base,
+      id: "cr_demo_tashkent",
+      kind: "partner",
+      status: "new",
+      name: "Дилноза Каримова",
+      company: "Фотостудия «Ёркин кадр»",
+      email: "dilnoza@yorqinkadr.example",
+      phone: "+998901112233",
+      city: "Ташкент",
+      message:
+        "Здравствуйте! Мы снимаем школьные портреты и выпускные альбомы в Ташкенте — около 12 школ в год. Хотим, чтобы родители заказывали фото онлайн, а не по бумажным бланкам. Расскажите, пожалуйста, как подключиться?",
+      details: { market: "schools", yearlyVolume: "≈ 3000 детей" },
+      locale: "ru",
+      createdAt: at(20),
+      updatedAt: at(20),
+    },
+    {
+      ...base,
+      id: "cr_demo_samarkand",
+      kind: "partner",
+      status: "new",
+      name: "Jasur Toʻxtayev",
+      company: "Samarqand Sport Foto",
+      email: null,
+      phone: "+998935556677",
+      city: "Samarqand",
+      message:
+        "Assalomu alaykum! Samarqanddagi bolalar futbol akademiyalarida musobaqa va jamoa suratlarini olaman. Ota-onalarga suratlarni onlayn sotmoqchiman. Qanday ulanish mumkin?",
+      details: { market: "sports" },
+      locale: "uz",
+      createdAt: at(46),
+      updatedAt: at(46),
+    },
+    {
+      ...base,
+      id: "cr_demo_preschools",
+      kind: "demo",
+      status: "contacted",
+      name: "Nodira Saidova",
+      company: "Bright Kids Preschools",
+      email: "nodira@brightkids.example",
+      phone: "+998977778899",
+      city: "Tashkent",
+      message: "We run four preschools and would like to see the parent store before our spring photo day.",
+      details: { market: "preschool", preferredTime: "Weekdays after 2 pm" },
+      locale: "en",
+      note: "Called on Monday; demo booked for next week.",
+      createdAt: at(98),
+      updatedAt: at(70),
+    },
+  ];
 }
 
 /** Process-local store seeded from the shared demo data at boot. Resets on restart. */
@@ -142,6 +203,8 @@ export class MemoryRepository extends Repository {
   readonly oneTimeTokens = byId<OneTimeTokenRow>();
   readonly suppressions = byId<SuppressionRow>();
   readonly notifyRequests = byId<NotifyRequestRow>();
+  readonly setupTokens = byId<SetupTokenRow>();
+  readonly contactRequests = byId(this.seed.contactRequests);
 
   nextOrderNumber(): string {
     this.orderSeq += 1;

@@ -6,7 +6,7 @@ import { useActionState } from "react";
 import { requestMigration, sendContact, submitDataRequest, type FormState } from "@/app/actions";
 import { commonMsgs } from "@/messages/common";
 import { formMsgs } from "@/messages/forms";
-import { FormMessage, LocaleField, SelectField, SuccessPanel, TextAreaField, TextField } from "./form-bits";
+import { FormMessage, HoneypotField, LocaleField, PhoneField, SelectField, SuccessPanel, TextAreaField, TextField, useTrackSubmitted } from "./form-bits";
 
 const idle: FormState = { status: "idle" };
 
@@ -14,10 +14,12 @@ export function ContactForm() {
   const locale = useLocale();
   const t = formMsgs[locale];
   const [state, action, pending] = useActionState(sendContact, idle);
+  useTrackSubmitted(state);
   if (state.status === "success") return <SuccessPanel title={state.message ?? commonMsgs[locale].forms.thanks} />;
   return (
-    <form action={action} className="grid gap-4" noValidate>
+    <form action={action} className="relative grid gap-4" noValidate>
       <LocaleField />
+      <HoneypotField />
       <FormMessage state={state} />
       <div className="grid gap-4 md:grid-cols-2">
         <TextField name="name" label={t.fields.name} autoComplete="name" state={state} />
@@ -35,11 +37,13 @@ export function ContactForm() {
 export function SwitchForm() {
   const t = formMsgs[useLocale()];
   const [state, action, pending] = useActionState(requestMigration, idle);
+  useTrackSubmitted(state);
   if (state.status === "success") return <SuccessPanel title={t.results.migrationTitle}>{state.message}</SuccessPanel>;
   const o = t.switch.options;
   return (
-    <form action={action} className="grid gap-4" noValidate>
+    <form action={action} className="relative grid gap-4" noValidate>
       <LocaleField />
+      <HoneypotField />
       <FormMessage state={state} />
       <div className="grid gap-4 md:grid-cols-2">
         <TextField name="name" label={t.fields.name} autoComplete="name" state={state} />
@@ -68,17 +72,19 @@ export function SwitchForm() {
 export function DataRequestForm() {
   const t = formMsgs[useLocale()];
   const [state, action, pending] = useActionState(submitDataRequest, idle);
+  useTrackSubmitted(state);
   if (state.status === "success") return <SuccessPanel title={t.results.dataRequestTitle}>{state.message}</SuccessPanel>;
   const o = t.dataRequest.options;
   return (
-    <form action={action} className="grid gap-4" noValidate>
+    <form action={action} className="relative grid gap-4" noValidate>
       <LocaleField />
+      <HoneypotField />
       <FormMessage state={state} />
       <div className="grid gap-4 md:grid-cols-2">
         <TextField name="name" label={t.fields.yourName} autoComplete="name" state={state} />
         <TextField name="email" label={t.fields.emailOnFile} type="email" autoComplete="email" state={state} />
       </div>
-      <TextField name="phone" label={t.fields.phoneOnFile} type="tel" autoComplete="tel" state={state} optional />
+      <PhoneField name="phone" label={t.fields.phoneOnFile} state={state} optional />
       <SelectField
         name="type"
         label={t.fields.requestType}

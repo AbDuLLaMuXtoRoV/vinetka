@@ -59,17 +59,14 @@ describe("studio staff", () => {
     assert.equal(ok.data.byDay.length, 30);
   });
 
-  it("signs up a studio and hands off to the studio app once", async () => {
+  it("has no self-signup: studios are only created by Snapbell staff", async () => {
+    const before = api.repo.studios.size;
     const signup = await api.call("POST", "/auth/signup", {
       body: { name: "Robin Vale", email: "robin@valephoto.example", password: "long-enough-pw", studioName: "Vale Photo" },
     });
-    assert.equal(signup.status, 201);
-    const handoff = await api.call("POST", "/auth/handoff", { body: { code: signup.data.handoffCode } });
-    assert.equal(handoff.status, 200);
-    assert.equal(handoff.data.studio.name, "Vale Photo");
-    assert.equal(handoff.data.studio.stripe.status, "not_connected");
-    const again = await api.call("POST", "/auth/handoff", { body: { code: signup.data.handoffCode } });
-    assert.equal(again.status, 400);
+    assert.equal(signup.status, 404);
+    assert.equal((await api.call("POST", "/auth/handoff", { body: { code: "anything" } })).status, 404);
+    assert.equal(api.repo.studios.size, before);
   });
 });
 

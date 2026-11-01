@@ -86,7 +86,7 @@ export default async function BlogPostPage({ params }: PageProps<"/[locale]/blog
           <p className="text-muted">{t.tryBody}</p>
           <div className="flex flex-wrap gap-3">
             <Button asChild>
-              <Link href={localePath(locale, "/signup")}>{t.start}</Link>
+              <Link href={localePath(locale, "/contact")}>{t.partner}</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href={localePath(locale, "/demo")}>{t.demo}</Link>

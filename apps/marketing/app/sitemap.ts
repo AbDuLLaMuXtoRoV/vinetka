@@ -14,7 +14,7 @@ const STATIC_ROUTES = [
   { path: "/pricing", priority: 0.9 },
   { path: "/switch", priority: 0.7 },
   { path: "/demo", priority: 0.7 },
-  { path: "/signup", priority: 0.7 },
+  { path: "/contact", priority: 0.7 },
   { path: "/find-my-photos", priority: 0.6 },
   { path: "/blog", priority: 0.6 },
   { path: "/help", priority: 0.6 },

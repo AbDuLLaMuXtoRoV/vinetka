@@ -56,7 +56,18 @@ export const notificationMessages = defineMessages(
     teamInvite: {
       subject: (inviter: string, studio: string) => `${inviter} invited you to ${studio} on Snapbell`,
       body: (inviter: string, studio: string, role: string, link: string) =>
-        `${inviter} invited you to join ${studio} on Snapbell as ${role}. Accept: ${link}`,
+        `${inviter} invited you to join ${studio} on Snapbell as ${role}. Choose your password here (the link works for 7 days): ${link}`,
+    },
+    studioWelcome: {
+      subject: (studio: string) => `Your Snapbell studio "${studio}" is ready`,
+      body: (name: string, studio: string, link: string) =>
+        `Hello ${name}! We've created ${studio} on Snapbell for you. Choose your password here (the link works for 7 days): ${link} After that, the setup wizard walks you through your logo, prices and first picture day.`,
+    },
+    contactRequest: {
+      subject: (kind: string, name: string) => `New ${kind} request from ${name}`,
+      body: (kind: string, name: string, company: string, reach: string, message: string) =>
+        `${kind}: ${name}${company ? ` (${company})` : ""}. Contact: ${reach}. Message: ${message || "—"}. Open the Requests screen in Snapbell Admin to reply.`,
+      kinds: { partner: "partner", contact: "contact", demo: "demo", switch: "switch platform", data_request: "data request" },
     },
     exportReady: {
       subject: (type: string) => `Your ${type} export is ready`,
@@ -128,7 +139,19 @@ export const notificationMessages = defineMessages(
       },
       teamInvite: {
         subject: (inviter, studio) => `${inviter} приглашает вас в студию «${studio}» в Snapbell`,
-        body: (inviter, studio, role, link) => `${inviter} приглашает вас в студию «${studio}» в Snapbell. Ваша роль: ${role}. Принять: ${link}`,
+        body: (inviter, studio, role, link) =>
+          `${inviter} приглашает вас в студию «${studio}» в Snapbell. Ваша роль: ${role}. Придумайте пароль по ссылке (действует 7 дней): ${link}`,
+      },
+      studioWelcome: {
+        subject: (studio) => `Ваша студия «${studio}» в Snapbell готова`,
+        body: (name, studio, link) =>
+          `Здравствуйте, ${name}! Мы создали для вас студию «${studio}» в Snapbell. Придумайте пароль по ссылке (действует 7 дней): ${link} Затем мастер настройки поможет добавить логотип, цены и первую съёмку.`,
+      },
+      contactRequest: {
+        subject: (kind, name) => `Новая заявка (${kind}) от ${name}`,
+        body: (kind, name, company, reach, message) =>
+          `${kind}: ${name}${company ? ` (${company})` : ""}. Контакты: ${reach}. Сообщение: ${message || "—"}. Ответить можно в разделе «Заявки» в Snapbell Admin.`,
+        kinds: { partner: "партнёр", contact: "вопрос", demo: "демо", switch: "переход", data_request: "запрос данных" },
       },
       exportReady: {
         subject: (type) => `Экспорт готов: ${type}`,
@@ -199,7 +222,18 @@ export const notificationMessages = defineMessages(
       teamInvite: {
         subject: (inviter, studio) => `${inviter} sizni Snapbellʼdagi «${studio}» studiyasiga taklif qildi`,
         body: (inviter, studio, role, link) =>
-          `${inviter} sizni Snapbellʼdagi «${studio}» studiyasiga taklif qildi. Rolingiz: ${role}. Qabul qilish: ${link}`,
+          `${inviter} sizni Snapbellʼdagi «${studio}» studiyasiga taklif qildi. Rolingiz: ${role}. Parolni shu havola orqali oʻrnating (7 kun amal qiladi): ${link}`,
+      },
+      studioWelcome: {
+        subject: (studio) => `Snapbellʼdagi «${studio}» studiyangiz tayyor`,
+        body: (name, studio, link) =>
+          `Assalomu alaykum, ${name}! Siz uchun Snapbellʼda «${studio}» studiyasini yaratdik. Parolni shu havola orqali oʻrnating (7 kun amal qiladi): ${link} Soʻngra sozlash ustasi logotip, narxlar va birinchi suratga olish kunini qoʻshishda yordam beradi.`,
+      },
+      contactRequest: {
+        subject: (kind, name) => `Yangi soʻrov (${kind}): ${name}`,
+        body: (kind, name, company, reach, message) =>
+          `${kind}: ${name}${company ? ` (${company})` : ""}. Aloqa: ${reach}. Xabar: ${message || "—"}. Javob berish uchun Snapbell Adminʼdagi «Soʻrovlar» boʻlimini oching.`,
+        kinds: { partner: "hamkor", contact: "savol", demo: "demo", switch: "oʻtish", data_request: "maʼlumot soʻrovi" },
       },
       exportReady: {
         subject: (type) => `Eksport tayyor: ${type}`,

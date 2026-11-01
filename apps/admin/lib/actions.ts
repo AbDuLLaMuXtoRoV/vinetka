@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiError, createClient, type FeatureFlag } from "@snapbell/sdk";
+import { ApiError, createClient, type AdminCreateStudioInput, type ContactRequestStatus, type FeatureFlag } from "@snapbell/sdk";
 import { forwardedHeaders } from "./forwarded";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -26,7 +26,7 @@ export async function loginAction(_prev: LoginState, form: FormData): Promise<Lo
     if (e instanceof ApiError) return { error: e.status === 401 || e.status === 400 ? t.wrong : e.message };
     return { error: t.unreachable };
   }
-  redirect("/studios");
+  redirect("/requests");
 }
 
 export async function logoutAction() {
@@ -40,6 +40,20 @@ export async function refundOrder(id: string, input: { amountCents?: number; rea
 
 export async function retryLabSubmission(id: string) {
   return act((c) => c.admin.retryLabSubmission(id), ["/lab-queue"]);
+}
+
+/** The only way a studio is created. Returns the owner's one-time setup link. */
+export async function createStudioAction(input: AdminCreateStudioInput) {
+  return act((c) => c.admin.createStudio(input), ["/studios", "/requests"]);
+}
+
+/** Fresh setup link for an owner who hasn't finished setup; the previous one stops working. */
+export async function ownerSetupLinkAction(memberId: string) {
+  return act((c) => c.admin.memberSetupLink(memberId), ["/studios"]);
+}
+
+export async function updateContactRequestAction(id: string, patch: { status?: ContactRequestStatus; note?: string | null }) {
+  return act((c) => c.admin.updateContactRequest(id, patch), ["/requests"]);
 }
 
 export async function updateFlag(key: string, patch: Partial<Pick<FeatureFlag, "enabled" | "studioIds">>) {

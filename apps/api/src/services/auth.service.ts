@@ -1,5 +1,15 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { toE164, type MessageChannel, type OtpSendResult, type ParentSession, type Role, type StaffSession, type Studio } from "@snapbell/sdk";
+import {
+  toE164,
+  type AccountSetupInfo,
+  type MessageChannel,
+  type OtpSendResult,
+  type ParentSession,
+  type Role,
+  type SetupLink,
+  type StaffSession,
+  type Studio,
+} from "@snapbell/sdk";
 import type { Request } from "express";
 import { config, twilioVerifyEnabled } from "../config";
 import {
@@ -14,9 +24,9 @@ import {
   verifyToken,
   type TokenPayload,
 } from "../common/crypto";
-import { ApiError, badRequest, conflict, forbidden, tooMany, unauthorized } from "../common/errors";
-import { RateLimiter, clientIp, nowIso, slugify } from "../common/util";
-import { Repository, type MemberRow, type ParentRow } from "../store/repository";
+import { ApiError, badRequest, forbidden, tooMany, unauthorized } from "../common/errors";
+import { RateLimiter, clientIp, nowIso } from "../common/util";
+import { Repository, type MemberRow, type ParentRow, type SetupTokenRow } from "../store/repository";
 import { MessagingService } from "./messaging.service";
 import { ViewsService } from "./views.service";
 import { currentLocale, err, notices, requestedLocale } from "../i18n";
@@ -24,8 +34,11 @@ import { currentLocale, err, notices, requestedLocale } from "../i18n";
 const OTP_TTL_MS = 10 * 60_000;
 const OTP_RESEND_MS = 30_000;
 const OTP_MAX_ATTEMPTS = 5;
-const HANDOFF_TTL_MS = 60_000;
 const MAGIC_LINK_TTL_MS = 15 * 60_000;
+const SETUP_LINK_TTL_MS = 7 * 24 * 60 * 60_000;
+
+/** Setup tokens are looked up by HMAC so a leaked table can't be used to set passwords. */
+const setupTokenHash = (token: string) => hmac(`setup:${token}`);
 
 /** Roles kept away from money: reports, payouts, payment settings, refunds, team management. */
 export const MANAGERS_ONLY = { deny: ["photographer"] as Role[] };
@@ -122,52 +135,63 @@ export class AuthService {
     return this.staffSession(member);
   }
 
-  signup(input: { name: string; email: string; password: string; studioName: string }): { handoffCode: string; expiresInSec: number } {
-    const email = input.email.trim().toLowerCase();
-    if (this.repo.members.find((m) => m.email === email)) throw conflict("email_taken", err().auth.accountExists);
-    let slug = slugify(input.studioName);
-    for (let n = 2; this.repo.studios.find((s) => s.slug === slug); n++) slug = `${slugify(input.studioName)}-${n}`;
-    const studio: Studio = {
-      id: newId("stu"),
-      name: input.studioName.trim(),
-      slug,
-      logoUrl: null,
-      brandColor: "#F5B700",
-      markets: [],
-      albumDomain: null,
-      defaultLabId: null,
-      stripe: { status: "not_connected", accountId: null, payoutSchedule: "weekly", requirementsDue: [] },
-      taxInfo: { legalName: input.studioName.trim(), ein: null, address: null },
-      onboarding: { completed: [], done: false },
-      bigOrderThresholdCents: 15_000,
-      ytdSalesCents: 0,
-      createdAt: nowIso(),
-    };
-    this.repo.studios.insert(studio);
-    const member = this.repo.members.insert({
-      id: newId("mem"),
-      studioId: studio.id,
-      name: input.name.trim(),
-      email,
-      role: "owner",
-      status: "active",
-      twoFactorEnabled: false,
-      passwordHash: hashPassword(input.password),
-    });
-    const code = randomToken(18);
-    this.repo.oneTimeTokens.insert({ id: code, kind: "handoff", memberId: member.id, expiresAt: Date.now() + HANDOFF_TTL_MS });
-    return { handoffCode: code, expiresInSec: HANDOFF_TTL_MS / 1000 };
-  }
-
-  redeem(kind: "handoff" | "magic_link", code: string): StaffSession {
-    const row = this.repo.oneTimeTokens.get(code);
-    if (!row || row.kind !== kind || row.expiresAt < Date.now()) {
-      if (row) this.repo.oneTimeTokens.remove(code);
-      throw badRequest(kind === "handoff" ? "invalid_handoff" : "invalid_magic_link", err().auth.linkExpired);
+  redeemMagicLink(token: string): StaffSession {
+    const row = this.repo.oneTimeTokens.get(token);
+    if (!row || row.kind !== "magic_link" || row.expiresAt < Date.now()) {
+      if (row) this.repo.oneTimeTokens.remove(token);
+      throw badRequest("invalid_magic_link", err().auth.linkExpired);
     }
-    this.repo.oneTimeTokens.remove(code);
+    this.repo.oneTimeTokens.remove(token);
     const member = this.repo.members.get(row.memberId);
     if (!member || member.status !== "active") throw unauthorized();
+    return this.staffSession(member);
+  }
+
+  // --- Account setup (studios are created by Snapbell staff; no self-signup) ------------
+
+  /**
+   * One-time "choose your password" link for an invited member (a new studio
+   * owner or an invited team member). Only a hash is stored, and any older link
+   * for the same member stops working.
+   */
+  issueSetupLink(member: MemberRow): SetupLink {
+    for (const old of this.repo.setupTokens.filter((t) => t.memberId === member.id)) this.repo.setupTokens.remove(old.id);
+    const token = randomToken(32);
+    const expiresAt = Date.now() + SETUP_LINK_TTL_MS;
+    this.repo.setupTokens.insert({ id: setupTokenHash(token), memberId: member.id, expiresAt, usedAt: null, createdAt: Date.now() });
+    return { url: `${config.studioUrl}/setup?token=${encodeURIComponent(token)}`, expiresAt: new Date(expiresAt).toISOString() };
+  }
+
+  /** Validates a setup token: 404 when unknown or used, 410 when expired. */
+  private setupToken(token: string): { row: SetupTokenRow; member: MemberRow } {
+    const row = this.repo.setupTokens.get(setupTokenHash(token));
+    const member = row ? this.repo.members.get(row.memberId) : undefined;
+    if (!row || row.usedAt !== null || !member || member.status !== "invited") {
+      throw new ApiError(404, "setup_link_invalid", err().auth.setupLinkInvalid);
+    }
+    if (row.expiresAt < Date.now()) throw new ApiError(410, "setup_link_expired", err().auth.setupLinkExpired);
+    return { row, member };
+  }
+
+  setupInfo(token: string): AccountSetupInfo {
+    const { row, member } = this.setupToken(token);
+    const studio = this.repo.studios.get(member.studioId);
+    return {
+      name: member.name,
+      email: member.email,
+      studioName: studio?.name ?? "",
+      role: member.role,
+      expiresAt: new Date(row.expiresAt).toISOString(),
+    };
+  }
+
+  completeSetup(req: Request, token: string, password: string): StaffSession {
+    this.loginLimiter.hit(clientIp(req));
+    const { row, member } = this.setupToken(token);
+    row.usedAt = Date.now();
+    member.passwordHash = hashPassword(password);
+    member.status = "active";
+    for (const other of this.repo.setupTokens.filter((t) => t.memberId === member.id && t.id !== row.id)) this.repo.setupTokens.remove(other.id);
     return this.staffSession(member);
   }
 
@@ -249,7 +273,7 @@ export class AuthService {
 
   async verifyOtp(
     req: Request,
-    input: { destination: string; code: string; consent: { smsUpdates: boolean; marketing: boolean } },
+    input: { destination: string; code: string; consent?: { smsUpdates: boolean; marketing: boolean }; name?: string },
   ): Promise<ParentSession> {
     this.otpVerifyLimiter.hit(clientIp(req));
     const channel: MessageChannel = input.destination.includes("@") ? "email" : "sms";
@@ -289,7 +313,11 @@ export class AuthService {
         createdAt: nowIso(),
       });
     }
-    parent.consent = { ...parent.consent, smsUpdates: input.consent.smsUpdates, marketing: input.consent.marketing };
+    // Only change consent when the form asked for it; a returning parent keeps earlier choices.
+    if (input.consent) parent.consent = { ...parent.consent, smsUpdates: input.consent.smsUpdates, marketing: input.consent.marketing };
+    // Shop sign-up sends the parent's name with the code.
+    const name = input.name?.trim();
+    if (name) parent.name = name;
     parent.locale = currentLocale();
     return { token: signToken({ k: "parent", sub: parent.id }), parent: this.views.parent(parent) };
   }

@@ -36,11 +36,11 @@ export function proxy(req: NextRequest) {
   const albumCode = albumMatch ? decodeURIComponent(albumMatch[1]!).toUpperCase().replace(/[^A-Z0-9]/g, "") : null;
 
   if (!req.cookies.get("sb_parent")?.value) {
+    // Albums: verify with the album's code. Cart, checkout, orders, account: sign in.
     const url = req.nextUrl.clone();
-    url.pathname = "/verify";
+    url.pathname = albumCode ? "/verify" : "/signin";
     url.search = "";
-    const code = albumCode ?? req.cookies.get("sb_album")?.value;
-    if (code) url.searchParams.set("code", code);
+    if (albumCode) url.searchParams.set("code", albumCode);
     url.searchParams.set("next", pathname + search);
     return NextResponse.redirect(url);
   }

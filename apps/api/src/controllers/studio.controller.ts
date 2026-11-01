@@ -143,16 +143,29 @@ export class StudioController {
       twoFactorEnabled: false,
       passwordHash: null,
     });
+    const setupLink = this.auth.issueSetupLink(member);
     this.messaging.send({
       studioId: studio.id,
       channel: "email",
       to: email,
       template: "team_invite",
       subject: notices().teamInvite.subject(inviter.name, studio.name),
-      body: notices().teamInvite.body(inviter.name, studio.name, notices().roles[input.role], `${config.studioUrl}/login`),
+      body: notices().teamInvite.body(inviter.name, studio.name, notices().roles[input.role], setupLink.url),
+      logBody: notices().teamInvite.body(inviter.name, studio.name, notices().roles[input.role], `${config.studioUrl}/setup`),
       kind: "transactional",
     });
-    return this.views.member(member);
+    // The link is also returned so the inviter can pass it on directly (Telegram, in person…).
+    return { member: this.views.member(member), setupLink };
+  }
+
+  @Post("studio/members/:id/setup-link")
+  @HttpCode(200)
+  memberSetupLink(@Req() req: Request, @Param("id") id: string) {
+    const { studio } = this.auth.staff(req, MANAGERS_ONLY);
+    const member = this.repo.members.get(id);
+    if (!member || member.studioId !== studio.id) throw notFound(err().notFound.member);
+    if (member.status !== "invited") throw conflict("member_active", err().auth.alreadySetUp);
+    return this.auth.issueSetupLink(member);
   }
 
   @Patch("studio/members/:id")

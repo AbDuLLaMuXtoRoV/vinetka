@@ -44,6 +44,16 @@ The API boots with an in-memory store seeded from `packages/sdk/src/fixtures.ts`
 
 Checkout without Stripe keys runs a labelled test mode. Include `+3ds` in the email to exercise the 3-D Secure path. Promo codes: `FALL10`, `FREESHIP`, `GOEAGLES`.
 
+## Who can create accounts
+
+| Account | How it is created |
+|---|---|
+| **Studio** (a photography business) and its owner | **Only by the Snapbell team**, in Admin. Use **Studios → Create studio**, or **Requests → Create studio** from a contact request. Admin shows a one-time link (valid 7 days); send it to the owner by email or Telegram. The owner chooses a password and runs the setup wizard. There is no self-signup anywhere: `/signup` redirects to `/contact`, and the API has no signup endpoint. |
+| **Studio team members** (admin, photographer) | By the studio's owner or admin in **Settings → Studio → Team → Invite**. They get the same kind of one-time link. |
+| **Parents** (shop customers) | Self-service in the Family Store at `/signup` and `/signin`, linked from the marketing header. They use a one-time code by text or email, with no password. Their photos still open only with the album code from the studio. |
+
+Anyone (photographers, schools, parents) can reach the Snapbell team through the marketing site's **/contact** page. The about, demo, switch and data-request forms send requests too. Every request appears in **Admin → Requests**, and its status can be set to new, contacted, converted or archived.
+
 ## Repository
 
 ```

@@ -24,6 +24,7 @@ import { env } from "./env";
 import { forwardedHeaders } from "./forwarded";
 import { getLocale } from "./i18n";
 import { authMsgs } from "@/messages/auth";
+import { setupMsgs } from "@/messages/setup";
 import { act } from "./result";
 
 // --- Auth -------------------------------------------------------------------------
@@ -67,6 +68,32 @@ export async function magicLinkAction(email: string) {
   }
 }
 
+export interface SetupState {
+  error: string | null;
+  field: "password" | "confirm" | null;
+}
+
+/** /setup: a new owner or invited team member chooses a password with their one-time link. */
+export async function completeSetupAction(_prev: SetupState, form: FormData): Promise<SetupState> {
+  const token = String(form.get("token") ?? "");
+  const password = String(form.get("password") ?? "");
+  const confirm = String(form.get("confirm") ?? "");
+  const locale = await getLocale();
+  const t = setupMsgs[locale].errors;
+  if (password.length < 8) return { error: t.short, field: "password" };
+  if (password !== confirm) return { error: t.mismatch, field: "confirm" };
+
+  let destination = "/home";
+  try {
+    const session = await createClient({ baseUrl: env.apiUrl, locale, headers: await forwardedHeaders() }).auth.completeSetup({ token, password });
+    (await cookies()).set(SESSION_COOKIE, session.token, sessionCookieOptions);
+    if (session.member.role === "owner" && !session.studio.onboarding.done) destination = "/onboarding";
+  } catch (e) {
+    return { error: e instanceof ApiError ? e.message : t.unreachable, field: null };
+  }
+  redirect(destination);
+}
+
 export async function logoutAction() {
   (await cookies()).delete(SESSION_COOKIE);
   redirect("/login");
@@ -84,6 +111,11 @@ export async function connectStripe() {
 
 export async function inviteMember(input: { email: string; name: string; role: Role }) {
   return act((c) => c.studio.invite(input), "/settings/studio");
+}
+
+/** A fresh setup link for an invited member; the previous link stops working. */
+export async function newMemberSetupLink(id: ID) {
+  return act((c) => c.studio.memberSetupLink(id), "/settings/studio");
 }
 
 export async function updateMemberRole(id: ID, role: Role) {

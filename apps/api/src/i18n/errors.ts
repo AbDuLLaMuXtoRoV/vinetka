@@ -36,6 +36,7 @@ export const errorMessages = defineMessages(
       cart: "Cart not found.",
       passOffer: "Picture Day Pass offer not found.",
       member: "Team member not found.",
+      contactRequest: "Request not found.",
       studio: "Studio not found.",
       job: "Job not found.",
       subject: "Roster entry not found.",
@@ -51,6 +52,7 @@ export const errorMessages = defineMessages(
       otpResend: (seconds: number) =>
         plural("en", seconds, { one: "Please wait # second before requesting another code.", other: "Please wait # seconds before requesting another code." }),
       otpLocked: "Too many incorrect codes. Request a new one.",
+      contact: "You've sent several messages in a short time. Please try again in a few minutes.",
     },
     auth: {
       sessionEnded: "Your session has ended. Sign in again.",
@@ -69,6 +71,14 @@ export const errorMessages = defineMessages(
           other: "That code isn't right. Check it and try again (# attempts left).",
         }),
       otpUnavailable: "We couldn't send a code right now. Try again shortly.",
+      setupLinkInvalid: "This link isn't valid or has already been used. Ask the person who invited you for a new one.",
+      setupLinkExpired: "This link has expired. Ask the person who invited you for a new one.",
+      alreadySetUp: "This account is already set up. Sign in with its email and password.",
+    },
+    contact: {
+      emailOrPhone: "Leave an email or a phone number so we can reply.",
+      messageRequired: "Write a short message so we know how to help.",
+      tooManyDetails: "Too many extra fields.",
     },
     album: {
       invalidCode: "We couldn't find photos for that code. Check the code on your flyer or text.",
@@ -161,6 +171,7 @@ export const errorMessages = defineMessages(
       domainTaken: "That album domain is already in use.",
       memberExists: "That person already has a Snapbell account.",
       ownerRole: "The studio owner's role can't be changed.",
+      requestConverted: "A studio was already created from this request.",
     },
     webhooks: {
       labSignature: "Lab webhook signature mismatch.",
@@ -205,6 +216,7 @@ export const errorMessages = defineMessages(
         cart: "Корзина не найдена.",
         passOffer: "Предложение Picture Day Pass не найдено.",
         member: "Сотрудник не найден.",
+        contactRequest: "Заявка не найдена.",
         studio: "Студия не найдена.",
         job: "Съёмка не найдена.",
         subject: "Участник не найден в списке.",
@@ -225,6 +237,7 @@ export const errorMessages = defineMessages(
             other: "Подождите # секунды, прежде чем запрашивать новый код.",
           }),
         otpLocked: "Слишком много неверных кодов. Запросите новый.",
+        contact: "Вы отправили несколько сообщений за короткое время. Попробуйте снова через несколько минут.",
       },
       auth: {
         sessionEnded: "Ваш сеанс завершён. Войдите снова.",
@@ -246,6 +259,14 @@ export const errorMessages = defineMessages(
             other: "Код неверный. Проверьте и попробуйте снова (осталось # попытки).",
           }),
         otpUnavailable: "Сейчас не удалось отправить код. Попробуйте чуть позже.",
+        setupLinkInvalid: "Ссылка недействительна или уже использована. Попросите пригласившего вас прислать новую.",
+        setupLinkExpired: "Срок действия ссылки истёк. Попросите пригласившего вас прислать новую.",
+        alreadySetUp: "Этот аккаунт уже настроен. Войдите с его email и паролем.",
+      },
+      contact: {
+        emailOrPhone: "Оставьте email или номер телефона, чтобы мы могли ответить.",
+        messageRequired: "Напишите пару слов о вашем вопросе, чтобы мы знали, чем помочь.",
+        tooManyDetails: "Слишком много дополнительных полей.",
       },
       album: {
         invalidCode: "Мы не нашли фотографии по этому коду. Проверьте код в листовке или SMS.",
@@ -338,6 +359,7 @@ export const errorMessages = defineMessages(
         domainTaken: "Этот домен альбомов уже используется.",
         memberExists: "У этого человека уже есть аккаунт Snapbell.",
         ownerRole: "Роль владельца студии нельзя изменить.",
+        requestConverted: "По этой заявке студия уже создана.",
       },
       webhooks: {
         labSignature: "Подпись вебхука лаборатории не совпадает.",
@@ -381,6 +403,7 @@ export const errorMessages = defineMessages(
         cart: "Savat topilmadi.",
         passOffer: "Picture Day Pass taklifi topilmadi.",
         member: "Jamoa aʼzosi topilmadi.",
+        contactRequest: "Soʻrov topilmadi.",
         studio: "Studiya topilmadi.",
         job: "Suratga olish topilmadi.",
         subject: "Roʻyxatda bunday ishtirokchi topilmadi.",
@@ -395,6 +418,7 @@ export const errorMessages = defineMessages(
         wrongCodes: "Notoʻgʻri kodlar juda koʻp kiritildi. Bir necha daqiqa kutib, qayta urinib koʻring.",
         otpResend: (seconds) => `Yangi kod soʻrashdan oldin ${seconds} soniya kuting.`,
         otpLocked: "Notoʻgʻri kodlar juda koʻp kiritildi. Yangi kod soʻrang.",
+        contact: "Qisqa vaqt ichida bir nechta xabar yubordingiz. Bir necha daqiqadan soʻng qayta urinib koʻring.",
       },
       auth: {
         sessionEnded: "Seansingiz tugadi. Qaytadan kiring.",
@@ -410,6 +434,14 @@ export const errorMessages = defineMessages(
         codeExpired: "Kodning amal qilish muddati tugagan. Yangisini soʻrang.",
         wrongCode: (attemptsLeft) => `Kod notoʻgʻri. Tekshirib, qayta urinib koʻring (${attemptsLeft} ta urinish qoldi).`,
         otpUnavailable: "Hozir kod yuborib boʻlmadi. Birozdan soʻng qayta urinib koʻring.",
+        setupLinkInvalid: "Havola yaroqsiz yoki allaqachon ishlatilgan. Sizni taklif qilgan kishidan yangisini soʻrang.",
+        setupLinkExpired: "Havolaning amal qilish muddati tugagan. Sizni taklif qilgan kishidan yangisini soʻrang.",
+        alreadySetUp: "Bu hisob allaqachon sozlangan. Uning emaili va paroli bilan kiring.",
+      },
+      contact: {
+        emailOrPhone: "Javob berishimiz uchun email yoki telefon raqamingizni qoldiring.",
+        messageRequired: "Qanday yordam kerakligini bilishimiz uchun qisqacha yozing.",
+        tooManyDetails: "Qoʻshimcha maydonlar juda koʻp.",
       },
       album: {
         invalidCode: "Bu kod boʻyicha suratlar topilmadi. Varaqa yoki SMSdagi kodni tekshiring.",
@@ -502,6 +534,7 @@ export const errorMessages = defineMessages(
         domainTaken: "Bu albom domeni allaqachon band.",
         memberExists: "Bu shaxsning Snapbell hisobi allaqachon bor.",
         ownerRole: "Studiya egasining rolini oʻzgartirib boʻlmaydi.",
+        requestConverted: "Bu soʻrov boʻyicha studiya allaqachon yaratilgan.",
       },
       webhooks: {
         labSignature: "Laboratoriya webhook imzosi mos kelmadi.",

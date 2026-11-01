@@ -1,5 +1,6 @@
 import { LanguageSwitcher } from "@snapbell/ui/locale";
 import type { Metadata } from "next";
+import { env } from "@/lib/env";
 import { getLocale } from "@/lib/i18n";
 import { authMsgs } from "@/messages/auth";
 import { LoginForm } from "./login-form";
@@ -10,7 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; expired?: string }> }) {
   const { next, expired } = await searchParams;
-  const t = authMsgs[await getLocale()];
+  const locale = await getLocale();
+  const t = authMsgs[locale];
+  // Studios are created by Snapbell; prospective studios reach us through the marketing contact page.
+  const contactUrl = `${env.siteUrl.replace(/\/$/, "")}${locale === "en" ? "" : `/${locale}`}/contact`;
   const googleConfigured = Boolean(process.env.GOOGLE_CLIENT_ID);
   const showDemoCredentials = process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NODE_ENV !== "production";
   return (
@@ -27,6 +31,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <p className="text-sm text-muted">{t.subtitle}</p>
         </div>
         <LoginForm next={next ?? ""} expired={expired === "1"} googleConfigured={googleConfigured} />
+        <p className="text-center text-sm text-muted">
+          {t.sellQuestion}{" "}
+          <a href={contactUrl} className="font-medium text-ink underline underline-offset-4 hover:no-underline">
+            {t.contactUs}
+          </a>
+        </p>
         {showDemoCredentials && <p className="rounded-input bg-accent/15 p-3 text-center text-sm">{t.demoLogin}</p>}
       </div>
     </main>

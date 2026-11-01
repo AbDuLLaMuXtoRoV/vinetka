@@ -93,12 +93,18 @@ export async function sendCode(destination: string, channel: MessageChannel, alb
 export async function verifyCode(input: {
   destination: string;
   code: string;
-  consent: { smsUpdates: boolean; marketing: boolean };
+  /** Omitted on plain sign-in so the parent's stored choices are kept. */
+  consent?: { smsUpdates: boolean; marketing: boolean };
   albumCode?: string;
   next?: string;
+  /** Shop sign-up: saved on the parent account. */
+  name?: string;
 }): Promise<ActionFailure> {
   try {
-    const session = await (await api()).auth.verifyOtp({ destination: input.destination, code: input.code, consent: input.consent });
+    const name = input.name?.trim().slice(0, 100) || undefined;
+    const session = await (await api()).auth.verifyOtp({ destination: input.destination, code: input.code, consent: input.consent, name });
+    // Make sure the sign-up name is saved even if the API didn't apply it on verify.
+    if (name && session.parent.name !== name) await (await api(session.token)).account.update({ name });
     const jar = await cookies();
     jar.set(PARENT_COOKIE, session.token, cookieOptions(90));
     if (input.albumCode) jar.set(ALBUM_COOKIE, normalizeCode(input.albumCode), cookieOptions(90));

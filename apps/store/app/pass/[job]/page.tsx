@@ -5,6 +5,7 @@ import { initials } from "@snapbell/ui/lib/format";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PassForm } from "@/components/pass-form";
+import { PublicTopBar } from "@/components/public-top-bar";
 import { load } from "@/lib/api";
 import { getLocale } from "@/lib/i18n";
 import { metaMsgs } from "@/messages/meta";
@@ -41,15 +42,18 @@ export default async function PassPage({ params }: { params: Promise<{ job: stri
   return (
     <div style={brandStyle(offer.studio.brandColor)} className="min-h-dvh bg-bg">
       <header className="border-b border-border bg-surface pt-[env(safe-area-inset-top)]">
-        <div className="mx-auto flex h-14 max-w-xl items-center gap-2.5 px-4 font-semibold">
-          {offer.studio.logoUrl ? (
-            <img src={offer.studio.logoUrl} alt="" className="h-8 w-auto max-w-28 object-contain" />
-          ) : (
-            <span className="grid size-8 place-items-center rounded-full bg-accent text-xs font-bold text-accent-ink" aria-hidden>
-              {initials(offer.studio.name)}
-            </span>
-          )}
-          {offer.studio.name}
+        <div className="mx-auto flex h-14 max-w-xl items-center justify-between gap-3 px-4">
+          <div className="flex min-w-0 items-center gap-2.5 font-semibold">
+            {offer.studio.logoUrl ? (
+              <img src={offer.studio.logoUrl} alt="" className="h-8 w-auto max-w-28 object-contain" />
+            ) : (
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-bold text-accent-ink" aria-hidden>
+                {initials(offer.studio.name)}
+              </span>
+            )}
+            <span className="truncate">{offer.studio.name}</span>
+          </div>
+          <PublicTopBar />
         </div>
       </header>
       <main className="mx-auto max-w-xl px-4 pt-8 pb-16">

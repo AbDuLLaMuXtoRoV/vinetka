@@ -3,8 +3,7 @@
  * production; in development events are only logged so nothing leaves the machine.
  */
 export type AnalyticsEvent =
-  | "signup_started"
-  | "signup_completed"
+  | "contact_submitted"
   | "demo_booked"
   | "calculator_used"
   | "store_code_entered";

@@ -23,7 +23,7 @@ export default async function FeaturesPage({ params }: PageProps<"/[locale]/feat
       <PageHero eyebrow={t.hero.eyebrow} title={t.hero.title} lead={t.hero.lead}>
         <div className="flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <Link href={localePath(locale, "/signup")}>{t.hero.start}</Link>
+            <Link href={localePath(locale, "/contact")}>{t.hero.partner}</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
             <Link href={localePath(locale, "/demo")}>{t.hero.demo}</Link>

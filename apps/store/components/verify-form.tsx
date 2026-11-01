@@ -15,12 +15,30 @@ import { PhoneInput, formatPhoneDisplay, toE164 } from "@snapbell/ui/phone-input
 import { Mail, ShieldCheck, Smartphone } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { sendCode, verifyCode } from "@/app/actions";
+import { authMsgs } from "@/messages/auth";
 import { verifyMsgs } from "@/messages/verify";
 
-/** Screen 2: phone or email, then a 6-digit one-time code. No passwords anywhere. */
-export function VerifyForm({ albumCode, next, studio }: { albumCode: string; next?: string; studio: StudioBranding | null }) {
+export type VerifyMode = "album" | "signin" | "signup";
+
+/**
+ * Screen 2 (album verify) plus shop sign-in and sign-up: phone or email, then a
+ * 6-digit one-time code. No passwords anywhere. Sign-up also asks for a name.
+ */
+export function VerifyForm({
+  albumCode,
+  next,
+  studio,
+  mode = "album",
+}: {
+  albumCode: string;
+  next?: string;
+  studio: StudioBranding | null;
+  mode?: VerifyMode;
+}) {
   const locale = useLocale();
   const t = useMessages(verifyMsgs);
+  const a = useMessages(authMsgs);
+  const [name, setName] = useState("");
   const [channel, setChannel] = useState<MessageChannel>("sms");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -57,7 +75,16 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
   };
 
   const submitDestination = () => {
-    const dest = channel === "sms" ? toE164(phone) : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? email.trim() : null;
+    if (mode === "signup" && !name.trim()) {
+      setError(a.badName);
+      return;
+    }
+    const dest =
+      channel === "sms"
+        ? toE164(phone)
+        : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+          ? email.trim()
+          : null;
     if (!dest) {
       setError(channel === "sms" ? t.badPhone : t.badEmail);
       return;
@@ -68,7 +95,15 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
   const verify = (code: string) => {
     setError(null);
     start(async () => {
-      const res = await verifyCode({ destination, code, consent: { smsUpdates, marketing }, albumCode: albumCode || undefined, next });
+      const res = await verifyCode({
+        destination,
+        code,
+        // Plain sign-in keeps the parent's stored choices; they change them on /account.
+        consent: mode === "signin" ? undefined : { smsUpdates, marketing },
+        albumCode: albumCode || undefined,
+        next,
+        name: mode === "signup" ? name.trim() : undefined,
+      });
       // verifyCode redirects on success; only failures come back.
       if (res && !res.ok) {
         setError(res.message || t.noMatch);
@@ -83,17 +118,38 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
     <div className="grid gap-8" style={brandStyle(studio?.brandColor)}>
       <div className="grid justify-items-center gap-4 text-center">
         {studio?.logoUrl ? (
-          <img src={studio.logoUrl} alt={studio.name} className="h-12 w-auto max-w-44 object-contain" />
+          <img
+            src={studio.logoUrl}
+            alt={studio.name}
+            className="h-12 w-auto max-w-44 object-contain"
+          />
         ) : (
-          <span className="grid size-12 place-items-center rounded-full bg-accent text-sm font-bold text-accent-ink" aria-hidden>
+          <span
+            className="grid size-12 place-items-center rounded-full bg-accent text-sm font-bold text-accent-ink"
+            aria-hidden
+          >
             {studio ? initials(studio.name) : <ShieldCheck className="size-6" />}
           </span>
         )}
         <div className="grid gap-2">
-          <h1 className="text-xl font-semibold text-balance">{step === "destination" ? t.titleDestination : t.titleCode}</h1>
+          <h1 className="text-xl font-semibold text-balance">
+            {step === "code"
+              ? t.titleCode
+              : mode === "signin"
+                ? a.signinTitle
+                : mode === "signup"
+                  ? a.signupTitle
+                  : t.titleDestination}
+          </h1>
           <p className="text-muted">
             {step === "destination" ? (
-              t.introDestination(studio?.name ?? null)
+              mode === "signin" ? (
+                a.signinIntro
+              ) : mode === "signup" ? (
+                a.signupIntro
+              ) : (
+                t.introDestination(studio?.name ?? null)
+              )
             ) : (
               <>
                 {t.sentTo(shown)[0]}
@@ -113,7 +169,26 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
             submitDestination();
           }}
         >
-          <div role="radiogroup" aria-label={t.channelLabel} className="grid grid-cols-2 gap-1 rounded-input bg-sunken p-1">
+          {mode === "signup" && (
+            <Field label={a.name} htmlFor="signup-name" locale={locale}>
+              <Input
+                id="signup-name"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={a.namePlaceholder}
+                maxLength={100}
+                autoFocus
+                aria-invalid={error === a.badName ? true : undefined}
+              />
+            </Field>
+          )}
+
+          <div
+            role="radiogroup"
+            aria-label={t.channelLabel}
+            className="grid grid-cols-2 gap-1 rounded-input bg-sunken p-1"
+          >
             {(["sms", "email"] as const).map((c) => (
               <button
                 key={c}
@@ -129,7 +204,11 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
                   channel === c ? "bg-surface text-ink shadow-sm" : "text-muted hover:text-ink",
                 )}
               >
-                {c === "sms" ? <Smartphone className="size-4" aria-hidden /> : <Mail className="size-4" aria-hidden />}
+                {c === "sms" ? (
+                  <Smartphone className="size-4" aria-hidden />
+                ) : (
+                  <Mail className="size-4" aria-hidden />
+                )}
                 {c === "sms" ? t.textMe : t.emailMe}
               </button>
             ))}
@@ -137,7 +216,13 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
 
           {channel === "sms" ? (
             <Field label={t.mobile} htmlFor="verify-phone" locale={locale}>
-              <PhoneInput id="verify-phone" value={phone} onValueChange={setPhone} autoFocus aria-invalid={error ? true : undefined} />
+              <PhoneInput
+                id="verify-phone"
+                value={phone}
+                onValueChange={setPhone}
+                autoFocus={mode !== "signup"}
+                aria-invalid={error ? true : undefined}
+              />
             </Field>
           ) : (
             <Field label={t.email} htmlFor="verify-email" locale={locale}>
@@ -149,28 +234,30 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                autoFocus
+                autoFocus={mode !== "signup"}
                 aria-invalid={error ? true : undefined}
               />
             </Field>
           )}
 
-          <div className="grid gap-3">
-            <Checkbox
-              id="consent-sms"
-              checked={smsUpdates}
-              onCheckedChange={(v) => setSmsUpdates(v === true)}
-              label={t.smsConsent}
-              description={t.smsConsentNote}
-            />
-            <Checkbox
-              id="consent-marketing"
-              checked={marketing}
-              onCheckedChange={(v) => setMarketing(v === true)}
-              label={t.marketingConsent(studio?.name ?? null)}
-              description={t.marketingConsentNote}
-            />
-          </div>
+          {mode !== "signin" && (
+            <div className="grid gap-3">
+              <Checkbox
+                id="consent-sms"
+                checked={smsUpdates}
+                onCheckedChange={(v) => setSmsUpdates(v === true)}
+                label={t.smsConsent}
+                description={t.smsConsentNote}
+              />
+              <Checkbox
+                id="consent-marketing"
+                checked={marketing}
+                onCheckedChange={(v) => setMarketing(v === true)}
+                label={t.marketingConsent(studio?.name ?? null)}
+                description={t.marketingConsentNote}
+              />
+            </div>
+          )}
 
           {error && <Alert tone="danger">{error}</Alert>}
 
@@ -186,7 +273,16 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
             if (otp.length === 6) verify(otp);
           }}
         >
-          <CodeInput label={t.codeLabel} mode="numeric" value={otp} onChange={setOtp} onComplete={verify} invalid={!!error} autoFocus disabled={pending} />
+          <CodeInput
+            label={t.codeLabel}
+            mode="numeric"
+            value={otp}
+            onChange={setOtp}
+            onComplete={verify}
+            invalid={!!error}
+            autoFocus
+            disabled={pending}
+          />
           {devCode && (
             <p className="rounded-input bg-sunken px-3 py-2 text-center text-xs text-muted">
               {t.devCode}
@@ -195,7 +291,11 @@ export function VerifyForm({ albumCode, next, studio }: { albumCode: string; nex
           )}
           {error && <Alert tone="danger">{error}</Alert>}
           <Button type="submit" size="lg" block loading={pending} disabled={otp.length !== 6}>
-            {t.verifySubmit}
+            {mode === "signin"
+              ? a.signinSubmit
+              : mode === "signup"
+                ? a.signupSubmit
+                : t.verifySubmit}
           </Button>
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
             <button

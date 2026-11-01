@@ -1,6 +1,7 @@
 import type {
   Locale,
   CartItemInput,
+  ContactRequest,
   DeliveryMethod,
   ExportJob,
   FeatureFlag,
@@ -46,6 +47,8 @@ export interface Table<T> {
 // Rows that carry more than the public domain type.
 export interface MemberRow extends Member {
   passwordHash: string | null;
+  /** E.164; set for owners created by Snapbell staff. */
+  phone?: string | null;
 }
 export interface AdminRow {
   id: string;
@@ -103,9 +106,22 @@ export interface OtpRow {
 }
 export interface OneTimeTokenRow {
   id: string;
-  kind: "handoff" | "magic_link";
+  kind: "magic_link";
   memberId: string;
   expiresAt: number;
+}
+/**
+ * "Choose your password" link for owners created by Snapbell staff and invited
+ * team members. Only a hash of the token is stored; single use; a newer link
+ * for the same member replaces older ones.
+ */
+export interface SetupTokenRow {
+  /** HMAC of the raw token. */
+  id: string;
+  memberId: string;
+  expiresAt: number;
+  usedAt: number | null;
+  createdAt: number;
 }
 export interface ParentSubjectRow {
   id: string;
@@ -184,6 +200,8 @@ export abstract class Repository {
   abstract readonly oneTimeTokens: Table<OneTimeTokenRow>;
   abstract readonly suppressions: Table<SuppressionRow>;
   abstract readonly notifyRequests: Table<NotifyRequestRow>;
+  abstract readonly setupTokens: Table<SetupTokenRow>;
+  abstract readonly contactRequests: Table<ContactRequest>;
 
   /** Next human-readable order number, e.g. "SB-10452". */
   abstract nextOrderNumber(): string;

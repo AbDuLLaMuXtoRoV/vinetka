@@ -4,9 +4,11 @@ import { Alert } from "@snapbell/ui/feedback";
 import { Field, describedBy } from "@snapbell/ui/field";
 import { Input, Textarea } from "@snapbell/ui/input";
 import { useLocale } from "@snapbell/ui/locale";
+import { PhoneInput } from "@snapbell/ui/phone-input";
 import { Select } from "@snapbell/ui/select";
-import type { ComponentProps, ReactNode } from "react";
+import { useEffect, useState, type ComponentProps, type ReactNode } from "react";
 import type { FormState } from "@/app/actions";
+import { track } from "@/lib/analytics";
 import { commonMsgs } from "@/messages/common";
 
 /** Sends the page's locale with the form so the server action answers in the same language. */
@@ -87,4 +89,56 @@ export function SuccessPanel({ title, children }: { title: string; children?: Re
       {children}
     </Alert>
   );
+}
+
+/** Phone with the +998 prefix; submits the national number, which the server converts to E.164. */
+export function PhoneField({ name, label, state, hint, optional }: { name: string; label: string; state: FormState; hint?: ReactNode; optional?: boolean }) {
+  const locale = useLocale();
+  const id = `f-${name}`;
+  const error = state.errors?.[name];
+  const [value, setValue] = useState("");
+  return (
+    <Field label={label} htmlFor={id} hint={hint} error={error} optional={optional} locale={locale}>
+      <PhoneInput id={id} name={name} value={value} onValueChange={setValue} aria-invalid={!!error || undefined} aria-describedby={describedBy(id, { hint, error })} />
+    </Field>
+  );
+}
+
+/** Spam trap: hidden from people and screen readers, filled in by bots. */
+export function HoneypotField() {
+  return (
+    <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+      <label>
+        Website
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+      </label>
+    </div>
+  );
+}
+
+/** Multi-select checkbox chips; every checked value is submitted under `name`. */
+export function CheckboxChips({ name, legend, options }: { name: string; legend: string; options: Array<{ value: string; label: string }> }) {
+  return (
+    <fieldset className="grid gap-2">
+      <legend className="mb-1.5 text-sm font-medium">{legend}</legend>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <label
+            key={o.value}
+            className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-input border border-border bg-surface px-3 text-sm transition-colors duration-150 hover:border-ink/40 has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-bg has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink md:min-h-9"
+          >
+            <input type="checkbox" name={name} value={o.value} className="sr-only" />
+            {o.label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+/** Fires contact_submitted once a lead form succeeds. */
+export function useTrackSubmitted(state: FormState) {
+  useEffect(() => {
+    if (state.status === "success" && state.kind) track("contact_submitted", { kind: state.kind });
+  }, [state.status, state.kind]);
 }

@@ -1,5 +1,13 @@
 import type {
+  AccountSetupInfo,
   AccountSummary,
+  AdminCreateStudioInput,
+  AdminCreateStudioResult,
+  ContactRequest,
+  ContactRequestInput,
+  ContactRequestKind,
+  ContactRequestStatus,
+  SetupLink,
   AdminStudioRow,
   Album,
   AlbumAccessError,
@@ -160,16 +168,19 @@ export function createClient(options: ClientOptions) {
     auth: {
       /** Studio staff: email + password. */
       login: (body: { email: string; password: string }) => post<StaffSession>("/auth/login", body),
-      /** Marketing /signup: creates studio + owner, returns a one-time code the studio app exchanges. */
-      signup: (body: { name: string; email: string; password: string; studioName: string }) =>
-        post<{ handoffCode: string; expiresInSec: number }>("/auth/signup", body),
-      handoff: (body: { code: string }) => post<StaffSession>("/auth/handoff", body),
+      /** Studios are created by Snapbell staff only; owners and invited staff finish here. */
+      setupInfo: (token: string) => get<AccountSetupInfo>(`/auth/setup/${e(token)}`),
+      completeSetup: (body: { token: string; password: string }) => post<StaffSession>("/auth/setup", body),
       magicLink: (body: { email: string }) => post<{ sent: true; devLink: string | null }>("/auth/magic-link", body),
       redeemMagicLink: (body: { token: string }) => post<StaffSession>("/auth/magic-link/redeem", body),
       /** Parents: phone or email one-time code. Rate-limited; resend after 30s. */
       sendOtp: (body: { destination: string; channel: MessageChannel; albumCode?: string }) =>
         post<OtpSendResult>("/auth/otp/send", body),
-      verifyOtp: (body: { destination: string; code: string; consent: { smsUpdates: boolean; marketing: boolean } }) =>
+      /**
+       * `name` is saved on the parent account (shop sign-up). `consent` is only
+       * changed when sent: omit it on plain sign-in so earlier choices are kept.
+       */
+      verifyOtp: (body: { destination: string; code: string; consent?: { smsUpdates: boolean; marketing: boolean }; name?: string }) =>
         post<ParentSession>("/auth/otp/verify", body),
       me: () =>
         get<
@@ -184,7 +195,10 @@ export function createClient(options: ClientOptions) {
       update: (body: StudioPatch) => patch<Studio>("/studio", body),
       home: () => get<HomeSummary>("/studio/home"),
       members: () => get<Member[]>("/studio/members"),
-      invite: (body: { email: string; name: string; role: Role }) => post<Member>("/studio/members", body),
+      /** The invitee chooses a password through `setupLink` (also emailed when a provider is configured). */
+      invite: (body: { email: string; name: string; role: Role }) => post<{ member: Member; setupLink: SetupLink }>("/studio/members", body),
+      /** New link for a member who hasn't finished setup (the old one stops working). */
+      memberSetupLink: (id: ID) => post<SetupLink>(`/studio/members/${e(id)}/setup-link`),
       updateMember: (id: ID, body: { role?: Role }) => patch<Member>(`/studio/members/${e(id)}`, body),
       /** Returns the Stripe Connect onboarding URL (in dev: an instant mock connection). */
       connectStripe: () => post<{ url: string; studio: Studio }>("/studio/stripe/connect"),
@@ -338,6 +352,11 @@ export function createClient(options: ClientOptions) {
       requestDeletion: () => post<{ requestedAt: string; completesBy: string }>("/account/deletion"),
     },
 
+    contact: {
+      /** Public: contact page, partner requests, demo/switch/data-request forms. */
+      submit: (body: ContactRequestInput) => post<{ id: ID; received: true }>("/contact-requests", body),
+    },
+
     admin: {
       login: (body: { email: string; password: string }) => post<{ token: string; email: string }>("/admin/login", body),
       studios: (query: { q?: string } = {}) => get<AdminStudioRow[]>("/admin/studios", query),
@@ -350,6 +369,13 @@ export function createClient(options: ClientOptions) {
       retryLabSubmission: (id: ID) => post<LabSubmission>(`/admin/lab-queue/${e(id)}/retry`),
       messages: (query: { q?: string; channel?: MessageChannel; status?: MessageLog["status"] } = {}) =>
         get<MessageLog[]>("/admin/messages", query),
+      /** The only way a studio is created. Returns the owner's one-time setup link to send them. */
+      createStudio: (body: AdminCreateStudioInput) => post<AdminCreateStudioResult>("/admin/studios", body),
+      memberSetupLink: (memberId: ID) => post<SetupLink>(`/admin/members/${e(memberId)}/setup-link`),
+      contactRequests: (query: { status?: ContactRequestStatus; kind?: ContactRequestKind; q?: string } = {}) =>
+        get<ContactRequest[]>("/admin/contact-requests", query),
+      updateContactRequest: (id: ID, body: { status?: ContactRequestStatus; note?: string | null }) =>
+        patch<ContactRequest>(`/admin/contact-requests/${e(id)}`, body),
       flags: () => get<FeatureFlag[]>("/admin/flags"),
       updateFlag: (key: string, body: Partial<Pick<FeatureFlag, "enabled" | "studioIds">>) =>
         patch<FeatureFlag>(`/admin/flags/${e(key)}`, body),

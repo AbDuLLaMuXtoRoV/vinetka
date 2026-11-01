@@ -24,6 +24,8 @@ export const config = {
   publicApiUrl: (process.env.PUBLIC_API_URL ?? "").replace(/\/$/, ""),
   studioUrl: (process.env.STUDIO_URL ?? "http://localhost:3002").replace(/\/$/, ""),
   storeUrl: (process.env.STORE_URL ?? "http://localhost:3001").replace(/\/$/, ""),
+  /** Where contact-page and partner requests are announced. */
+  teamEmail: process.env.SNAPBELL_TEAM_EMAIL || "team@snapbell.com",
   webOrigins: list(process.env.WEB_ORIGINS, [
     "http://localhost:3000",
     "http://localhost:3001",

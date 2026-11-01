@@ -68,6 +68,7 @@ model Studio {
   orders        Order[]
   carts         Cart[]
   messages      MessageLog[]
+  contactRequests ContactRequest[]
 }
 
 model Member {
@@ -75,6 +76,8 @@ model Member {
   studioId         String
   name             String
   email            String    @unique
+  /// E.164; set for owners created by Snapbell staff
+  phone            String?
   passwordHash     String?
   googleSub        String?   @unique
   role             Role
@@ -84,9 +87,25 @@ model Member {
   twoFactorEnabled Boolean   @default(false)
   createdAt        DateTime  @default(now())
 
-  studio Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  studio      Studio       @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  setupTokens SetupToken[]
 
   @@index([studioId])
+}
+
+/// One-time "choose your password" link for owners created by Snapbell staff and invited team
+/// members. Only a hash is stored; single use; a newer link replaces older ones.
+model SetupToken {
+  id        String    @id @default(cuid())
+  memberId  String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
 }
 
 enum OrganizationType {
@@ -698,4 +717,49 @@ model FeatureFlag {
   enabled     Boolean  @default(false)
   studioIds   String[]
   updatedAt   DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Contact page, partner and demo requests (Snapbell creates studios from these)
+// ---------------------------------------------------------------------------
+
+enum ContactRequestKind {
+  partner
+  contact
+  demo
+  switch
+  data_request
+}
+
+enum ContactRequestStatus {
+  new
+  contacted
+  converted
+  archived
+}
+
+model ContactRequest {
+  id        String               @id @default(cuid())
+  kind      ContactRequestKind
+  status    ContactRequestStatus @default(new)
+  name      String
+  company   String?
+  email     String?
+  phone     String?
+  city      String?
+  message   String
+  /// Extra form fields: market, yearly volume, preferred demo time…
+  details   Json
+  /// Language the visitor wrote in
+  locale    String               @default("en")
+  /// Set when a studio was created from this request
+  studioId  String?
+  /// Internal note from the Snapbell team
+  note      String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  studio Studio? @relation(fields: [studioId], references: [id])
+
+  @@index([status, createdAt])
 }

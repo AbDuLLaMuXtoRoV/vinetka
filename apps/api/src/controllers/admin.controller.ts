@@ -1,17 +1,37 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req } from "@nestjs/common";
-import type { AdminStudioRow } from "@snapbell/sdk";
+import {
+  MARKETS,
+  toE164,
+  type AdminCreateStudioResult,
+  type AdminStudioRow,
+  type ContactRequest,
+  type Studio,
+} from "@snapbell/sdk";
 import type { Request } from "express";
 import { z } from "zod";
-import { notFound } from "../common/errors";
-import { nowIso, sum } from "../common/util";
+import { newId } from "../common/crypto";
+import { badRequest, conflict, notFound } from "../common/errors";
+import { nowIso, slugify, sum } from "../common/util";
 import { cents, id, parse, query } from "../common/validate";
 import { Repository } from "../store/repository";
 import { AuthService } from "../services/auth.service";
 import { CommerceService } from "../services/commerce.service";
+import { MessagingService } from "../services/messaging.service";
 import { QueueService } from "../services/queue.service";
 import { ViewsService } from "../services/views.service";
 import { searchOrders } from "./orders.controller";
-import { err } from "../i18n";
+import { err, notices } from "../i18n";
+
+const createStudioSchema = z.object({
+  studioName: z.string().trim().min(1).max(100),
+  ownerName: z.string().trim().min(1).max(100),
+  ownerEmail: z.email().max(200),
+  ownerPhone: z.string().trim().max(40).nullable().optional(),
+  markets: z.array(z.enum(MARKETS as [string, ...string[]])).max(MARKETS.length).optional(),
+  contactRequestId: id.nullable().optional(),
+});
+
+const contactStatus = z.enum(["new", "contacted", "converted", "archived"]);
 
 /** Internal support console (admin.snapbell.com). Every route needs an internal admin token. */
 @Controller("admin")
@@ -22,6 +42,7 @@ export class AdminController {
     private readonly views: ViewsService,
     private readonly commerce: CommerceService,
     private readonly queue: QueueService,
+    private readonly messaging: MessagingService,
   ) {}
 
   @Post("login")
@@ -31,27 +52,144 @@ export class AdminController {
     return this.auth.adminLogin(req, input.email, input.password);
   }
 
+  private studioRow(studio: Studio): AdminStudioRow {
+    const owner = this.repo.members.find((m) => m.studioId === studio.id && m.role === "owner");
+    const jobs = this.repo.jobs.filter((j) => j.studioId === studio.id);
+    const orders = this.views.paidOrders((o) => o.studioId === studio.id);
+    return {
+      studio: {
+        id: studio.id,
+        name: studio.name,
+        slug: studio.slug,
+        createdAt: studio.createdAt,
+        markets: studio.markets,
+        stripeStatus: studio.stripe.status,
+        onboardingDone: studio.onboarding.done,
+      },
+      ownerName: owner?.name ?? "",
+      ownerEmail: owner?.email ?? "",
+      ownerStatus: owner?.status ?? "invited",
+      ownerMemberId: owner?.id ?? "",
+      jobs: jobs.length,
+      liveJobs: jobs.filter((j) => j.status === "live").length,
+      salesCents: sum(orders, (o) => this.views.netSales(o)),
+      platformFeesCents: sum(orders, (o) => o.split.platformFeeCents),
+    };
+  }
+
   @Get("studios")
   studios(@Req() req: Request, @Query() q: Record<string, unknown>): AdminStudioRow[] {
     this.auth.admin(req);
     const text = query(q, "q")?.toLowerCase();
     return this.repo.studios
       .all()
-      .map((studio) => {
-        const owner = this.repo.members.find((m) => m.studioId === studio.id && m.role === "owner");
-        const jobs = this.repo.jobs.filter((j) => j.studioId === studio.id);
-        const orders = this.views.paidOrders((o) => o.studioId === studio.id);
-        return {
-          studio: { id: studio.id, name: studio.name, slug: studio.slug, createdAt: studio.createdAt, markets: studio.markets, stripeStatus: studio.stripe.status },
-          ownerEmail: owner?.email ?? "",
-          jobs: jobs.length,
-          liveJobs: jobs.filter((j) => j.status === "live").length,
-          salesCents: sum(orders, (o) => this.views.netSales(o)),
-          platformFeesCents: sum(orders, (o) => o.split.platformFeeCents),
-        };
-      })
-      .filter((row) => !text || `${row.studio.name} ${row.studio.slug} ${row.ownerEmail}`.toLowerCase().includes(text))
-      .sort((a, b) => b.salesCents - a.salesCents);
+      .map((studio) => this.studioRow(studio))
+      .filter((row) => !text || `${row.studio.name} ${row.studio.slug} ${row.ownerName} ${row.ownerEmail}`.toLowerCase().includes(text))
+      .sort((a, b) => b.salesCents - a.salesCents || b.studio.createdAt.localeCompare(a.studio.createdAt));
+  }
+
+  /** The only way a studio comes into existence. The owner finishes through a one-time setup link. */
+  @Post("studios")
+  createStudio(@Req() req: Request, @Body() body: unknown): AdminCreateStudioResult {
+    this.auth.admin(req);
+    const input = parse(createStudioSchema, body);
+    const email = input.ownerEmail.trim().toLowerCase();
+    if (this.repo.members.find((m) => m.email === email)) throw conflict("email_taken", err().studio.memberExists);
+    let phone: string | null = null;
+    if (input.ownerPhone) {
+      phone = toE164(input.ownerPhone);
+      if (!phone) throw badRequest("invalid_phone", err().auth.invalidPhone);
+    }
+    const request = input.contactRequestId ? this.repo.contactRequests.get(input.contactRequestId) : null;
+    if (input.contactRequestId && !request) throw notFound(err().notFound.contactRequest);
+    if (request?.studioId) throw conflict("request_converted", err().studio.requestConverted);
+
+    const base = slugify(input.studioName) || "studio";
+    let slug = base;
+    for (let n = 2; this.repo.studios.find((s) => s.slug === slug); n++) slug = `${base}-${n}`;
+    const studio: Studio = {
+      id: newId("stu"),
+      name: input.studioName,
+      slug,
+      logoUrl: null,
+      brandColor: "#F5B700",
+      markets: (input.markets as Studio["markets"] | undefined)?.length ? (input.markets as Studio["markets"]) : ["schools"],
+      albumDomain: null,
+      defaultLabId: null,
+      stripe: { status: "not_connected", accountId: null, payoutSchedule: "weekly", requirementsDue: [] },
+      taxInfo: { legalName: input.studioName, ein: null, address: null },
+      onboarding: { completed: [], done: false },
+      bigOrderThresholdCents: 15_000,
+      ytdSalesCents: 0,
+      createdAt: nowIso(),
+    };
+    this.repo.studios.insert(studio);
+    const owner = this.repo.members.insert({
+      id: newId("mem"),
+      studioId: studio.id,
+      name: input.ownerName,
+      email,
+      phone,
+      role: "owner",
+      status: "invited",
+      twoFactorEnabled: false,
+      passwordHash: null,
+    });
+    const setupLink = this.auth.issueSetupLink(owner);
+    this.messaging.send({
+      studioId: studio.id,
+      channel: "email",
+      to: email,
+      template: "studio_welcome",
+      subject: notices().studioWelcome.subject(studio.name),
+      body: notices().studioWelcome.body(owner.name, studio.name, setupLink.url),
+      // Never keep the live link in the log.
+      logBody: notices().studioWelcome.body(owner.name, studio.name, "[setup link]"),
+      kind: "transactional",
+    });
+    if (request) Object.assign(request, { status: "converted", studioId: studio.id, updatedAt: nowIso() });
+    return { studio: this.studioRow(studio), owner: this.views.member(owner), setupLink };
+  }
+
+  /** New "choose your password" link for anyone who hasn't finished setup; older links stop working. */
+  @Post("members/:id/setup-link")
+  @HttpCode(200)
+  memberSetupLink(@Req() req: Request, @Param("id") memberId: string) {
+    this.auth.admin(req);
+    const member = this.repo.members.get(memberId);
+    if (!member) throw notFound(err().notFound.member);
+    if (member.status !== "invited") throw conflict("member_active", err().auth.alreadySetUp);
+    return this.auth.issueSetupLink(member);
+  }
+
+  // --- Contact page, partner and demo requests ---------------------------------------
+
+  @Get("contact-requests")
+  contactRequests(@Req() req: Request, @Query() q: Record<string, unknown>): ContactRequest[] {
+    this.auth.admin(req);
+    const status = query(q, "status");
+    const kind = query(q, "kind");
+    const text = query(q, "q")?.toLowerCase();
+    return this.repo.contactRequests
+      .filter(
+        (r) =>
+          (!status || r.status === status) &&
+          (!kind || r.kind === kind) &&
+          (!text || [r.name, r.company, r.email, r.phone, r.city, r.message].some((f) => f?.toLowerCase().includes(text))),
+      )
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  @Patch("contact-requests/:id")
+  updateContactRequest(@Req() req: Request, @Param("id") requestId: string, @Body() body: unknown): ContactRequest {
+    this.auth.admin(req);
+    const request = this.repo.contactRequests.get(requestId);
+    if (!request) throw notFound(err().notFound.contactRequest);
+    const input = parse(z.object({ status: contactStatus.optional(), note: z.string().trim().max(2000).nullable().optional() }), body);
+    if (input.status) request.status = input.status;
+    if (input.note !== undefined) request.note = input.note || null;
+    request.updatedAt = nowIso();
+    return request;
   }
 
   @Get("jobs")

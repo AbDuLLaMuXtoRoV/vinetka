@@ -1,7 +1,8 @@
 import { isLocale, LOCALE_COOKIE } from "@snapbell/sdk";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC = ["/login", "/auth/"];
+/** Login, magic links and the one-time setup link for new owners and invited staff. */
+const PUBLIC = ["/login", "/auth/", "/setup"];
 
 /**
  * `?lang=en|ru|uz` (links from the marketing site) stores the language and

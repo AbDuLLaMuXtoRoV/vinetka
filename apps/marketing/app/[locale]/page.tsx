@@ -79,8 +79,8 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             <p className="max-w-xl text-lg text-muted text-pretty">{t.hero.lead}</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link href={localePath(locale, "/signup")}>
-                  {t.hero.start} <ArrowRight aria-hidden />
+                <Link href={localePath(locale, "/contact")}>
+                  {t.hero.partner} <ArrowRight aria-hidden />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">

@@ -162,60 +162,6 @@ export const demoMsgs = defineMessages(
   },
 );
 
-/** /signup */
-export const signupMsgs = defineMessages(
-  {
-    meta: {
-      title: "Start free",
-      ogTitle: "Start free with Snapbell",
-      description: "Create your Snapbell studio account. No monthly fee, no credit card, set up in about 15 minutes.",
-    },
-    title: "Your first job, published in 15 minutes.",
-    lead: "Create your studio, then the setup wizard walks you through your brand, Stripe, lab and a starter price sheet.",
-    perks: [
-      "No monthly fee and no credit card to start",
-      "Free migration from paper or another platform",
-      "Connect Stripe later — before your first publish",
-      "Human support from people who've run picture days",
-    ],
-    formTitle: "Create your studio",
-  },
-  {
-    ru: {
-      meta: {
-        title: "Начать бесплатно",
-        ogTitle: "Начните бесплатно со Snapbell",
-        description: "Создайте аккаунт студии в Snapbell. Без абонентской платы и банковской карты, настройка — примерно 15 минут.",
-      },
-      title: "Первая съёмка опубликована через 15 минут.",
-      lead: "Создайте студию — мастер настройки проведёт вас через бренд, Stripe, лабораторию и стартовый прайс-лист.",
-      perks: [
-        "Без абонентской платы и без карты для старта",
-        "Бесплатный переезд с бумаги или другой платформы",
-        "Подключите Stripe позже — до первой публикации",
-        "Поддержка от людей, которые сами проводили дни съёмки",
-      ],
-      formTitle: "Создайте студию",
-    },
-    uz: {
-      meta: {
-        title: "Bepul boshlash",
-        ogTitle: "Snapbell bilan bepul boshlang",
-        description: "Snapbellda studiya hisobini yarating. Oylik toʻlov va bank kartasi talab qilinmaydi, sozlash taxminan 15 daqiqa.",
-      },
-      title: "Birinchi suratga olishingiz 15 daqiqada eʼlon qilinadi.",
-      lead: "Studiyangizni yarating — sozlash ustasi sizni brend, Stripe, laboratoriya va boshlangʻich narxlar roʻyxati orqali olib oʻtadi.",
-      perks: [
-        "Boshlash uchun oylik toʻlov ham, karta ham kerak emas",
-        "Qogʻoz yoki boshqa platformadan bepul koʻchish",
-        "Stripeʼni keyinroq ulang — birinchi eʼlondan oldin",
-        "Suratga olish kunlarini oʻzi oʻtkazgan odamlardan yordam",
-      ],
-      formTitle: "Studiyangizni yarating",
-    },
-  },
-);
-
 /** /find-my-photos */
 export const findMsgs = defineMessages(
   {
@@ -392,6 +338,102 @@ export const aboutMsgs = defineMessages(
         corp: "Delaver shtati korporatsiyasi",
         parents: (email) => `Ota-onalar uchun: buyurtma boʻyicha savollar bilan buyurtma tasdigʻida koʻrsatilgan studiyaga murojaat qiling yoki ${email} manziliga yozing.`,
       },
+    },
+  },
+);
+
+/** /contact: partner requests (studios are created by the Snapbell team) and general questions. */
+export const contactMsgs = defineMessages(
+  {
+    meta: {
+      title: "Become a partner",
+      ogTitle: "Sell your photos with Snapbell",
+      description: "Photographers and studios: tell us about your work and we'll set up your Snapbell studio account, store and price sheets with you.",
+    },
+    hero: {
+      eyebrow: "Become a partner",
+      title: "Sell school, sports and event photos with Snapbell. We set everything up for you.",
+      lead: "Tell us about your studio. Our team creates your account, brands your Family Store and helps you run your first picture day — no monthly fee.",
+    },
+    steps: {
+      eyebrow: "How it works",
+      title: "Three steps to your first picture day",
+      items: [
+        { title: "Tell us about your studio", body: "Fill in the short form: who you photograph, where, and how many picture days a year." },
+        { title: "We call you", body: "Within one business day someone from our team calls or messages you to answer questions and agree on next steps." },
+        { title: "We create your studio account", body: "You get a personal link to set your password. We help with your price sheets, brand and first picture day." },
+      ],
+    },
+    form: { title: "Send us a request", lead: "Fields marked optional can be left empty. We need an email or a phone number to reach you." },
+    channels: { title: "Prefer to talk?", phone: "Call us", email: "Email us", telegram: "Message us on Telegram" },
+    parents: {
+      title: "Are you a parent?",
+      body: "For questions about your photos or an order, open your album with the code from the flyer or text message, or contact the studio that took the photos.",
+      findPhotos: "Find my photos",
+      signIn: "Sign in to the shop",
+    },
+    studio: { title: "Already a partner?", login: "Log in to Studio" },
+  },
+  {
+    ru: {
+      meta: {
+        title: "Стать партнёром",
+        ogTitle: "Продавайте фото вместе со Snapbell",
+        description: "Фотографы и студии: расскажите о своей работе, и мы вместе с вами настроим аккаунт студии, магазин и прайс-листы в Snapbell.",
+      },
+      hero: {
+        eyebrow: "Стать партнёром",
+        title: "Продавайте школьные, спортивные и событийные фото со Snapbell. Всё настроим за вас.",
+        lead: "Расскажите о своей студии. Наша команда создаст аккаунт, оформит ваш Family Store в фирменном стиле и поможет провести первый день съёмки — без абонентской платы.",
+      },
+      steps: {
+        eyebrow: "Как это работает",
+        title: "Три шага до первого дня съёмки",
+        items: [
+          { title: "Расскажите о студии", body: "Заполните короткую форму: кого вы снимаете, где и сколько дней съёмки в год." },
+          { title: "Мы вам позвоним", body: "В течение одного рабочего дня мы позвоним или напишем, ответим на вопросы и договоримся о следующих шагах." },
+          { title: "Создадим аккаунт студии", body: "Вы получите личную ссылку, чтобы задать пароль. Мы поможем с прайс-листами, брендом и первым днём съёмки." },
+        ],
+      },
+      form: { title: "Оставьте заявку", lead: "Необязательные поля можно не заполнять. Чтобы связаться с вами, нужен email или номер телефона." },
+      channels: { title: "Удобнее поговорить?", phone: "Позвоните нам", email: "Напишите на почту", telegram: "Напишите в Telegram" },
+      parents: {
+        title: "Вы родитель?",
+        body: "По вопросам о фото или заказе откройте альбом по коду из листовки или SMS либо свяжитесь со студией, которая проводила съёмку.",
+        findPhotos: "Найти мои фото",
+        signIn: "Войти в магазин",
+      },
+      studio: { title: "Уже наш партнёр?", login: "Войти в Studio" },
+    },
+    uz: {
+      meta: {
+        title: "Hamkor boʻlish",
+        ogTitle: "Suratlaringizni Snapbell bilan soting",
+        description: "Fotograflar va studiyalar: ishingiz haqida aytib bering, Snapbelldagi studiya hisobingiz, doʻkoningiz va narxlar roʻyxatingizni siz bilan birga sozlaymiz.",
+      },
+      hero: {
+        eyebrow: "Hamkor boʻlish",
+        title: "Maktab, sport va tadbir suratlarini Snapbell bilan soting. Hammasini siz uchun sozlaymiz.",
+        lead: "Studiyangiz haqida aytib bering. Jamoamiz hisobingizni yaratadi, Family Store doʻkoningizni brendingizda bezatadi va birinchi suratga olish kunini oʻtkazishga yordam beradi — oylik toʻlovsiz.",
+      },
+      steps: {
+        eyebrow: "Qanday ishlaydi",
+        title: "Birinchi suratga olish kunigacha uch qadam",
+        items: [
+          { title: "Studiyangiz haqida aytib bering", body: "Qisqa shaklni toʻldiring: kimlarni, qayerda va yiliga nechta suratga olish kunida suratga olasiz." },
+          { title: "Sizga qoʻngʻiroq qilamiz", body: "Bir ish kuni ichida jamoamiz qoʻngʻiroq qiladi yoki yozadi, savollarga javob beradi va keyingi qadamlarni kelishib oladi." },
+          { title: "Studiya hisobingizni yaratamiz", body: "Parol oʻrnatish uchun shaxsiy havola olasiz. Narxlar roʻyxati, brend va birinchi suratga olish kunida yordam beramiz." },
+        ],
+      },
+      form: { title: "Soʻrov yuboring", lead: "Ixtiyoriy maydonlarni boʻsh qoldirish mumkin. Siz bilan bogʻlanishimiz uchun email yoki telefon raqami kerak." },
+      channels: { title: "Gaplashish qulayroqmi?", phone: "Bizga qoʻngʻiroq qiling", email: "Bizga email yozing", telegram: "Telegramda yozing" },
+      parents: {
+        title: "Ota-onamisiz?",
+        body: "Suratlar yoki buyurtma boʻyicha savollar uchun varaqa yoki SMSdagi kod orqali albomingizni oching yoki suratga olgan studiya bilan bogʻlaning.",
+        findPhotos: "Suratlarimni topish",
+        signIn: "Doʻkonga kirish",
+      },
+      studio: { title: "Allaqachon hamkormisiz?", login: "Studioʻga kirish" },
     },
   },
 );

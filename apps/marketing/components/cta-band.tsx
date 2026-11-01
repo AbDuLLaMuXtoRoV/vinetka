@@ -5,7 +5,7 @@ import Link from "next/link";
 import { localePath } from "@/lib/i18n";
 import { commonMsgs } from "@/messages/common";
 
-/** The closing band on every page: "Start free" + "Book a demo". */
+/** The closing band on every page: "Become a partner" + "Book a demo". Studios are onboarded by the Snapbell team. */
 export function CtaBand({ locale }: { locale: Locale }) {
   const t = commonMsgs[locale].cta;
   return (
@@ -20,8 +20,8 @@ export function CtaBand({ locale }: { locale: Locale }) {
         </div>
         <div className="relative flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <Link href={localePath(locale, "/signup")}>
-              {t.start} <ArrowRight aria-hidden />
+            <Link href={localePath(locale, "/contact")}>
+              {t.partner} <ArrowRight aria-hidden />
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="border-bg/60 text-bg hover:bg-bg/10">

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Post, Req } from "@nestjs/common";
 import type { Request } from "express";
 import { z } from "zod";
 import { parse } from "../common/validate";
@@ -6,14 +6,16 @@ import { v } from "../i18n";
 import { AuthService } from "../services/auth.service";
 
 const loginSchema = z.object({ email: z.string().min(3).max(200), password: z.string().min(1).max(200) });
-const signupSchema = z.object({
-  name: z.string().trim().min(1).max(100),
-  email: z.email().max(200),
+const setupSchema = z.object({
+  token: z.string().min(1).max(200),
   password: z.string().min(8, { error: () => v().minChars(8) }).max(200),
-  studioName: z.string().trim().min(1).max(100),
 });
 const channel = z.enum(["sms", "email"]);
 
+/**
+ * There is deliberately no sign-up route: studios and their owners are created
+ * by Snapbell staff (POST /admin/studios) and owners finish through /auth/setup.
+ */
 @Controller("auth")
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
@@ -25,15 +27,16 @@ export class AuthController {
     return this.auth.login(req, input.email, input.password);
   }
 
-  @Post("signup")
-  signup(@Body() body: unknown) {
-    return this.auth.signup(parse(signupSchema, body));
+  @Get("setup/:token")
+  setupInfo(@Param("token") token: string) {
+    return this.auth.setupInfo(token);
   }
 
-  @Post("handoff")
+  @Post("setup")
   @HttpCode(200)
-  handoff(@Body() body: unknown) {
-    return this.auth.redeem("handoff", parse(z.object({ code: z.string().min(1).max(200) }), body).code);
+  completeSetup(@Req() req: Request, @Body() body: unknown) {
+    const input = parse(setupSchema, body);
+    return this.auth.completeSetup(req, input.token, input.password);
   }
 
   @Post("magic-link")
@@ -45,7 +48,7 @@ export class AuthController {
   @Post("magic-link/redeem")
   @HttpCode(200)
   redeemMagicLink(@Body() body: unknown) {
-    return this.auth.redeem("magic_link", parse(z.object({ token: z.string().min(1).max(200) }), body).token);
+    return this.auth.redeemMagicLink(parse(z.object({ token: z.string().min(1).max(200) }), body).token);
   }
 
   @Post("otp/send")
@@ -65,7 +68,9 @@ export class AuthController {
       z.object({
         destination: z.string().min(3).max(200),
         code: z.string().min(4).max(12),
-        consent: z.object({ smsUpdates: z.boolean(), marketing: z.boolean() }).default({ smsUpdates: false, marketing: false }),
+        // Optional: a plain sign-in omits it so earlier opt-ins are kept.
+        consent: z.object({ smsUpdates: z.boolean(), marketing: z.boolean() }).optional(),
+        name: z.string().trim().max(100).optional(),
       }),
       body,
     );

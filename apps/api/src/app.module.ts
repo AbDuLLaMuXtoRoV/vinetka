@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { AdminController } from "./controllers/admin.controller";
+import { ContactController } from "./controllers/contact.controller";
 import { AuthController } from "./controllers/auth.controller";
 import { CatalogController } from "./controllers/catalog.controller";
 import { FilesController } from "./controllers/files.controller";
@@ -32,6 +33,7 @@ import { Repository } from "./store/repository";
     OrdersController,
     StoreController,
     AdminController,
+    ContactController,
     FilesController,
     WebhooksController,
   ],

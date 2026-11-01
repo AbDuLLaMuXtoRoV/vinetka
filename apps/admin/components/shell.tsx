@@ -2,14 +2,16 @@
 
 import { cn } from "@snapbell/ui/lib/cn";
 import { LanguageSwitcher, useMessages } from "@snapbell/ui/locale";
-import { Briefcase, Flag, FlaskConical, LogOut, MessageSquare, ShoppingBag, Store } from "lucide-react";
+import { Briefcase, Flag, FlaskConical, Inbox, LogOut, MessageSquare, ShoppingBag, Store } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { logoutAction } from "@/lib/actions";
 import { adminMsgs } from "@/messages/admin";
+import { onboardingMsgs } from "@/messages/onboarding";
 
 const NAV = [
+  { href: "/requests", key: "requests", icon: Inbox },
   { href: "/studios", key: "studios", icon: Store },
   { href: "/jobs", key: "jobs", icon: Briefcase },
   { href: "/orders", key: "orders", icon: ShoppingBag },
@@ -18,9 +20,10 @@ const NAV = [
   { href: "/flags", key: "flags", icon: Flag },
 ] as const;
 
-export function AdminShell({ email, children }: { email: string; children: ReactNode }) {
+export function AdminShell({ email, newRequests, children }: { email: string; newRequests: number; children: ReactNode }) {
   const pathname = usePathname();
   const t = useMessages(adminMsgs);
+  const o = useMessages(onboardingMsgs);
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[232px_1fr]">
       <aside className="flex flex-col gap-4 border-b border-border bg-ink p-4 text-bg lg:sticky lg:top-0 lg:h-dvh lg:border-r lg:border-b-0">
@@ -45,7 +48,12 @@ export function AdminShell({ email, children }: { email: string; children: React
                 className={cn("flex min-h-10 shrink-0 items-center gap-2.5 rounded-input px-3 text-sm whitespace-nowrap", active ? "bg-bg/15 font-medium" : "opacity-75 hover:bg-bg/10 hover:opacity-100")}
               >
                 <Icon className="size-4" aria-hidden />
-                {t.nav[n.key]}
+                {n.key === "requests" ? o.navRequests : t.nav[n.key]}
+                {n.key === "requests" && newRequests > 0 && (
+                  <span className="ml-auto rounded-full bg-accent px-1.5 text-[11px] font-semibold text-accent-ink tabular-nums" aria-label={o.newRequests(newRequests)}>
+                    {newRequests}
+                  </span>
+                )}
               </Link>
             );
           })}

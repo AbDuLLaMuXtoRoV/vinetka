@@ -22,6 +22,8 @@ export const authMsgs = defineMessages(
     openLink: "open the link",
     twoFactorNote: "Owners can turn on two-factor authentication in Settings.",
     demoLogin: "Demo login: owner@brightside.photo / picture-day (photographer view: sam@brightside.photo, same password).",
+    sellQuestion: "Want to sell with Snapbell?",
+    contactUs: "Contact us",
     errors: {
       missing: "Enter your email and password.",
       tooMany: "Too many attempts. Wait a minute and try again.",
@@ -52,6 +54,8 @@ export const authMsgs = defineMessages(
       openLink: "открыть ссылку",
       twoFactorNote: "Владельцы могут включить двухфакторную аутентификацию в настройках.",
       demoLogin: "Демо-вход: owner@brightside.photo / picture-day (вид фотографа: sam@brightside.photo, тот же пароль).",
+      sellQuestion: "Хотите продавать фото через Snapbell?",
+      contactUs: "Свяжитесь с нами",
       errors: {
         missing: "Введите email и пароль.",
         tooMany: "Слишком много попыток. Подождите минуту и попробуйте снова.",
@@ -81,6 +85,8 @@ export const authMsgs = defineMessages(
       openLink: "havolani ochish",
       twoFactorNote: "Egalar sozlamalarda ikki bosqichli autentifikatsiyani yoqishi mumkin.",
       demoLogin: "Demo kirish: owner@brightside.photo / picture-day (fotograf koʻrinishi: sam@brightside.photo, parol oʻsha).",
+      sellQuestion: "Snapbell orqali suratlar sotmoqchimisiz?",
+      contactUs: "Biz bilan bogʻlaning",
       errors: {
         missing: "Email va parolni kiriting.",
         tooMany: "Urinishlar juda koʻp. Bir daqiqa kutib, qayta urinib koʻring.",

@@ -1,6 +1,7 @@
 import { MARKETS, type Locale, type Market } from "@snapbell/sdk";
 import { commonMsgs } from "@/messages/common";
-import { localePath } from "./i18n";
+import { env } from "./env";
+import { localePath, withLang } from "./i18n";
 
 export const SITE_NAME = "Snapbell";
 
@@ -32,6 +33,20 @@ export function resourcesNav(locale: Locale): Array<NavItem & { key: ResourceKey
     { key: "help", href: localePath(locale, "/help"), ...t.help },
     { key: "switch", href: localePath(locale, "/switch"), ...t.switch },
   ];
+}
+
+/** Shop accounts for parents live in the Family Store (one-time codes, no passwords). */
+export function shopSignInUrl(locale: Locale): string {
+  return withLang(`${env.storeUrl}/signin`, locale);
+}
+
+export function shopSignUpUrl(locale: Locale): string {
+  return withLang(`${env.storeUrl}/signup`, locale);
+}
+
+/** Studios are created by the Snapbell team; partners log in to the Studio app here. */
+export function studioLoginUrl(locale: Locale): string {
+  return withLang(`${env.studioUrl}/login`, locale);
 }
 
 export function marketLabels(locale: Locale): Record<Market, string> {
@@ -71,8 +86,8 @@ export function footerColumns(locale: Locale): Array<{ title: string; links: Arr
       title: t.columns.company,
       links: [
         { href: p("/about"), label: t.links.about },
-        { href: p("/about#contact"), label: t.links.contact },
-        { href: p("/signup"), label: t.links.startFree },
+        { href: p("/contact"), label: t.links.contact },
+        { href: studioLoginUrl(locale), label: t.links.studioLogin },
       ],
     },
   ];

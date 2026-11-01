@@ -42,7 +42,7 @@ export class ViewsService {
     return s;
   }
 
-  member({ passwordHash: _p, ...m }: MemberRow): Member {
+  member({ passwordHash: _p, phone: _ph, ...m }: MemberRow): Member {
     return m;
   }
 

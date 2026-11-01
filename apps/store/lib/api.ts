@@ -31,11 +31,12 @@ export function cookieOptions(days: number) {
   };
 }
 
-export async function api(): Promise<SnapbellClient> {
+/** Client for the current parent (cookie), or for an explicit token such as a session just created. */
+export async function api(token?: string): Promise<SnapbellClient> {
   const jar = await cookies();
   return createClient({
     baseUrl: env.apiUrl,
-    token: jar.get(PARENT_COOKIE)?.value ?? null,
+    token: token ?? jar.get(PARENT_COOKIE)?.value ?? null,
     headers: await forwardedHeaders(),
     // The API answers in the parent's language and remembers it for texts and emails.
     locale: await getLocale(),

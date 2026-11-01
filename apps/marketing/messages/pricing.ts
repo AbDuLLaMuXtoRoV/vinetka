@@ -18,7 +18,7 @@ export const marketsPageMsgs = defineMessages(
     albumType: "Album type",
     shipping: "Shipping",
     products: "Top products",
-    startFor: (market: string) => `Start free for ${market.toLowerCase()}`,
+    startFor: (market: string) => `Talk to us about ${market.toLowerCase()}`,
     demo: "Book a demo",
   },
   {
@@ -38,7 +38,7 @@ export const marketsPageMsgs = defineMessages(
       albumType: "Тип альбома",
       shipping: "Доставка",
       products: "Популярные товары",
-      startFor: (market) => `Начать бесплатно: ${market}`,
+      startFor: (market) => `Обсудить направление «${market}»`,
       demo: "Записаться на демо",
     },
     uz: {
@@ -57,7 +57,7 @@ export const marketsPageMsgs = defineMessages(
       albumType: "Albom turi",
       shipping: "Yetkazib berish",
       products: "Ommabop mahsulotlar",
-      startFor: (market) => `«${market}» uchun bepul boshlash`,
+      startFor: (market) => `«${market}» yoʻnalishi boʻyicha bogʻlanish`,
       demo: "Demoga yozilish",
     },
   },

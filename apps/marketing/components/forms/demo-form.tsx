@@ -9,7 +9,7 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { requestDemo, type FormState } from "@/app/actions";
 import { track } from "@/lib/analytics";
 import { formMsgs } from "@/messages/forms";
-import { FormMessage, LocaleField, SelectField, SuccessPanel, TextField } from "./form-bits";
+import { FormMessage, HoneypotField, LocaleField, PhoneField, SelectField, SuccessPanel, TextField, useTrackSubmitted } from "./form-bits";
 
 const idle: FormState = { status: "idle" };
 const TIMES = [9, 10, 11, 13, 14, 15, 16];
@@ -41,6 +41,7 @@ export function DemoForm({ calendarUrl, markets }: { calendarUrl: string | null;
   useEffect(() => {
     if (state.status === "success") track("demo_booked", { withCalendar: !!calendarUrl, locale });
   }, [state.status, calendarUrl, locale]);
+  useTrackSubmitted(state);
 
   const slots = useMemo(() => {
     const base = days[day];
@@ -62,14 +63,15 @@ export function DemoForm({ calendarUrl, markets }: { calendarUrl: string | null;
   }
 
   return (
-    <form action={action} className="grid gap-5" noValidate>
+    <form action={action} className="relative grid gap-5" noValidate>
       <LocaleField />
+      <HoneypotField />
       <FormMessage state={state} />
       <div className="grid gap-4 md:grid-cols-2">
         <TextField name="name" label={t.fields.yourName} autoComplete="name" state={state} />
         <TextField name="studio" label={t.fields.studioName} autoComplete="organization" state={state} />
         <TextField name="email" label={t.fields.workEmail} type="email" autoComplete="email" state={state} />
-        <TextField name="phone" label={t.fields.phone} type="tel" autoComplete="tel" state={state} optional />
+        <PhoneField name="phone" label={t.fields.phone} state={state} optional />
         <SelectField name="market" label={t.fields.mainMarket} state={state} options={markets} />
         <SelectField
           name="volume"
