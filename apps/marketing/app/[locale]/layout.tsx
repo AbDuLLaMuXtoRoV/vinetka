@@ -1,4 +1,5 @@
 import { LocaleProvider } from "@snapbell/ui/locale";
+import { ApiWarmup } from "@snapbell/ui/warmup";
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, Lora } from "next/font/google";
 import "../globals.css";
@@ -44,6 +45,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html lang={htmlLang(locale)} data-theme="light" className={`${inter.variable} ${fraunces.variable} ${lora.variable}`}>
       <body className="min-h-dvh bg-bg text-ink">
         <LocaleProvider locale={locale}>
+          <ApiWarmup url={`${env.apiUrl}/health`} />
           <a
             href="#main"
             className="fixed top-2 left-2 z-50 -translate-y-20 rounded-input bg-ink px-4 py-3 text-sm font-medium text-bg transition-transform focus:translate-y-0"

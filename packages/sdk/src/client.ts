@@ -94,6 +94,32 @@ export interface ClientOptions {
 
 type Query = Record<string, string | number | boolean | null | undefined>;
 
+/**
+ * Hosting gateways answer 502/503 while a sleeping or restarting API starts up.
+ * Those requests never reached the API, so they are retried (even payments) for
+ * up to RETRY_BUDGET_MS before the caller sees an error.
+ */
+const GATEWAY_STATUSES = new Set([502, 503]);
+const RETRY_BUDGET_MS = 50_000;
+const retryDelay = (attempt: number) => Math.min(8_000, 1_000 * 2 ** attempt);
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function isConnectError(err: unknown): boolean {
+  const code = (err as { cause?: { code?: string } })?.cause?.code;
+  return code === "ECONNREFUSED" || code === "ENOTFOUND" || code === "EAI_AGAIN" || code === "UND_ERR_CONNECT_TIMEOUT";
+}
+
+function unreachableBody(statusCode: number, message: string): ApiError["body"] {
+  return { statusCode, error: "unreachable", message } as ApiError["body"];
+}
+
+/** Shown when the API can't be reached at all (instead of a raw "Bad Gateway"). */
+const UNREACHABLE: Record<Locale, string> = {
+  en: "We couldn't reach Snapbell just now. Please try again in a moment.",
+  ru: "Не удалось связаться с Snapbell. Попробуйте ещё раз через минуту.",
+  uz: "Snapbell bilan bogʻlanib boʻlmadi. Birozdan soʻng qayta urinib koʻring.",
+};
+
 /** What the browser sends for a cart line; the API fills in names and prices from the price sheet. */
 export type CartItemInput = Pick<
   CartItem,
@@ -137,26 +163,47 @@ export function createClient(options: ClientOptions) {
     if (init.body !== undefined) headers["Content-Type"] = "application/json";
     if (options.token) headers.Authorization = `Bearer ${options.token}`;
 
-    const res = await doFetch(url, {
-      method,
-      headers,
-      body: init.body === undefined ? undefined : JSON.stringify(init.body),
-      cache: "no-store",
-    });
-    const text = await res.text();
-    let data: unknown = null;
-    if (text) {
+    const started = Date.now();
+    const unreachable = UNREACHABLE[options.locale ?? "en"];
+    for (let attempt = 0; ; attempt++) {
+      const canWait = Date.now() - started + retryDelay(attempt) < RETRY_BUDGET_MS;
+      let res: Response;
       try {
-        data = JSON.parse(text);
-      } catch {
-        data = null;
+        res = await doFetch(url, {
+          method,
+          headers,
+          body: init.body === undefined ? undefined : JSON.stringify(init.body),
+          cache: "no-store",
+        });
+      } catch (err) {
+        // Connection refused or DNS failure: the request never reached the API.
+        if (canWait && (method === "GET" || isConnectError(err))) {
+          await sleep(retryDelay(attempt));
+          continue;
+        }
+        throw new ApiError(0, unreachableBody(0, unreachable), unreachable);
       }
-    }
-    if (!res.ok) {
-      const body = (data ?? null) as ApiError["body"];
+      const text = await res.text();
+      let data: unknown = null;
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = null;
+        }
+      }
+      if (res.ok) return data as T;
+      const body = data && typeof data === "object" && "error" in data ? (data as ApiError["body"]) : null;
+      // A gateway answering 502/503 (e.g. a free-tier service still waking up) never passed the request on.
+      if (!body && GATEWAY_STATUSES.has(res.status) && canWait) {
+        await sleep(retryDelay(attempt));
+        continue;
+      }
+      if (!body && res.status >= 500) {
+        throw new ApiError(res.status, unreachableBody(res.status, unreachable), unreachable);
+      }
       throw new ApiError(res.status, body, body?.message ?? res.statusText);
     }
-    return data as T;
   }
 
   const get = <T>(path: string, query?: Query) => request<T>("GET", path, { query });
