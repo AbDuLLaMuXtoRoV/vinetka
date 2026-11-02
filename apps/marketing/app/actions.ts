@@ -17,7 +17,7 @@ import {
 import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { forwardedHeaders } from "@/lib/forwarded";
-import { withLang } from "@/lib/i18n";
+import { clearParentSession, parentToken, storeDestination } from "@/lib/parent-session";
 import { formMsgs } from "@/messages/forms";
 
 export interface FormState {
@@ -230,5 +230,8 @@ export async function findPhotos(_prev: FormState, form: FormData): Promise<Form
   if (!isCodeFormat(code)) {
     return { status: "error", errors: { code: formMsgs[locale].validation.code } };
   }
-  redirect(withLang(`${env.storeUrl}/a/${code}`, locale));
+  // Signed-in parents arrive in the shop signed in (one-time handoff); others go straight there.
+  const { url, sessionExpired } = await storeDestination(`/a/${code}`, locale, await parentToken());
+  if (sessionExpired) await clearParentSession();
+  redirect(url);
 }

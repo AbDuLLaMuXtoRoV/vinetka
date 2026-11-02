@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type {
+  AdminClientRow,
   Job,
   JobDetail,
   JobStats,
@@ -14,6 +15,7 @@ import type {
   PriceSheetSummary,
   PublishChecklistItem,
   Studio,
+  StudioClientRow,
   Subject,
 } from "@snapbell/sdk";
 import { sum, unique } from "../common/util";
@@ -33,6 +35,75 @@ export class ViewsService {
     return this.repo.orders.filter((o) => o.paymentState === "paid" && predicate(o));
   }
 
+  /** What the parent actually paid for an order, after refunds. */
+  netPaid(o: Order): number {
+    return o.split.totalCents - sum(o.refunds, (r) => r.amountCents);
+  }
+
+  // --- Clients ---------------------------------------------------------------------
+
+  /**
+   * Parents who bought from this studio. Privacy rule: a studio only ever sees
+   * parents with at least one PAID order at that studio. Unlocking an album,
+   * an unpaid (3-D Secure pending) order or orders at other studios never count.
+   */
+  studioClients(studioId: string, text?: string | null): StudioClientRow[] {
+    const byParent = new Map<string, OrderRow[]>();
+    for (const o of this.paidOrders((ord) => ord.studioId === studioId)) {
+      const list = byParent.get(o.parentId) ?? [];
+      list.push(o);
+      byParent.set(o.parentId, list);
+    }
+    const needle = text?.trim().toLowerCase();
+    return [...byParent.entries()]
+      .map(([parentId, list]): StudioClientRow => {
+        const sorted = [...list].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+        const first = sorted[0]!;
+        const latest = sorted[sorted.length - 1]!;
+        const parent = this.repo.parents.get(parentId);
+        return {
+          id: parentId,
+          name: parent?.name || latest.contact.name || null,
+          email: parent?.email || latest.contact.email || null,
+          phone: parent?.phone || latest.contact.phone || null,
+          children: unique(list.flatMap((o) => o.items.map((i) => i.subjectName)).filter(Boolean)).sort(),
+          orders: list.length,
+          spentCents: sum(list, (o) => this.netPaid(o)),
+          firstOrderAt: first.createdAt,
+          lastOrderAt: latest.createdAt,
+          marketingOptIn: parent?.consent.marketing ?? false,
+        };
+      })
+      .filter((row) => !needle || [row.name, row.email, row.phone, ...row.children].some((v) => v?.toLowerCase().includes(needle)))
+      .sort((a, b) => b.lastOrderAt.localeCompare(a.lastOrderAt));
+  }
+
+  /** Every customer account on the platform, including ones that never ordered (internal admin). */
+  adminClients(text?: string | null): AdminClientRow[] {
+    const byParent = new Map<string, OrderRow[]>();
+    for (const o of this.paidOrders()) {
+      const list = byParent.get(o.parentId) ?? [];
+      list.push(o);
+      byParent.set(o.parentId, list);
+    }
+    const needle = text?.trim().toLowerCase();
+    return this.repo.parents
+      .all()
+      .filter((p) => !needle || [p.name, p.email, p.phone].some((v) => v?.toLowerCase().includes(needle)))
+      .map((p): AdminClientRow => {
+        const list = byParent.get(p.id) ?? [];
+        return {
+          parent: { id: p.id, name: p.name, email: p.email, phone: p.phone, locale: p.locale, consent: p.consent, createdAt: p.createdAt },
+          orders: list.length,
+          spentCents: sum(list, (o) => this.netPaid(o)),
+          studios: unique(list.map((o) => o.studioId)).map((id) => ({ id, name: this.repo.studios.get(id)?.name ?? "" })),
+          children: this.repo.parentSubjects.filter((ps) => ps.parentId === p.id).length,
+          lastOrderAt: list.reduce<string | null>((max, o) => (!max || o.createdAt > max ? o.createdAt : max), null),
+        };
+      })
+      .sort((a, b) => b.parent.createdAt.localeCompare(a.parent.createdAt));
+  }
+
   /** Sales figure used everywhere: merchandise after discounts (excludes tax and shipping). */
   netSales(o: Order): number {
     return o.split.subtotalCents - o.split.discountCents;
@@ -46,7 +117,7 @@ export class ViewsService {
     return m;
   }
 
-  parent({ deletionRequestedAt: _d, exportRequestedAt: _e, createdAt: _c, ...p }: ParentRow): Parent {
+  parent({ deletionRequestedAt: _d, exportRequestedAt: _e, ...p }: ParentRow): Parent {
     return p;
   }
 

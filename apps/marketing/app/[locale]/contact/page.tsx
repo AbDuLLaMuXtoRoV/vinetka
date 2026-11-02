@@ -7,7 +7,7 @@ import { PartnerForm } from "@/components/forms/partner-form";
 import { PageHero, Section, SectionHeading } from "@/components/section";
 import { env } from "@/lib/env";
 import { getLocale, localePath, pageMetadata } from "@/lib/i18n";
-import { shopSignInUrl, studioLoginUrl } from "@/lib/site";
+import { studioLoginUrl } from "@/lib/site";
 import { contactMsgs } from "@/messages/pages";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/contact">): Promise<Metadata> {
@@ -79,7 +79,7 @@ export default async function ContactPage({ params }: PageProps<"/[locale]/conta
                   <Link href={localePath(locale, "/find-my-photos")}>{t.parents.findPhotos}</Link>
                 </Button>
                 <Button asChild size="sm" variant="outline">
-                  <a href={shopSignInUrl(locale)}>{t.parents.signIn}</a>
+                  <Link href={localePath(locale, "/signin")}>{t.parents.signIn}</Link>
                 </Button>
               </div>
             </div>

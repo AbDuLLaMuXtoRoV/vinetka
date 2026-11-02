@@ -16,6 +16,7 @@ import {
   type PhotoRow,
   type PhotoSetRow,
   type SetupTokenRow,
+  type ParentHandoffRow,
   type SuppressionRow,
   type Table,
   type UploadRow,
@@ -98,7 +99,7 @@ function buildSeed() {
     orders,
     batches,
     photos: data.photos.map(({ thumbUrl: _t, previewUrl: _p, ...p }): PhotoRow => ({ ...p, sha256: null, sizeBytes: null })),
-    parents: data.parents.map((p): ParentRow => ({ ...p, deletionRequestedAt: null, exportRequestedAt: null, createdAt: data.now })),
+    parents: data.parents.map((p): ParentRow => ({ ...p, deletionRequestedAt: null, exportRequestedAt: null })),
     parentSubjects: data.parentSubjects.map((ps): ParentSubjectRow => ({ id: `${ps.parentId}:${ps.subjectId}`, ...ps, unlockedAt: data.now })),
     adminHash: hashPassword(DEMO_CREDENTIALS.internalAdmin.password),
     contactRequests: demoContactRequests(Date.parse(data.now)),
@@ -204,6 +205,7 @@ export class MemoryRepository extends Repository {
   readonly suppressions = byId<SuppressionRow>();
   readonly notifyRequests = byId<NotifyRequestRow>();
   readonly setupTokens = byId<SetupTokenRow>();
+  readonly parentHandoffs = byId<ParentHandoffRow>();
   readonly contactRequests = byId(this.seed.contactRequests);
 
   nextOrderNumber(): string {

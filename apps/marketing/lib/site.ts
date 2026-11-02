@@ -35,15 +35,6 @@ export function resourcesNav(locale: Locale): Array<NavItem & { key: ResourceKey
   ];
 }
 
-/** Shop accounts for parents live in the Family Store (one-time codes, no passwords). */
-export function shopSignInUrl(locale: Locale): string {
-  return withLang(`${env.storeUrl}/signin`, locale);
-}
-
-export function shopSignUpUrl(locale: Locale): string {
-  return withLang(`${env.storeUrl}/signup`, locale);
-}
-
 /** Studios are created by the Snapbell team; partners log in to the Studio app here. */
 export function studioLoginUrl(locale: Locale): string {
   return withLang(`${env.studioUrl}/login`, locale);

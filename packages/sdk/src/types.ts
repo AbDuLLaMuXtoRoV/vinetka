@@ -350,6 +350,8 @@ export interface Parent {
   locale: Locale;
   consent: ParentConsent;
   notifications: { orderUpdates: boolean; galleryReady: boolean; deadlineReminders: boolean; channel: "sms" | "email" };
+  /** When the account was created (shop sign-up, first album visit or first checkout). */
+  createdAt: ISODate;
 }
 
 export interface AlbumPhoto {
@@ -851,4 +853,41 @@ export interface ContactRequest {
   note: string | null;
   createdAt: ISODate;
   updatedAt: ISODate;
+}
+
+// ---------------------------------------------------------------------------
+// Client lists
+// ---------------------------------------------------------------------------
+
+/** Every customer account on the platform (internal admin only). */
+export interface AdminClientRow {
+  parent: Pick<Parent, "id" | "name" | "email" | "phone" | "locale" | "consent" | "createdAt">;
+  orders: number;
+  /** Paid minus refunded, all studios. */
+  spentCents: Cents;
+  /** Studios this client has bought from. */
+  studios: Array<{ id: ID; name: string }>;
+  /** Children linked to the account (album codes unlocked). */
+  children: number;
+  lastOrderAt: ISODate | null;
+}
+
+/**
+ * A parent who has bought from this studio. Studios never see anyone who has
+ * not placed a paid order with them.
+ */
+export interface StudioClientRow {
+  id: ID;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  /** Children on this studio's orders. */
+  children: string[];
+  orders: number;
+  /** Paid minus refunded, this studio only. */
+  spentCents: Cents;
+  firstOrderAt: ISODate;
+  lastOrderAt: ISODate;
+  /** Agreed to receive offers (marketing consent): only then may the studio send promotions. */
+  marketingOptIn: boolean;
 }

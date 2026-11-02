@@ -11,7 +11,8 @@ import { PhoneFrame, StoreAlbumScreen } from "@/components/phone-mockup";
 import { Section, SectionHeading } from "@/components/section";
 import { getMarkets } from "@/lib/cms";
 import { env } from "@/lib/env";
-import { getLocale, htmlLang, localePath, pageMetadata, withLang } from "@/lib/i18n";
+import { getLocale, htmlLang, localePath, pageMetadata } from "@/lib/i18n";
+import { storeLink } from "@/lib/parent-links";
 import { photoUri, PROOF_WATERMARK } from "@/lib/placeholder";
 import { COMPANY, SITE_NAME } from "@/lib/site";
 import { commonMsgs } from "@/messages/common";
@@ -32,7 +33,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const pct = (bps: number) => fmt.percent(bps / 10_000);
   const threshold = fmt.money(VOLUME_TIER_THRESHOLD_CENTS, { whole: true });
   const markets = getMarkets(locale);
-  const sampleStore = withLang(`${env.storeUrl}/a/${DEMO_CODES.personal}`, locale);
+  const sampleStore = storeLink(locale, `/a/${DEMO_CODES.personal}`);
   const protectedPhoto = photoUri({ seed: "protect-1", watermark: PROOF_WATERMARK, overlay: t.protect.overlay });
   const blurredPhoto = photoUri({ seed: "protect-1" });
   const workflowImage = photoUri({ seed: "trio-workflow", kind: "group" });

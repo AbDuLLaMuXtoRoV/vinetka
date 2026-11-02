@@ -7,7 +7,8 @@ import {
   type ExportType,
   type ID,
   type JobInput,
-  type OrganizationInput,
+  type Market,
+  type OrganizationType,
   type PassOfferInput,
   type Photo,
   type PriceSheetInput,
@@ -122,20 +123,43 @@ export async function updateMemberRole(id: ID, role: Role) {
   return act((c) => c.studio.updateMember(id, { role }), "/settings/studio");
 }
 
-// --- Organizations -------------------------------------------------------------------
-
-export async function createOrganization(input: OrganizationInput) {
-  return act((c) => c.organizations.create(input), ["/organizations", "/jobs/new"]);
-}
-
-export async function updateOrganization(id: ID, input: Partial<OrganizationInput>) {
-  return act((c) => c.organizations.update(id, input), ["/organizations", `/organizations/${id}`]);
-}
-
 // --- Jobs ----------------------------------------------------------------------------
 
-export async function createJob(input: JobInput) {
-  return act((c) => c.jobs.create(input), ["/jobs", "/home"]);
+const ORG_TYPE_BY_MARKET: Partial<Record<Market, OrganizationType>> = {
+  schools: "school",
+  sports: "league",
+  dance: "dance_studio",
+  preschool: "preschool",
+};
+
+/** "  School   No. 45 " and "school no. 45" are the same client. */
+function sameName(a: string, b: string): boolean {
+  const norm = (s: string) => s.trim().replace(/\s+/g, " ").toLocaleLowerCase();
+  return norm(a) === norm(b);
+}
+
+/**
+ * Jobs name their school, team or event as free text. Behind the scenes each
+ * name maps to one organization record: reused when the studio typed the same
+ * name before, created otherwise.
+ */
+export async function createJob(input: Omit<JobInput, "organizationId"> & { clientName: string }) {
+  const { clientName, ...job } = input;
+  const name = clientName.trim().replace(/\s+/g, " ");
+  return act(async (c) => {
+    const existing = (await c.organizations.list()).find((o) => sameName(o.name, name));
+    const organization =
+      existing ??
+      (await c.organizations.create({
+        name,
+        type: ORG_TYPE_BY_MARKET[job.market] ?? "client",
+        contactName: "",
+        contactEmail: "",
+        contactPhone: null,
+        address: null,
+      }));
+    return c.jobs.create({ ...job, organizationId: organization.id });
+  }, ["/jobs", "/home", "/jobs/new"]);
 }
 
 export async function updateJob(id: ID, input: Partial<JobInput>) {

@@ -5,8 +5,8 @@ import type { Metadata } from "next";
 import { CheckList } from "@/components/blocks";
 import { PageHero, Section, SectionHeading } from "@/components/section";
 import { StoreDemo } from "@/components/store-demo";
-import { env } from "@/lib/env";
-import { getLocale, pageMetadata, withLang } from "@/lib/i18n";
+import { getLocale, pageMetadata } from "@/lib/i18n";
+import { storeLink } from "@/lib/parent-links";
 import { photoUri, PROOF_WATERMARK } from "@/lib/placeholder";
 import { familyStoreMsgs } from "@/messages/family-store";
 
@@ -23,7 +23,7 @@ export default async function FamilyStorePage({ params }: PageProps<"/[locale]/f
   const locale = await getLocale(params);
   const t = familyStoreMsgs[locale];
   const { money } = formatters(locale);
-  const sampleStore = withLang(`${env.storeUrl}/a/${DEMO_CODES.personal}`, locale);
+  const sampleStore = storeLink(locale, `/a/${DEMO_CODES.personal}`);
   const photos = ["fs-demo-1", "fs-demo-2", "fs-demo-3", "fs-demo-4"].map((seed) => photoUri({ seed, watermark: PROOF_WATERMARK }));
   const bundle = 69_00;
   const tax = bps(bundle + SHIPPING_CENTS.home, 600);

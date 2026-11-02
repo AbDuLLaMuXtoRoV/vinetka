@@ -456,7 +456,7 @@ export function createDemoData(nowInput: Date = new Date()): DemoData {
   // --- Parents ------------------------------------------------------------
   const parents: Parent[] = [
     {
-      id: DEMO_IDS.parent, name: "Elena Martinez", email: DEMO_CREDENTIALS.parent.email, phone: DEMO_CREDENTIALS.parent.phone, locale: "en",
+      id: DEMO_IDS.parent, name: "Elena Martinez", email: DEMO_CREDENTIALS.parent.email, phone: DEMO_CREDENTIALS.parent.phone, locale: "en", createdAt: iso(now, -400),
       consent: { smsUpdates: true, marketing: false, biometricsAt: null },
       notifications: { orderUpdates: true, galleryReady: true, deadlineReminders: true, channel: "sms" },
     },
@@ -577,6 +577,7 @@ export function createDemoData(nowInput: Date = new Date()): DemoData {
       id: `par_${parents.length + 1}`, name: `${first} ${last}`, email: `${first.toLowerCase()}.${last.toLowerCase()}@example.com`,
       phone: `+99890555${(1000 + parents.length).toString().slice(-4)}`,
       locale: "en",
+      createdAt: iso(now, -(160 + Math.floor(rand() * 200))),
       consent: { smsUpdates: rand() < 0.8, marketing: rand() < 0.3, biometricsAt: null },
       notifications: { orderUpdates: true, galleryReady: true, deadlineReminders: true, channel: rand() < 0.7 ? "sms" : "email" },
     };

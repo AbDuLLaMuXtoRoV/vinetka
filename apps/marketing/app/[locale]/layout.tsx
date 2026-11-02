@@ -2,6 +2,7 @@ import { LocaleProvider } from "@snapbell/ui/locale";
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter, Lora } from "next/font/google";
 import "../globals.css";
+import { WelcomeBanner } from "@/components/account/welcome-banner";
 import { CtaBand } from "@/components/cta-band";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -55,6 +56,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           </main>
           <CtaBand locale={locale} />
           <SiteFooter locale={locale} />
+          <WelcomeBanner />
         </LocaleProvider>
       </body>
     </html>

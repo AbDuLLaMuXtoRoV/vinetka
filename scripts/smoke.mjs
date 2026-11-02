@@ -142,7 +142,15 @@ await section("Studio app", async () => {
   await expectPage(`${STUDIO}/reports`, cookie, null, "/reports (owner)");
   if (orderId) await expectPage(`${STUDIO}/orders/${orderId}`, cookie, orderNumber, "/orders/[id] (new order visible to studio)");
 
+  const orgs = await page(`${STUDIO}/organizations`, cookie);
+  check(orgs.status === 404, `/organizations removed (${orgs.status})`);
+  const clients = await createClient({ baseUrl: API, token: owner.token }).studio.clients();
+  check(clients.length > 0 && clients.every((c) => c.orders > 0), `studio clients are buyers only (${clients.length})`);
+  await expectPage(`${STUDIO}/clients`, cookie, clients[0]?.name ?? "", "/clients (studio buyers)");
+
   const photographer = await createClient({ baseUrl: API }).auth.login(DEMO_CREDENTIALS.photographer);
+  const blockedClients = await page(`${STUDIO}/clients`, `sb_studio=${photographer.token}`);
+  check(blockedClients.status !== 200 || blockedClients.text.includes("NEXT_REDIRECT"), `photographer kept out of /clients (${blockedClients.status})`);
   const blocked = await page(`${STUDIO}/reports`, `sb_studio=${photographer.token}`);
   check(blocked.status !== 200 || !blocked.text.includes("Payouts"), `photographer kept out of /reports (${blocked.status})`);
 });
@@ -152,6 +160,7 @@ await section("Internal admin", async () => {
   await expectPage(`${ADMIN}/studios`, `sb_admin=${token}`, "Brightside", "/studios");
   await expectPage(`${ADMIN}/lab-queue`, `sb_admin=${token}`, null, "/lab-queue");
   await expectPage(`${ADMIN}/requests`, `sb_admin=${token}`, null, "/requests (contact requests)");
+  await expectPage(`${ADMIN}/clients`, `sb_admin=${token}`, "Elena", "/clients (all customer accounts)");
 });
 
 await section("Marketing site", async () => {
@@ -170,10 +179,9 @@ await section("Marketing site", async () => {
     await expectPage(`${SITE}${path}`, null, needle, path);
   }
   const home = await page(`${SITE}/`);
-  check(!home.text.includes("Start free") && !/href="[^"]*\/signup"/.test(home.text.replace(/\/signup\?lang/g, "")), "no studio self-signup links on the home page");
-  check(home.text.includes(`${STORE}/signin`) && home.text.includes(`${STORE}/signup`), "header links parents to shop sign in / sign up");
-  const signup = await page(`${SITE}/signup`);
-  check(signup.status === 308 && signup.location?.includes("/contact"), `/signup → ${signup.status} ${signup.location ?? ""}`);
+  check(!home.text.includes("Start free"), 'no studio self-signup ("Start free") on the home page');
+  // /signup on the main site is for parents (shop customers); studios have no self-signup.
+  for (const path of ["/signin", "/signup", "/uz/signup"]) await expectPage(`${SITE}${path}`, null, null, `main-site ${path} (parents)`);
 });
 
 await section("Studios are created by Snapbell only", async () => {
@@ -215,6 +223,7 @@ await section("Studios are created by Snapbell only", async () => {
   check(reuse.status === 404 || reuse.status === 410, `setup link works only once (${reuse.status})`);
   const owner = createClient({ baseUrl: API, token: session.token });
   check((await owner.jobs.list()).length === 0 && (await owner.orders.list()).length === 0, "new studio sees only its own (empty) data");
+  check((await owner.studio.clients()).length === 0, "new studio sees no clients until someone buys from it");
   const onboarding = await page(`${STUDIO}/onboarding`, `sb_studio=${session.token}`);
   check(onboarding.status === 200, `new owner lands in the setup wizard (${onboarding.status})`);
 
@@ -222,6 +231,18 @@ await section("Studios are created by Snapbell only", async () => {
 });
 
 await section("Shop accounts for parents", async () => {
+  const go = await page(`${SITE}/go/store?to=/account&lang=en`, `sb_parent=${parentApi.token}`);
+  const handoff = go.location ?? "";
+  check(go.status >= 300 && go.status < 400 && handoff.includes("/auth/continue?code="), "signed-in main-site link hands the login to the shop");
+  if (handoff.includes("/auth/continue")) {
+    const cont = await fetch(handoff, { redirect: "manual" });
+    const setCookie = cont.headers.get("set-cookie") ?? "";
+    check(cont.status >= 300 && cont.status < 400 && setCookie.includes("sb_parent="), `shop accepted the handoff (${cont.status})`);
+    const reused = await fetch(handoff, { redirect: "manual" });
+    check((reused.headers.get("location") ?? "").includes("/signin"), "a handoff code works only once");
+  }
+  const anon = await page(`${SITE}/go/store?to=/&lang=en`);
+  check((anon.location ?? "").startsWith(STORE) && !(anon.location ?? "").includes("/auth/continue"), "signed-out link goes straight to the shop");
   await expectPage(`${STORE}/signin`, null, null, "/signin");
   await expectPage(`${STORE}/signup`, null, null, "/signup");
   const gated = await page(`${STORE}/account`);

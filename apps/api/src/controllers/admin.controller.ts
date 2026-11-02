@@ -88,6 +88,13 @@ export class AdminController {
       .sort((a, b) => b.salesCents - a.salesCents || b.studio.createdAt.localeCompare(a.studio.createdAt));
   }
 
+  /** Every customer (parent) account on the platform, including those who never ordered. */
+  @Get("clients")
+  clients(@Req() req: Request, @Query() q: Record<string, unknown>) {
+    this.auth.admin(req);
+    return this.views.adminClients(query(q, "q"));
+  }
+
   /** The only way a studio comes into existence. The owner finishes through a one-time setup link. */
   @Post("studios")
   createStudio(@Req() req: Request, @Body() body: unknown): AdminCreateStudioResult {

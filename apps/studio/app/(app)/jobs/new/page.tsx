@@ -9,8 +9,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: jobsMsgs[await getLocale()].create.title };
 }
 
-export default async function NewJobPage({ searchParams }: { searchParams: Promise<{ organizationId?: string }> }) {
-  const { organizationId } = await searchParams;
+export default async function NewJobPage({ searchParams }: { searchParams: Promise<{ client?: string }> }) {
+  const { client } = await searchParams;
   const { studio } = await getSession();
   const t = jobsMsgs[await getLocale()];
   const [organizations, priceSheets] = await Promise.all([load((c) => c.organizations.list()), load((c) => c.priceSheets.list())]);
@@ -20,9 +20,9 @@ export default async function NewJobPage({ searchParams }: { searchParams: Promi
       <NewJobForm
         studio={{ name: studio.name, logoUrl: studio.logoUrl, brandColor: studio.brandColor }}
         markets={studio.markets}
-        organizations={organizations}
+        clientNames={[...new Set(organizations.map((o) => o.name))].sort((a, b) => a.localeCompare(b))}
         priceSheets={priceSheets.filter((p) => !p.archived)}
-        defaultOrganizationId={organizationId}
+        defaultClientName={client}
       />
     </>
   );

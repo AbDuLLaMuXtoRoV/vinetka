@@ -1,5 +1,5 @@
 import type { Role } from "@snapbell/sdk";
-import { Briefcase, Building2, ChartColumn, House, ReceiptText, Settings, ShoppingBag, TicketPercent, type LucideIcon } from "lucide-react";
+import { Briefcase, ChartColumn, House, ReceiptText, Settings, ShoppingBag, TicketPercent, Users, type LucideIcon } from "lucide-react";
 import type { commonMsgs } from "@/messages/common";
 
 export interface NavItem {
@@ -16,9 +16,9 @@ export const NAV: NavItem[] = [
   { href: "/jobs", key: "jobs", icon: Briefcase },
   { href: "/price-sheets", key: "priceSheets", icon: ReceiptText, roles: ["owner", "admin"] },
   { href: "/orders", key: "orders", icon: ShoppingBag },
+  { href: "/clients", key: "clients", icon: Users, roles: ["owner", "admin"] },
   { href: "/promos", key: "promos", icon: TicketPercent, roles: ["owner", "admin"] },
   { href: "/reports", key: "reports", icon: ChartColumn, roles: ["owner", "admin"] },
-  { href: "/organizations", key: "organizations", icon: Building2 },
   { href: "/settings/studio", key: "settings", icon: Settings },
 ];
 

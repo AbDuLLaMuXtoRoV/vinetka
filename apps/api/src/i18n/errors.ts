@@ -73,6 +73,8 @@ export const errorMessages = defineMessages(
       otpUnavailable: "We couldn't send a code right now. Try again shortly.",
       setupLinkInvalid: "This link isn't valid or has already been used. Ask the person who invited you for a new one.",
       setupLinkExpired: "This link has expired. Ask the person who invited you for a new one.",
+      handoffInvalid: "This sign-in link isn't valid or has already been used. Please sign in again.",
+      handoffExpired: "This sign-in link has expired. Please sign in again.",
       alreadySetUp: "This account is already set up. Sign in with its email and password.",
     },
     contact: {
@@ -261,6 +263,8 @@ export const errorMessages = defineMessages(
         otpUnavailable: "Сейчас не удалось отправить код. Попробуйте чуть позже.",
         setupLinkInvalid: "Ссылка недействительна или уже использована. Попросите пригласившего вас прислать новую.",
         setupLinkExpired: "Срок действия ссылки истёк. Попросите пригласившего вас прислать новую.",
+        handoffInvalid: "Ссылка для входа недействительна или уже использована. Пожалуйста, войдите снова.",
+        handoffExpired: "Срок действия ссылки для входа истёк. Пожалуйста, войдите снова.",
         alreadySetUp: "Этот аккаунт уже настроен. Войдите с его email и паролем.",
       },
       contact: {
@@ -436,6 +440,8 @@ export const errorMessages = defineMessages(
         otpUnavailable: "Hozir kod yuborib boʻlmadi. Birozdan soʻng qayta urinib koʻring.",
         setupLinkInvalid: "Havola yaroqsiz yoki allaqachon ishlatilgan. Sizni taklif qilgan kishidan yangisini soʻrang.",
         setupLinkExpired: "Havolaning amal qilish muddati tugagan. Sizni taklif qilgan kishidan yangisini soʻrang.",
+        handoffInvalid: "Kirish havolasi yaroqsiz yoki allaqachon ishlatilgan. Iltimos, qaytadan kiring.",
+        handoffExpired: "Kirish havolasining muddati tugagan. Iltimos, qaytadan kiring.",
         alreadySetUp: "Bu hisob allaqachon sozlangan. Uning emaili va paroli bilan kiring.",
       },
       contact: {

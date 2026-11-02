@@ -11,6 +11,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { canonicalPath, localePath } from "@/lib/i18n";
 import { productNav, resourcesNav, type ProductNavKey, type ResourceKey } from "@/lib/site";
 import { commonMsgs } from "@/messages/common";
+import { MobileAccountSlot } from "./account/account-slot";
 import { useLocaleHrefs } from "./locale-hrefs";
 
 const productIcons: Record<ProductNavKey, LucideIcon> = {
@@ -149,8 +150,8 @@ export function DesktopNav({ sampleStoreUrl }: { sampleStoreUrl: string }) {
   );
 }
 
-/** Mobile hamburger menu: parent entry points (find photos, shop sign in/up) pinned at the top. */
-export function MobileNav({ signInUrl, signUpUrl, studioLoginUrl }: { signInUrl: string; signUpUrl: string; studioLoginUrl: string }) {
+/** Mobile hamburger menu: parent entry points (find photos, account) pinned at the top and bottom. */
+export function MobileNav({ studioLoginUrl }: { studioLoginUrl: string }) {
   const locale = useLocale();
   const t = commonMsgs[locale].nav;
   const [open, setOpen] = useState(false);
@@ -174,19 +175,7 @@ export function MobileNav({ signInUrl, signUpUrl, studioLoginUrl }: { signInUrl:
             <Menu className="size-6" aria-hidden />
           </Button>
         }
-        footer={
-          <div className="grid w-full gap-2">
-            <p className="text-xs font-semibold tracking-wide text-muted uppercase">{t.forParents}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button asChild variant="primary" size="lg" block>
-                <a href={signUpUrl}>{t.signUp}</a>
-              </Button>
-              <Button asChild variant="outline" size="lg" block>
-                <a href={signInUrl}>{t.signIn}</a>
-              </Button>
-            </div>
-          </div>
-        }
+        footer={<MobileAccountSlot />}
       >
         <nav aria-label={t.main} className="grid gap-6">
           <Button asChild variant="outline" size="lg" block>

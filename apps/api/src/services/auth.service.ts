@@ -36,9 +36,11 @@ const OTP_RESEND_MS = 30_000;
 const OTP_MAX_ATTEMPTS = 5;
 const MAGIC_LINK_TTL_MS = 15 * 60_000;
 const SETUP_LINK_TTL_MS = 7 * 24 * 60 * 60_000;
+const PARENT_HANDOFF_TTL_MS = 60_000;
 
 /** Setup tokens are looked up by HMAC so a leaked table can't be used to set passwords. */
 const setupTokenHash = (token: string) => hmac(`setup:${token}`);
+const handoffHash = (code: string) => hmac(`handoff:${code}`);
 
 /** Roles kept away from money: reports, payouts, payment settings, refunds, team management. */
 export const MANAGERS_ONLY = { deny: ["photographer"] as Role[] };
@@ -54,6 +56,7 @@ export class AuthService {
   private readonly loginLimiter = new RateLimiter(20, 60_000, () => err().rate.login);
   private readonly otpSendLimiter = new RateLimiter(10, 10 * 60_000, () => err().rate.otpSend);
   private readonly otpVerifyLimiter = new RateLimiter(20, 10 * 60_000, () => err().rate.otpVerify);
+  private readonly handoffLimiter = new RateLimiter(30, 10 * 60_000, () => err().rate.login);
 
   constructor(
     private readonly repo: Repository,
@@ -193,6 +196,36 @@ export class AuthService {
     member.status = "active";
     for (const other of this.repo.setupTokens.filter((t) => t.memberId === member.id && t.id !== row.id)) this.repo.setupTokens.remove(other.id);
     return this.staffSession(member);
+  }
+
+  // --- Parent handoff between sites (main site → shop) -----------------------------------
+
+  /**
+   * One-time code for a signed-in parent moving to another Snapbell site. The
+   * sites live on different domains, so the session can't be shared as a cookie.
+   */
+  issueParentHandoff(req: Request): { code: string; expiresInSec: number } {
+    const parent = this.parent(req);
+    const now = Date.now();
+    for (const old of this.repo.parentHandoffs.filter((h) => h.expiresAt < now || h.usedAt !== null)) this.repo.parentHandoffs.remove(old.id);
+    const code = randomToken(24);
+    this.repo.parentHandoffs.insert({ id: handoffHash(code), parentId: parent.id, expiresAt: now + PARENT_HANDOFF_TTL_MS, usedAt: null });
+    return { code, expiresInSec: PARENT_HANDOFF_TTL_MS / 1000 };
+  }
+
+  /** Exchanges a handoff code for a fresh parent session. Consent is never touched. */
+  redeemParentHandoff(req: Request, code: string): ParentSession {
+    this.handoffLimiter.hit(clientIp(req));
+    const row = this.repo.parentHandoffs.get(handoffHash(code));
+    const parent = row ? this.repo.parents.get(row.parentId) : undefined;
+    if (!row || row.usedAt !== null || !parent) throw new ApiError(404, "handoff_invalid", err().auth.handoffInvalid);
+    if (row.expiresAt < Date.now()) {
+      this.repo.parentHandoffs.remove(row.id);
+      throw new ApiError(410, "handoff_expired", err().auth.handoffExpired);
+    }
+    row.usedAt = Date.now();
+    this.rememberLocale(parent);
+    return { token: signToken({ k: "parent", sub: parent.id }), parent: this.views.parent(parent) };
   }
 
   magicLink(email: string): { sent: true; devLink: string | null } {

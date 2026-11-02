@@ -1,5 +1,7 @@
 import type {
   AccountSetupInfo,
+  AdminClientRow,
+  StudioClientRow,
   AccountSummary,
   AdminCreateStudioInput,
   AdminCreateStudioResult,
@@ -173,6 +175,12 @@ export function createClient(options: ClientOptions) {
       completeSetup: (body: { token: string; password: string }) => post<StaffSession>("/auth/setup", body),
       magicLink: (body: { email: string }) => post<{ sent: true; devLink: string | null }>("/auth/magic-link", body),
       redeemMagicLink: (body: { token: string }) => post<StaffSession>("/auth/magic-link/redeem", body),
+      /**
+       * Parent signed in on one site (e.g. the main site) moving to another (the shop):
+       * a one-time code valid for 60 seconds, exchanged by the target site.
+       */
+      parentHandoff: () => post<{ code: string; expiresInSec: number }>("/auth/parent-handoff"),
+      redeemParentHandoff: (body: { code: string }) => post<ParentSession>("/auth/parent-handoff/redeem", body),
       /** Parents: phone or email one-time code. Rate-limited; resend after 30s. */
       sendOtp: (body: { destination: string; channel: MessageChannel; albumCode?: string }) =>
         post<OtpSendResult>("/auth/otp/send", body),
@@ -202,6 +210,8 @@ export function createClient(options: ClientOptions) {
       updateMember: (id: ID, body: { role?: Role }) => patch<Member>(`/studio/members/${e(id)}`, body),
       /** Returns the Stripe Connect onboarding URL (in dev: an instant mock connection). */
       connectStripe: () => post<{ url: string; studio: Studio }>("/studio/stripe/connect"),
+      /** Parents who have bought from this studio (owners and admins only). */
+      clients: (query: { q?: string } = {}) => get<StudioClientRow[]>("/studio/clients", query),
     },
 
     organizations: {
@@ -376,6 +386,8 @@ export function createClient(options: ClientOptions) {
         get<ContactRequest[]>("/admin/contact-requests", query),
       updateContactRequest: (id: ID, body: { status?: ContactRequestStatus; note?: string | null }) =>
         patch<ContactRequest>(`/admin/contact-requests/${e(id)}`, body),
+      /** Every customer account on the platform. */
+      clients: (query: { q?: string } = {}) => get<AdminClientRow[]>("/admin/clients", query),
       flags: () => get<FeatureFlag[]>("/admin/flags"),
       updateFlag: (key: string, body: Partial<Pick<FeatureFlag, "enabled" | "studioIds">>) =>
         patch<FeatureFlag>(`/admin/flags/${e(key)}`, body),

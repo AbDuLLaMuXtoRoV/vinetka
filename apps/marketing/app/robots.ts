@@ -8,7 +8,8 @@ export default function robots(): MetadataRoute.Robots {
     return { rules: [{ userAgent: "*", disallow: "/" }] };
   }
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
+    // /go/ only hands parents over to the shop; account pages are noindex.
+    rules: [{ userAgent: "*", allow: "/", disallow: "/go/" }],
     sitemap: `${base}/sitemap.xml`,
     host: base,
   };

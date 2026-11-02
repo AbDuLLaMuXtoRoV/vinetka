@@ -39,6 +39,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except Next internals, the placeholder image route, SEO files and static files.
-  matcher: ["/((?!_next/|ph\\.svg|sitemap\\.xml|robots\\.txt|favicon\\.ico|.*\\.[A-Za-z0-9]+$).*)"],
+  // Everything except Next internals, the /go/store handoff, the placeholder image route, SEO files and static files.
+  matcher: ["/((?!_next/|go/|ph\\.svg|sitemap\\.xml|robots\\.txt|favicon\\.ico|.*\\.[A-Za-z0-9]+$).*)"],
 };

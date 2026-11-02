@@ -51,6 +51,19 @@ export class AuthController {
     return this.auth.redeemMagicLink(parse(z.object({ token: z.string().min(1).max(200) }), body).token);
   }
 
+  /** A signed-in parent moving from the main site to the shop (different domains). */
+  @Post("parent-handoff")
+  @HttpCode(200)
+  parentHandoff(@Req() req: Request) {
+    return this.auth.issueParentHandoff(req);
+  }
+
+  @Post("parent-handoff/redeem")
+  @HttpCode(200)
+  redeemParentHandoff(@Req() req: Request, @Body() body: unknown) {
+    return this.auth.redeemParentHandoff(req, parse(z.object({ code: z.string().min(1).max(200) }), body).code);
+  }
+
   @Post("otp/send")
   @HttpCode(200)
   sendOtp(@Req() req: Request, @Body() body: unknown) {

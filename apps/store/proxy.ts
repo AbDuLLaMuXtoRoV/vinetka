@@ -12,6 +12,9 @@ const GATED = /^\/(?:a(?:\/|$)|cart$|checkout$|orders(?:\/|$)|account$)/;
 export function proxy(req: NextRequest) {
   const { pathname, search, searchParams } = req.nextUrl;
 
+  // Handoff from the main site: public, and it reads ?lang= itself (no extra redirect).
+  if (pathname === "/auth/continue") return NextResponse.next();
+
   // Links from the marketing site or texts can carry ?lang=ru: remember it, then drop it from the URL.
   if (searchParams.has("lang")) {
     const lang = searchParams.get("lang");

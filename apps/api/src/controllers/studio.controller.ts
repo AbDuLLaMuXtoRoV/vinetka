@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req } from "@nestjs/common";
 import { MARKETS, ONBOARDING_STEPS, type HomeSummary, type Organization } from "@snapbell/sdk";
 import type { Request } from "express";
 import { z } from "zod";
@@ -6,7 +6,7 @@ import { config } from "../config";
 import { newId } from "../common/crypto";
 import { badRequest, conflict, forbidden, notFound } from "../common/errors";
 import { DAY_MS, sum } from "../common/util";
-import { addressSchema, cents, parse } from "../common/validate";
+import { addressSchema, cents, parse, query } from "../common/validate";
 import { Repository } from "../store/repository";
 import { AuthService, MANAGERS_ONLY } from "../services/auth.service";
 import { MediaService } from "../services/media.service";
@@ -119,6 +119,16 @@ export class StudioController {
       todos,
       recentOrders: orders.slice(0, 8).map((o) => ({ ...this.views.orderSummary(o), big: o.split.totalCents >= studio.bigOrderThresholdCents })),
     };
+  }
+
+  /**
+   * Parents who have bought from this studio, and only those (see ViewsService.studioClients).
+   * Owners and admins only: it shows contact details and money.
+   */
+  @Get("studio/clients")
+  clients(@Req() req: Request, @Query() q: Record<string, unknown>) {
+    const { studio } = this.auth.staff(req, MANAGERS_ONLY);
+    return this.views.studioClients(studio.id, query(q, "q"));
   }
 
   @Get("studio/members")

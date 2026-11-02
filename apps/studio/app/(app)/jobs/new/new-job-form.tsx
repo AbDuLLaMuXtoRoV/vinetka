@@ -1,19 +1,17 @@
 "use client";
 
-import type { AlbumType, Market, Organization, PriceSheetSummary, StudioBranding } from "@snapbell/sdk";
+import type { AlbumType, Market, PriceSheetSummary, StudioBranding } from "@snapbell/sdk";
 import { Button } from "@snapbell/ui/button";
 import { Card, CardBody } from "@snapbell/ui/card";
 import { Checkbox } from "@snapbell/ui/checkbox";
 import { Field } from "@snapbell/ui/field";
-import { Input } from "@snapbell/ui/input";
+import { Combobox, Input } from "@snapbell/ui/input";
 import { useLocale } from "@snapbell/ui/locale";
 import { RadioGroup } from "@snapbell/ui/radio-group";
 import { Select } from "@snapbell/ui/select";
-import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { OrganizationDialog } from "@/components/org-form";
 import { ParentPreview } from "@/components/parent-preview";
 import { useAction } from "@/components/use-action";
 import { createJob } from "@/lib/actions";
@@ -24,23 +22,23 @@ import { jobsMsgs } from "@/messages/jobs";
 export function NewJobForm({
   studio,
   markets,
-  organizations: initialOrgs,
+  clientNames,
   priceSheets,
-  defaultOrganizationId,
+  defaultClientName,
 }: {
   studio: StudioBranding;
   markets: Market[];
-  organizations: Organization[];
+  /** Names used on earlier jobs, offered as suggestions. */
+  clientNames: string[];
   priceSheets: PriceSheetSummary[];
-  defaultOrganizationId?: string;
+  defaultClientName?: string;
 }) {
   const router = useRouter();
   const locale = useLocale();
   const t = jobsMsgs[locale].create;
   const { albumTypes, markets: marketLabels } = useLabels();
   const { run, pending } = useAction();
-  const [organizations, setOrganizations] = useState(initialOrgs);
-  const [organizationId, setOrganizationId] = useState(defaultOrganizationId ?? initialOrgs[0]?.id ?? "");
+  const [clientName, setClientName] = useState(defaultClientName ?? "");
   const [name, setName] = useState(t.defaultName);
   const [market, setMarket] = useState<Market>(markets[0] ?? "schools");
   const [date, setDate] = useState("");
@@ -52,25 +50,24 @@ export function NewJobForm({
   const [deadline, setDeadline] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
 
-  const org = organizations.find((o) => o.id === organizationId);
   const deadlineIso = fromDateInput(deadline, "end");
   const errors = useMemo(() => {
     const e: string[] = [];
-    if (!organizationId) e.push(t.errors.org);
+    if (!clientName.trim()) e.push(t.errors.org);
     if (!name.trim()) e.push(t.errors.name);
     if (!date) e.push(t.errors.date);
     if (!priceSheetId) e.push(t.errors.sheet);
     if (!home && !pickup) e.push(t.errors.delivery);
     if (deadline && date && deadline < date) e.push(t.errors.deadline);
     return e;
-  }, [organizationId, name, date, priceSheetId, home, pickup, deadline, t]);
+  }, [clientName, name, date, priceSheetId, home, pickup, deadline, t]);
 
   const submit = () => {
     const pictureDay = fromDateInput(date, "noon")!;
     run(
       () =>
         createJob({
-          organizationId,
+          clientName,
           name: name.trim(),
           market,
           date: pictureDay,
@@ -91,28 +88,16 @@ export function NewJobForm({
         <Card>
           <CardBody className="grid gap-5">
             <h2 className="text-lg font-semibold">{t.whoWhen}</h2>
-            <Field label={t.organization} htmlFor="job-org" locale={locale}>
-              <div className="flex gap-2">
-                <Select id="job-org" wrapperClassName="flex-1" value={organizationId} onChange={(e) => setOrganizationId(e.target.value)}>
-                  {organizations.length === 0 && <option value="">{t.addOrgFirst}</option>}
-                  {organizations.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.name}
-                    </option>
-                  ))}
-                </Select>
-                <OrganizationDialog
-                  trigger={
-                    <Button variant="outline" aria-label={t.newOrg}>
-                      <Plus /> {t.newOrgShort}
-                    </Button>
-                  }
-                  onSaved={(o) => {
-                    setOrganizations((list) => [...list, o]);
-                    setOrganizationId(o.id);
-                  }}
-                />
-              </div>
+            <Field label={t.organization} htmlFor="job-org" hint={t.organizationHint} locale={locale}>
+              <Combobox
+                id="job-org"
+                options={clientNames}
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                placeholder={t.organizationPlaceholder}
+                maxLength={200}
+                aria-describedby="job-org-hint"
+              />
             </Field>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label={t.jobName} htmlFor="job-name" locale={locale}>
@@ -215,7 +200,7 @@ export function NewJobForm({
       </div>
 
       <aside className="lg:sticky lg:top-8 lg:self-start">
-        <ParentPreview studio={studio} organizationName={org?.name ?? ""} jobName={name} albumType={albumType} deadline={deadlineIso} watermark />
+        <ParentPreview studio={studio} organizationName={clientName.trim()} jobName={name} albumType={albumType} deadline={deadlineIso} watermark />
       </aside>
     </div>
   );

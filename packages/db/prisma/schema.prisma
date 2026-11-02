@@ -461,10 +461,26 @@ model Parent {
   createdAt           DateTime  @default(now())
 
   subjects  ParentSubject[]
+  handoffs  ParentHandoff[]
   favorites Favorite[]
   carts     Cart[]
   orders    Order[]
   passes    Pass[]
+}
+
+/// One-time code carrying a signed-in parent from the main site to the shop.
+/// Only a hash is stored; valid 60 seconds; single use.
+model ParentHandoff {
+  id        String    @id @default(cuid())
+  parentId  String
+  codeHash  String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  parent Parent @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@index([parentId])
 }
 
 model ParentSubject {

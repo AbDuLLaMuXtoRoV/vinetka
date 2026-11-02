@@ -123,6 +123,17 @@ export interface SetupTokenRow {
   usedAt: number | null;
   createdAt: number;
 }
+/**
+ * One-time code that carries a signed-in parent from one site to another
+ * (main site → shop). Only a hash is stored; valid 60 seconds; single use.
+ */
+export interface ParentHandoffRow {
+  /** HMAC of the raw code. */
+  id: string;
+  parentId: string;
+  expiresAt: number;
+  usedAt: number | null;
+}
 export interface ParentSubjectRow {
   id: string;
   parentId: string;
@@ -201,6 +212,7 @@ export abstract class Repository {
   abstract readonly suppressions: Table<SuppressionRow>;
   abstract readonly notifyRequests: Table<NotifyRequestRow>;
   abstract readonly setupTokens: Table<SetupTokenRow>;
+  abstract readonly parentHandoffs: Table<ParentHandoffRow>;
   abstract readonly contactRequests: Table<ContactRequest>;
 
   /** Next human-readable order number, e.g. "SB-10452". */

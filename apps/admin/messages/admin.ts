@@ -9,6 +9,7 @@ export const adminMsgs = defineMessages(
     nav: {
       label: "Admin",
       studios: "Studios",
+      clients: "Clients",
       jobs: "Jobs",
       orders: "Orders & refunds",
       labQueue: "Lab queue",
@@ -158,6 +159,7 @@ export const adminMsgs = defineMessages(
       nav: {
         label: "Администрирование",
         studios: "Студии",
+        clients: "Клиенты",
         jobs: "Съёмки",
         orders: "Заказы и возвраты",
         labQueue: "Очередь лаборатории",
@@ -306,6 +308,7 @@ export const adminMsgs = defineMessages(
       nav: {
         label: "Boshqaruv",
         studios: "Studiyalar",
+        clients: "Mijozlar",
         jobs: "Suratga olishlar",
         orders: "Buyurtmalar va qaytarishlar",
         labQueue: "Laboratoriya navbati",

@@ -2,7 +2,7 @@
 
 import { cn } from "@snapbell/ui/lib/cn";
 import { LanguageSwitcher, useMessages } from "@snapbell/ui/locale";
-import { Briefcase, Flag, FlaskConical, Inbox, LogOut, MessageSquare, ShoppingBag, Store } from "lucide-react";
+import { Briefcase, Flag, FlaskConical, Inbox, LogOut, MessageSquare, ShoppingBag, Store, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -13,6 +13,7 @@ import { onboardingMsgs } from "@/messages/onboarding";
 const NAV = [
   { href: "/requests", key: "requests", icon: Inbox },
   { href: "/studios", key: "studios", icon: Store },
+  { href: "/clients", key: "clients", icon: Users },
   { href: "/jobs", key: "jobs", icon: Briefcase },
   { href: "/orders", key: "orders", icon: ShoppingBag },
   { href: "/lab-queue", key: "labQueue", icon: FlaskConical },
