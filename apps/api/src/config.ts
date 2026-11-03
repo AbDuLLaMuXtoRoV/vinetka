@@ -22,16 +22,12 @@ export const config = {
   authSecret: process.env.AUTH_SECRET ?? DEV_SECRET,
   /** Absolute origin used in signed media/upload/download URLs. Defaults to http://localhost:<port>. */
   publicApiUrl: (process.env.PUBLIC_API_URL ?? "").replace(/\/$/, ""),
-  studioUrl: (process.env.STUDIO_URL ?? "http://localhost:3002").replace(/\/$/, ""),
-  storeUrl: (process.env.STORE_URL ?? "http://localhost:3001").replace(/\/$/, ""),
+  studioUrl: (process.env.STUDIO_URL ?? "http://localhost:3000/studio").replace(/\/$/, ""),
+  storeUrl: (process.env.STORE_URL ?? "http://localhost:3000/shop").replace(/\/$/, ""),
   /** Where contact-page and partner requests are announced. */
   teamEmail: process.env.SNAPBELL_TEAM_EMAIL || "team@snapbell.com",
-  webOrigins: list(process.env.WEB_ORIGINS, [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-    "http://localhost:3003",
-  ]),
+  /** One site serves the main site, /shop, /studio and /admin. */
+  webOrigins: list(process.env.WEB_ORIGINS, ["http://localhost:3000"]),
   /** Express "trust proxy" setting so the Next.js servers can forward the client IP for rate limits. */
   trustProxy: process.env.TRUST_PROXY ?? "loopback, linklocal, uniquelocal",
   redisUrl: process.env.REDIS_URL ?? null,

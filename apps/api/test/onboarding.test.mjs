@@ -50,7 +50,7 @@ describe("studios are created by Snapbell staff only", () => {
     assert.deepEqual(created.studio.studio.markets, ["sports"]);
     assert.equal(api.repo.members.get(created.owner.id).phone, "+998901234500");
     assert.ok(!("phone" in created.owner), "phone stays internal");
-    assert.match(created.setupLink.url, /^http:\/\/localhost:3002\/setup\?token=/);
+    assert.match(created.setupLink.url, /^http:\/\/localhost:3000\/studio\/setup\?token=/);
 
     // The welcome email goes out, but the live link is never stored in the message log.
     const welcome = api.repo.messages.find((m) => m.template === "studio_welcome" && m.to === created.owner.email);

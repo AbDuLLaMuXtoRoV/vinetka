@@ -14,7 +14,7 @@
     "db:generate": "pnpm --filter @snapbell/db generate",
     "db:migrate": "pnpm --filter @snapbell/db migrate",
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
-    "start:all": "turbo run start --filter=@snapbell/api --filter=@snapbell/marketing --filter=@snapbell/store --filter=@snapbell/studio --filter=@snapbell/admin",
+    "start:all": "node scripts/start.mjs --demo",
     "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {

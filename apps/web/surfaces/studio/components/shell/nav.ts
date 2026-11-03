@@ -1,0 +1,27 @@
+import type { Role } from "@snapbell/sdk";
+import { Briefcase, ChartColumn, House, ReceiptText, Settings, ShoppingBag, TicketPercent, Users, type LucideIcon } from "lucide-react";
+import type { commonMsgs } from "@studio/messages/common";
+
+export interface NavItem {
+  href: string;
+  /** Key into commonMsgs.nav for the translated label. */
+  key: keyof (typeof commonMsgs)["en"]["nav"];
+  icon: LucideIcon;
+  /** Roles that can see it; undefined means everyone. */
+  roles?: Role[];
+}
+
+export const NAV: NavItem[] = [
+  { href: "/studio/home", key: "home", icon: House },
+  { href: "/studio/jobs", key: "jobs", icon: Briefcase },
+  { href: "/studio/price-sheets", key: "priceSheets", icon: ReceiptText, roles: ["owner", "admin"] },
+  { href: "/studio/orders", key: "orders", icon: ShoppingBag },
+  { href: "/studio/clients", key: "clients", icon: Users, roles: ["owner", "admin"] },
+  { href: "/studio/promos", key: "promos", icon: TicketPercent, roles: ["owner", "admin"] },
+  { href: "/studio/reports", key: "reports", icon: ChartColumn, roles: ["owner", "admin"] },
+  { href: "/studio/settings/studio", key: "settings", icon: Settings },
+];
+
+export function navFor(role: Role): NavItem[] {
+  return NAV.filter((item) => !item.roles || item.roles.includes(role));
+}

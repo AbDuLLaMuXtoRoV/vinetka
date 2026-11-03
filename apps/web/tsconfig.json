@@ -1,0 +1,32 @@
+{
+  "extends": "@snapbell/config/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "paths": {
+      "@site/*": [
+        "./surfaces/site/*"
+      ],
+      "@shop/*": [
+        "./surfaces/shop/*"
+      ],
+      "@studio/*": [
+        "./surfaces/studio/*"
+      ],
+      "@admin/*": [
+        "./surfaces/admin/*"
+      ],
+      "@web/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
+}

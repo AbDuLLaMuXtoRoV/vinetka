@@ -10,11 +10,13 @@
  */
 import { createClient, DEMO_CODES, DEMO_CREDENTIALS, DEMO_IDS } from "@snapbell/sdk";
 
-const API = process.env.API_URL ?? "http://localhost:4000/v1";
-const SITE = process.env.SITE_URL ?? "http://localhost:3000";
-const STORE = process.env.STORE_URL ?? "http://localhost:3001";
-const STUDIO = process.env.STUDIO_URL ?? "http://localhost:3002";
-const ADMIN = process.env.ADMIN_URL ?? "http://localhost:3003";
+// One site: main site at /, shop at /shop, studio at /studio, admin at /admin, API at /v1.
+const SITE = (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+const API = process.env.API_URL ?? `${SITE}/v1`;
+const STORE = process.env.STORE_URL ?? `${SITE}/shop`;
+const STUDIO = process.env.STUDIO_URL ?? `${SITE}/studio`;
+const ADMIN = process.env.ADMIN_URL ?? `${SITE}/admin`;
+const SAME_SITE = new URL(STORE).origin === new URL(SITE).origin;
 
 let failures = 0;
 const ok = (msg) => console.log(`  ✓ ${msg}`);
@@ -69,7 +71,8 @@ await section("Parent sign-in (one-time code)", async () => {
 
 await section("Family Store pages", async () => {
   const cookie = `sb_parent=${parentApi.token}`;
-  await expectPage(`${STORE}/`, null, null, "/ (enter code)");
+  // No trailing slash: on one site the shop root is /shop (Next redirects /shop/ → /shop).
+  await expectPage(STORE, null, null, "/ (enter code)");
   const gated = await page(`${STORE}/a/${DEMO_CODES.personal}`);
   check(gated.status >= 300 && gated.status < 400 && gated.location?.includes("/verify"), `/a/SAMPLE without session redirects to /verify`);
   await expectPage(`${STORE}/a/${DEMO_CODES.personal}`, cookie, "Ava", "/a/SAMPLE (album)");
@@ -233,8 +236,15 @@ await section("Studios are created by Snapbell only", async () => {
 await section("Shop accounts for parents", async () => {
   const go = await page(`${SITE}/go/store?to=/account&lang=en`, `sb_parent=${parentApi.token}`);
   const handoff = go.location ?? "";
-  check(go.status >= 300 && go.status < 400 && handoff.includes("/auth/continue?code="), "signed-in main-site link hands the login to the shop");
-  if (handoff.includes("/auth/continue")) {
+  if (SAME_SITE) {
+    // One site: the main site and the shop share the login cookie, no handoff needed.
+    check(go.status >= 300 && go.status < 400 && handoff.includes("/shop/account"), `main-site link goes straight to the shop (${handoff})`);
+    const account = await page(`${STORE}/account`, `sb_parent=${parentApi.token}`);
+    check(account.status === 200, `same login works in the shop (${account.status})`);
+  } else {
+    check(go.status >= 300 && go.status < 400 && handoff.includes("/auth/continue?code="), "signed-in main-site link hands the login to the shop");
+  }
+  if (!SAME_SITE && handoff.includes("/auth/continue")) {
     const cont = await fetch(handoff, { redirect: "manual" });
     const setCookie = cont.headers.get("set-cookie") ?? "";
     check(cont.status >= 300 && cont.status < 400 && setCookie.includes("sb_parent="), `shop accepted the handoff (${cont.status})`);
@@ -242,7 +252,8 @@ await section("Shop accounts for parents", async () => {
     check((reused.headers.get("location") ?? "").includes("/signin"), "a handoff code works only once");
   }
   const anon = await page(`${SITE}/go/store?to=/&lang=en`);
-  check((anon.location ?? "").startsWith(STORE) && !(anon.location ?? "").includes("/auth/continue"), "signed-out link goes straight to the shop");
+  const anonTarget = anon.location ? new URL(anon.location, SITE).href : "";
+  check(anonTarget.startsWith(STORE) && !anonTarget.includes("/auth/continue"), "signed-out link goes straight to the shop");
   await expectPage(`${STORE}/signin`, null, null, "/signin");
   await expectPage(`${STORE}/signup`, null, null, "/signup");
   const gated = await page(`${STORE}/account`);

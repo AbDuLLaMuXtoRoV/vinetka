@@ -2,7 +2,7 @@
 
 Each page and screen in the build plan is one ticket. "Built" means the page exists, type-checks, builds and renders against the demo API; the main paths are covered by `pnpm smoke`. Integrations that need third-party accounts are tracked in the [launch checklist](#qa-and-launch-checklist).
 
-## Marketing site: `apps/marketing` (14 pages + legal), all built
+## Marketing site: `apps/web/app/(site)` + `apps/web/surfaces/site` (14 pages + legal), all built
 
 | # | Route | Code |
 |---|---|---|
@@ -16,7 +16,7 @@ Each page and screen in the build plan is one ticket. "Built" means the page exi
 | Legal | `/terms`, `/terms-parents`, `/privacy`, `/biometrics`, `/cookies`, `/data-request` | `components/legal-page.tsx`, `content/legal.ts` |
 | SEO | sitemap, robots, OG image, JSON-LD, 404 | `app/sitemap.ts`, `app/robots.ts`, `app/opengraph-image.tsx` |
 
-## Family Store: `apps/store` (12 screens), all built
+## Family Store: `/shop`, `apps/web/app/(shop)/shop` + `apps/web/surfaces/shop` (12 screens), all built
 
 | # | Route | Notes |
 |---|---|---|
@@ -33,11 +33,11 @@ Each page and screen in the build plan is one ticket. "Built" means the page exi
 | 11 | `/account` | Children, orders, notifications, data export and deletion |
 | 12 | `/pass/[job]` | Picture Day Pass pre-pay |
 
-## Studio app: `apps/studio` (22 screens), all built
+## Studio app: `/studio`, `apps/web/app/(studio)/studio` + `apps/web/surfaces/studio` (22 screens), all built
 
 Routes live under `app/(app)/` unless noted: `/login`, `(setup)/onboarding`, `/home`, `/jobs`, `/jobs/new`, `/jobs/[id]` and its sub-pages (`roster` with `roster/print`, `photos`, `matching`, `settings`, `marketing`, `orders`, `exports`), `/price-sheets`, `/price-sheets/[id]`, `/promos`, `/orders`, `/orders/[id]`, `/reports`, `/organizations`, `/settings/studio`, `/settings/payments`. There are also `/organizations/[id]` and auth handoff routes (`/auth/handoff`, `/auth/magic`).
 
-## Internal admin: `apps/admin` (6 screens), all built
+## Internal admin: `/admin`, `apps/web/app/(admin)/admin` + `apps/web/surfaces/admin` (6 screens), all built
 
 `/studios`, `/jobs`, `/orders` + `/orders/[id]` (refunds), `/lab-queue` (retry), `/messages`, `/flags`.
 
