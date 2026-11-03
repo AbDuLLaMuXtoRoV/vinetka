@@ -28,9 +28,25 @@ export interface FormState {
   redirectTo?: string;
   /** Contact request kind that was sent (analytics: contact_submitted). */
   kind?: ContactRequestKind;
+  /**
+   * What the visitor submitted, returned with errors. React resets uncontrolled
+   * forms after an action; the fields use these as their values so nothing typed is lost.
+   */
+  values?: Record<string, string | string[]>;
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** The submitted fields (minus internal ones) so a failed form can be shown again as it was. */
+function snapshot(form: FormData): Record<string, string | string[]> {
+  const values: Record<string, string | string[]> = {};
+  for (const key of new Set(form.keys())) {
+    if (key.startsWith("$") || key === "locale" || key === "website") continue;
+    const all = form.getAll(key).filter((v): v is string => typeof v === "string");
+    values[key] = all.length > 1 || key === "markets" ? all : (all[0] ?? "");
+  }
+  return values;
+}
 
 function text(form: FormData, key: string): string {
   const v = form.get(key);
@@ -94,7 +110,7 @@ export async function subscribeNewsletter(_prev: FormState, form: FormData): Pro
   const locale = formLocale(form);
   const t = formMsgs[locale];
   if (!EMAIL.test(text(form, "email"))) {
-    return { status: "error", errors: { email: t.validation.emailShort } };
+    return { status: "error", errors: { email: t.validation.emailShort }, values: snapshot(form) };
   }
   console.info("[lead:newsletter]", text(form, "email"));
   return { status: "success", message: t.results.newsletter };
@@ -113,7 +129,7 @@ export async function submitPartnerRequest(_prev: FormState, form: FormData): Pr
   if (email && !EMAIL.test(email)) errors.email = t.validation.email;
   const phone = phoneValue(form, locale, errors);
   if (!email && !text(form, "phone")) errors.email = t.validation.emailOrPhone;
-  if (Object.keys(errors).length) return { status: "error", errors };
+  if (Object.keys(errors).length) return { status: "error", errors, values: snapshot(form) };
 
   const markets = form.getAll("markets").filter((m): m is Market => typeof m === "string" && (MARKETS as string[]).includes(m));
   const failed = await sendRequest(locale, {
@@ -126,7 +142,7 @@ export async function submitPartnerRequest(_prev: FormState, form: FormData): Pr
     message: text(form, "message"),
     details: { role, ...(markets.length ? { markets: markets.join(",") } : {}) },
   });
-  return failed ?? { status: "success", message: kind === "partner" ? t.results.partner : t.results.contact, kind };
+  return failed ? { ...failed, values: snapshot(form) } : { status: "success", message: kind === "partner" ? t.results.partner : t.results.contact, kind };
 }
 
 /** /about contact form. */
@@ -135,7 +151,7 @@ export async function sendContact(_prev: FormState, form: FormData): Promise<For
   const t = formMsgs[locale];
   if (isBot(form)) return { status: "success", message: t.results.contact, kind: "contact" };
   const errors = requireFields(form, locale, { name: t.fields.name, email: t.fields.email, message: t.fields.howHelp });
-  if (Object.keys(errors).length) return { status: "error", errors };
+  if (Object.keys(errors).length) return { status: "error", errors, values: snapshot(form) };
   const failed = await sendRequest(locale, {
     kind: "contact",
     name: text(form, "name"),
@@ -143,7 +159,7 @@ export async function sendContact(_prev: FormState, form: FormData): Promise<For
     email: text(form, "email"),
     message: text(form, "message"),
   });
-  return failed ?? { status: "success", message: t.results.contact, kind: "contact" };
+  return failed ? { ...failed, values: snapshot(form) } : { status: "success", message: t.results.contact, kind: "contact" };
 }
 
 export async function requestDemo(_prev: FormState, form: FormData): Promise<FormState> {
@@ -158,7 +174,7 @@ export async function requestDemo(_prev: FormState, form: FormData): Promise<For
   });
   if (!text(form, "slot") && !process.env.NEXT_PUBLIC_CALCOM_URL) errors.slot = t.validation.slot;
   const phone = phoneValue(form, locale, errors);
-  if (Object.keys(errors).length) return { status: "error", errors };
+  if (Object.keys(errors).length) return { status: "error", errors, values: snapshot(form) };
 
   const slot = text(form, "slot");
   const when = slot
@@ -178,7 +194,7 @@ export async function requestDemo(_prev: FormState, form: FormData): Promise<For
       .join("\n"),
     details: { market: text(form, "market"), volume: text(form, "volume"), ...(slot ? { slot } : {}) },
   });
-  return failed ?? { status: "success", message: when ? t.results.demoBooked(when) : t.results.demoCalendar, kind: "demo" };
+  return failed ? { ...failed, values: snapshot(form) } : { status: "success", message: when ? t.results.demoBooked(when) : t.results.demoCalendar, kind: "demo" };
 }
 
 export async function requestMigration(_prev: FormState, form: FormData): Promise<FormState> {
@@ -186,7 +202,7 @@ export async function requestMigration(_prev: FormState, form: FormData): Promis
   const t = formMsgs[locale];
   if (isBot(form)) return { status: "success", message: t.results.migration, kind: "switch" };
   const errors = requireFields(form, locale, { name: t.fields.name, email: t.fields.email, studio: t.fields.studioName, current: t.fields.currentShort });
-  if (Object.keys(errors).length) return { status: "error", errors };
+  if (Object.keys(errors).length) return { status: "error", errors, values: snapshot(form) };
   const current = text(form, "current");
   const options = t.switch.options;
   const currentLabel = { paper: options.paper, platform: options.platform, "own-site": options.ownSite, new: options.new }[current] ?? current;
@@ -199,7 +215,7 @@ export async function requestMigration(_prev: FormState, form: FormData): Promis
     message: [`${t.fields.current} ${currentLabel}`, jobs ? `${t.fields.jobsPerYear}: ${jobs}` : ""].filter(Boolean).join("\n"),
     details: { current, ...(jobs ? { jobsPerYear: jobs } : {}) },
   });
-  return failed ?? { status: "success", message: t.results.migration, kind: "switch" };
+  return failed ? { ...failed, values: snapshot(form) } : { status: "success", message: t.results.migration, kind: "switch" };
 }
 
 export async function submitDataRequest(_prev: FormState, form: FormData): Promise<FormState> {
@@ -208,7 +224,7 @@ export async function submitDataRequest(_prev: FormState, form: FormData): Promi
   if (isBot(form)) return { status: "success", message: t.results.dataRequest, kind: "data_request" };
   const errors = requireFields(form, locale, { name: t.fields.yourName, email: t.fields.emailOnFile, type: t.fields.requestTypeShort });
   const phone = phoneValue(form, locale, errors);
-  if (Object.keys(errors).length) return { status: "error", errors };
+  if (Object.keys(errors).length) return { status: "error", errors, values: snapshot(form) };
   const type = text(form, "type");
   const options = t.dataRequest.options;
   const typeLabel = { access: options.access, correct: options.correct, delete: options.delete, biometrics: options.biometrics }[type] ?? type;
@@ -221,14 +237,14 @@ export async function submitDataRequest(_prev: FormState, form: FormData): Promi
     message: [typeLabel, child, text(form, "details")].filter(Boolean).join("\n"),
     details: { type, ...(child ? { child } : {}) },
   });
-  return failed ?? { status: "success", message: t.results.dataRequest, kind: "data_request" };
+  return failed ? { ...failed, values: snapshot(form) } : { status: "success", message: t.results.dataRequest, kind: "data_request" };
 }
 
 export async function findPhotos(_prev: FormState, form: FormData): Promise<FormState> {
   const locale = formLocale(form);
   const code = normalizeCode(text(form, "code"));
   if (!isCodeFormat(code)) {
-    return { status: "error", errors: { code: formMsgs[locale].validation.code } };
+    return { status: "error", errors: { code: formMsgs[locale].validation.code }, values: snapshot(form) };
   }
   // Signed-in parents arrive in the shop signed in (one-time handoff); others go straight there.
   const { url, sessionExpired } = await storeDestination(`/a/${code}`, locale, await parentToken());

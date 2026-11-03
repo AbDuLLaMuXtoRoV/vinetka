@@ -23,10 +23,19 @@ export function RefundButton({ orderId, number, refundableCents }: { orderId: st
   const cents = parseMoney(amount.replace(",", ".")) ?? 0;
   const valid = cents > 0 && cents <= refundableCents && reason.trim().length > 2;
 
+  // Each time the dialog opens it starts from what is still refundable now.
+  const openChange = (next: boolean) => {
+    if (next) {
+      setAmount((refundableCents / 100).toFixed(2));
+      setReason("");
+    }
+    setOpen(next);
+  };
+
   return (
     <Modal
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={openChange}
       trigger={
         <Button variant="outline" disabled={refundableCents <= 0}>
           <Undo2 /> {t.button}

@@ -12,6 +12,7 @@ import { PhoneInput, formatPhoneNational, toE164 } from "@snapbell/ui/phone-inpu
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { SetupLinkDialog } from "@admin/components/setup-link-dialog";
+import { useShowSetupLink } from "@admin/components/setup-link-host";
 import { useAction } from "@admin/components/use-action";
 import { createStudioAction } from "@admin/lib/actions";
 import { onboardingMsgs } from "@admin/messages/onboarding";
@@ -32,10 +33,16 @@ export function CreateStudioButton({
   prefill,
   contactRequestId,
   variant = "primary",
+  showTrigger = true,
 }: {
   prefill?: StudioPrefill;
   contactRequestId?: string;
   variant?: "primary" | "outline";
+  /**
+   * Hide the button but stay mounted. A request card refreshes to "Converted" as
+   * soon as the studio exists; the setup-link dialog must survive that.
+   */
+  showTrigger?: boolean;
 }) {
   const locale = useLocale();
   const t = onboardingMsgs[locale];
@@ -48,6 +55,7 @@ export function CreateStudioButton({
   const [markets, setMarkets] = useState<Market[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<AdminCreateStudioResult | null>(null);
+  const showSetupLink = useShowSetupLink();
 
   const id = (field: string) => `cs-${contactRequestId ?? "new"}-${field}`;
 
@@ -77,7 +85,9 @@ export function CreateStudioButton({
         success: t.create.created(studioName.trim()),
         onSuccess: (result) => {
           setOpen(false);
-          setCreated(result);
+          // Prefer the layout-level dialog: this button may unmount as the page refreshes.
+          if (showSetupLink) showSetupLink({ name: result.owner.name, studioName: result.studio.studio.name, link: result.setupLink });
+          else setCreated(result);
         },
       },
     );
@@ -90,9 +100,11 @@ export function CreateStudioButton({
         onOpenChange={setOpen}
         size="lg"
         trigger={
-          <Button variant={variant} size={variant === "outline" ? "sm" : "md"}>
-            <Plus /> {contactRequestId ? t.create.fromRequest : t.create.button}
-          </Button>
+          showTrigger ? (
+            <Button variant={variant} size={variant === "outline" ? "sm" : "md"}>
+              <Plus /> {contactRequestId ? t.create.fromRequest : t.create.button}
+            </Button>
+          ) : undefined
         }
         title={t.create.title}
         description={t.create.description}

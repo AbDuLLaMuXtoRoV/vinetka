@@ -31,11 +31,28 @@ export function OrderActions({ order, refundableCents, canRefund }: { order: Ord
   const refundCents = mode === "full" ? refundableCents : partialCents;
   const refundValid = reason.trim().length > 2 && refundCents > 0 && refundCents <= refundableCents;
 
+  // Each dialog starts fresh when opened (refund: full remaining amount by default).
+  const refundOpenChange = (next: boolean) => {
+    if (next) {
+      setMode("full");
+      setAmount("");
+      setReason("");
+    }
+    setRefundOpen(next);
+  };
+  const reprintOpenChange = (next: boolean) => {
+    if (next) {
+      setItems(new Set());
+      setReprintReason("");
+    }
+    setReprintOpen(next);
+  };
+
   return (
     <>
       <Modal
         open={reprintOpen}
-        onOpenChange={setReprintOpen}
+        onOpenChange={reprintOpenChange}
         trigger={
           <Button variant="outline">
             <Printer /> {t.requestReprint}
@@ -88,7 +105,7 @@ export function OrderActions({ order, refundableCents, canRefund }: { order: Ord
       {canRefund && (
         <Modal
           open={refundOpen}
-          onOpenChange={setRefundOpen}
+          onOpenChange={refundOpenChange}
           trigger={
             <Button variant="outline" disabled={refundableCents <= 0}>
               <Undo2 /> {t.refund}

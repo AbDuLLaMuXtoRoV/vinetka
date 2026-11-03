@@ -29,7 +29,7 @@ export const marketingFeatureMsgs = defineMessages(
         { when: "1 day before deadline", title: "Deadline tomorrow", channel: "Text", email: false, text: "Ordering for Fall Picture Day closes tomorrow." },
         { when: "When the lab ships", title: "Order shipped", channel: "Text", email: false, text: "Your order SB-10482 is on its way. Track it here: …" },
       ],
-      quiet: "No texts between 8 pm and 9 am in the parent's time zone.",
+      quiet: "No texts between 9 pm and 8 am local time.",
     },
     pass: {
       eyebrow: "Picture Day Pass",
@@ -86,7 +86,7 @@ export const marketingFeatureMsgs = defineMessages(
           { when: "За 1 день до срока заказа", title: "Срок заказа — завтра", channel: "SMS", email: false, text: "Приём заказов на осенний день съёмки закрывается завтра." },
           { when: "Когда лаборатория отправит заказ", title: "Заказ отправлен", channel: "SMS", email: false, text: "Ваш заказ SB-10482 уже в пути. Отследить: …" },
         ],
-        quiet: "Никаких SMS с 20:00 до 9:00 по часовому поясу родителя.",
+        quiet: "Никаких SMS с 21:00 до 8:00 по местному времени.",
       },
       pass: {
         eyebrow: "Picture Day Pass",
@@ -142,7 +142,7 @@ export const marketingFeatureMsgs = defineMessages(
           { when: "Muddatdan 1 kun oldin", title: "Muddat — ertaga", channel: "SMS", email: false, text: "Kuzgi suratga olish kuni uchun buyurtmalar qabuli ertaga yopiladi." },
           { when: "Laboratoriya joʻnatganda", title: "Buyurtma joʻnatildi", channel: "SMS", email: false, text: "SB-10482 buyurtmangiz yoʻlda. Kuzatish: …" },
         ],
-        quiet: "Ota-onaning vaqt mintaqasi boʻyicha 20:00 dan 9:00 gacha SMS yuborilmaydi.",
+        quiet: "Mahalliy vaqt bilan 21:00 dan 8:00 gacha SMS yuborilmaydi.",
       },
       pass: {
         eyebrow: "Picture Day Pass",

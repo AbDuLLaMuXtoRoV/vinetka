@@ -48,6 +48,8 @@ export const config = {
   uploadDir: process.env.UPLOAD_DIR ?? null,
   /** Simulated photo-processing delay when no worker/Redis is attached. */
   processingDelayMs: Number(process.env.PROCESSING_DELAY_MS ?? 2000),
+  /** Time zone for SMS quiet hours (21:00–08:00, no automated or marketing texts). Snapbell launches in Uzbekistan. */
+  quietHoursTimeZone: process.env.QUIET_HOURS_TZ || "Asia/Tashkent",
 };
 
 export function assertProductionConfig(): void {

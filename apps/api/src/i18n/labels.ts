@@ -30,6 +30,12 @@ export const labelMessages = defineMessages(
     },
     unsubscribed: "You're unsubscribed from Snapbell emails. Order receipts will still be sent.",
     overlay: { studioPreview: "Studio preview", viewedBy: (who: string) => `Viewed by ${who}` },
+    /** Packages every new price sheet starts with; studios rename or delete them freely. */
+    starterPackages: {
+      essentials: { name: "Essentials", description: "The classic set for the fridge and the grandparents." },
+      family: { name: "Family Favorite", description: "Prints for the whole family plus the digital file." },
+      everything: { name: "Everything", description: "Every photo as a download, plus a print set." },
+    },
   },
   {
     ru: {
@@ -83,6 +89,11 @@ export const labelMessages = defineMessages(
       },
       unsubscribed: "Вы отписались от писем Snapbell. Чеки по заказам по-прежнему будут приходить.",
       overlay: { studioPreview: "Предпросмотр студии", viewedBy: (who) => `Просматривает ${who}` },
+      starterPackages: {
+        essentials: { name: "Базовый", description: "Классический набор — для холодильника и для бабушек с дедушками." },
+        family: { name: "Семейный", description: "Отпечатки для всей семьи и цифровой файл." },
+        everything: { name: "Всё включено", description: "Все фото в цифровом виде и набор отпечатков." },
+      },
     },
     uz: {
       checklist: {
@@ -111,6 +122,11 @@ export const labelMessages = defineMessages(
       },
       unsubscribed: "Siz Snapbell xatlaridan obunani bekor qildingiz. Buyurtma kvitansiyalari baribir yuboriladi.",
       overlay: { studioPreview: "Studiya koʻrinishi", viewedBy: (who) => `Koʻrmoqda: ${who}` },
+      starterPackages: {
+        essentials: { name: "Asosiy", description: "Klassik toʻplam — muzlatkich uchun ham, buvi-bobolar uchun ham." },
+        family: { name: "Oilaviy", description: "Butun oila uchun bosma suratlar va raqamli fayl." },
+        everything: { name: "Hammasi", description: "Barcha suratlar raqamli faylda va bosma suratlar toʻplami." },
+      },
     },
   },
 );

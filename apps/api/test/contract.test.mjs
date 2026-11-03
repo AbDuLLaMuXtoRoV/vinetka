@@ -67,6 +67,13 @@ it("implements the whole client contract", async () => {
   const fall = await staff.priceSheets.get("ps_fall_schools");
   assert.ok(fall.items.length > 0 && fall.packages.length > 0);
   const sheet = await staff.priceSheets.create({ name: "Test Sheet", labId: "lab_cascade" });
+  // New sheets (and the onboarding starter sheet) come with three packages, each cheaper than its items.
+  assert.deepEqual(sheet.packages.map((p) => p.name), ["Essentials", "Family Favorite", "Everything"]);
+  assert.equal(sheet.packages.filter((p) => p.featured).length, 1);
+  for (const p of sheet.packages) {
+    const separately = p.lines.reduce((sum, l) => sum + sheet.items.find((i) => i.id === l.itemId).priceCents * l.quantity, 0);
+    assert.ok(p.priceCents < separately, `${p.name} should cost less than its items`);
+  }
   const withPkg = await staff.priceSheets.update(sheet.id, {
     name: "Test Sheet 2",
     packages: [{ id: "", name: "Duo", description: "", priceCents: 3000, lines: [{ itemId: sheet.items[0].id, quantity: 2 }], featured: true, enabled: true }],

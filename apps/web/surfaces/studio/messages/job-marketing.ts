@@ -4,7 +4,7 @@ export const jobMarketingMsgs = defineMessages(
   {
     metaTitle: "Job marketing",
     bannerTitle: "Opt-in only, quiet hours respected",
-    bannerBody: "Texts go only to families who opted in, never between 8pm and 8am local time. Every text includes STOP to opt out.",
+    bannerBody: "Texts go only to families who opted in, never between 9 pm and 8 am (21:00–08:00) local time. Every text includes STOP to opt out.",
     emptyTitle: "No automatic messages",
     emptyBody: "Messages are scheduled when the job has a publish date and deadline.",
     sentTo: (n: number) => `Sent to ${n}`,
@@ -45,7 +45,7 @@ export const jobMarketingMsgs = defineMessages(
     ru: {
       metaTitle: "Сообщения съёмки",
       bannerTitle: "Только с согласия и без ночных рассылок",
-      bannerBody: "SMS получают только семьи, давшие согласие, и никогда с 20:00 до 8:00 по местному времени. В каждом SMS есть STOP для отписки.",
+      bannerBody: "SMS получают только семьи, давшие согласие, и никогда с 21:00 до 8:00 по местному времени. В каждом SMS есть STOP для отписки.",
       emptyTitle: "Автоматических сообщений нет",
       emptyBody: "Сообщения планируются, когда у съёмки есть дата публикации и срок заказа.",
       sentTo: (n) => `Отправлено: ${n}`,
@@ -85,7 +85,7 @@ export const jobMarketingMsgs = defineMessages(
     uz: {
       metaTitle: "Suratga olish xabarlari",
       bannerTitle: "Faqat rozilik bilan, tungi vaqtda yuborilmaydi",
-      bannerBody: "SMS faqat rozilik bergan oilalarga yuboriladi va mahalliy vaqt bilan 20:00 dan 8:00 gacha hech qachon yuborilmaydi. Har bir SMS xabarida obunani bekor qilish uchun STOP bor.",
+      bannerBody: "SMS faqat rozilik bergan oilalarga yuboriladi va mahalliy vaqt bilan 21:00 dan 8:00 gacha hech qachon yuborilmaydi. Har bir SMS xabarida obunani bekor qilish uchun STOP bor.",
       emptyTitle: "Avtomatik xabarlar yoʻq",
       emptyBody: "Suratga olishda eʼlon qilish sanasi va buyurtma muddati boʻlsa, xabarlar rejalashtiriladi.",
       sentTo: (n) => `${n} kishiga yuborildi`,

@@ -1,5 +1,6 @@
 import { LOCALE_COOKIE, createClient, isLocale } from "@snapbell/sdk";
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { redirectToPath } from "@web/surfaces/shared/redirect";
 import { PARENT_COOKIE, PARENT_NAME_COOKIE, cookieOptions, parentDisplayName, safeNext } from "@shop/lib/api";
 import { env } from "@shop/lib/env";
 import { forwardedHeaders } from "@shop/lib/forwarded";
@@ -21,13 +22,9 @@ export async function GET(request: NextRequest) {
   const locale = isLocale(lang) ? lang : await getLocale();
   const code = sp.get("code") ?? "";
 
+  // Relative redirect: request.nextUrl points at the bind address behind `next start -H 0.0.0.0`.
   const go = (path: string) => {
-    const url = request.nextUrl.clone();
-    const [pathname = "/", query = ""] = path.split("?");
-    url.pathname = pathname;
-    url.search = query ? `?${query}` : "";
-    const res = NextResponse.redirect(url, 302);
-    res.headers.set("Cache-Control", "no-store");
+    const res = redirectToPath(path, 302);
     if (isLocale(lang)) res.cookies.set(LOCALE_COOKIE, lang, { ...cookieOptions(365), httpOnly: false });
     return res;
   };

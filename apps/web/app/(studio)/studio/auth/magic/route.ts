@@ -1,20 +1,21 @@
 import { createClient } from "@snapbell/sdk";
 import { forwardedHeaders } from "@studio/lib/forwarded";
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { SESSION_COOKIE, sessionCookieOptions } from "@studio/lib/api";
 import { env } from "@studio/lib/env";
 import { getLocale } from "@studio/lib/i18n";
+import { redirectToPath } from "@web/surfaces/shared/redirect";
 
-/** Magic sign-in link from email. */
+/** Magic sign-in link from email. Redirects stay on the site the browser is using. */
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
-  if (!token) return NextResponse.redirect(new URL("/studio/login", request.url));
+  if (!token) return redirectToPath("/studio/login");
   try {
     const session = await createClient({ baseUrl: env.apiUrl, locale: await getLocale(), headers: await forwardedHeaders() }).auth.redeemMagicLink({ token });
-    const res = NextResponse.redirect(new URL(session.studio.onboarding.done ? "/studio/home" : "/studio/onboarding", request.url));
+    const res = redirectToPath(session.studio.onboarding.done ? "/studio/home" : "/studio/onboarding");
     res.cookies.set(SESSION_COOKIE, session.token, sessionCookieOptions);
     return res;
   } catch {
-    return NextResponse.redirect(new URL("/studio/login?expired=1", request.url));
+    return redirectToPath("/studio/login?expired=1");
   }
 }

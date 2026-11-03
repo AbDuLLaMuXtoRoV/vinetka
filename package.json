@@ -16,7 +16,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
     "start:all": "node scripts/start.mjs --demo",
     "smoke": "node scripts/smoke.mjs",
-    "e2e": "pnpm --filter @snapbell/e2e test"
+    "e2e": "pnpm --filter @snapbell/e2e e2e"
   },
   "devDependencies": {
     "@snapbell/sdk": "workspace:*",

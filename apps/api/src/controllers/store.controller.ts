@@ -101,9 +101,16 @@ export class StoreController {
     return this.albums.build(r, parent);
   }
 
+  /**
+   * Public: the studio's branding for the code-entry screen. Answers 409
+   * not_published / 410 expired like the album itself, so the shop can show the
+   * album's state (date + "notify me", or closed) before asking for a phone number.
+   */
   @Get("albums/:code/branding")
   branding(@Req() req: Request, @Param("code") code: string) {
-    return branding(this.resolve(req, code).studio);
+    const r = this.resolve(req, code);
+    this.albums.assertOpen(r);
+    return branding(r.studio);
   }
 
   @Post("albums/:code/notify")

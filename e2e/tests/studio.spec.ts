@@ -303,8 +303,14 @@ test.describe("7. Matching on the EAGLES team job", () => {
 
     await studioLogin(page, "owner");
     await page.goto(url);
-    await page.getByRole("button", { name: "Accept", exact: true }).first().click();
+    // Each review card has one Accept button. Wait for the list to refresh after every
+    // action, so the next click never lands on a card that was just handled.
+    const acceptButtons = page.getByRole("button", { name: "Accept", exact: true });
+    await expect(acceptButtons).toHaveCount(reviewCount);
+
+    await acceptButtons.first().click();
     await expect(toast(page, "Match accepted")).toBeVisible();
+    await expect(acceptButtons).toHaveCount(reviewCount - 1);
 
     await page.getByRole("button", { name: "Reassign to another subject" }).first().click();
     const dialog = page.getByRole("dialog");
@@ -312,11 +318,13 @@ test.describe("7. Matching on the EAGLES team job", () => {
     await target.selectOption({ index: 1 });
     await dialog.getByRole("button", { name: "Reassign" }).click();
     await expect(toast(page, "Photo reassigned")).toBeVisible();
+    await expect(acceptButtons).toHaveCount(reviewCount - 2);
 
     await page.getByRole("tab", { name: /Needs review/ }).click();
     await page.getByRole("button", { name: /^Select IMG_/ }).first().click();
     await page.getByRole("button", { name: "Accept selected" }).click();
     await expect(toast(page, "1 match accepted")).toBeVisible();
+    await expect(acceptButtons).toHaveCount(reviewCount - 3);
 
     await page.getByRole("tab", { name: /Unmatched photos/ }).click();
     const first = page.getByRole("tabpanel").locator("li").first();

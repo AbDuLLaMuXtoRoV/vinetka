@@ -48,10 +48,12 @@ export function RequestCard({ request: r, studioName }: { request: ContactReques
                 <CheckCircle2 /> {t.markContacted}
               </Button>
             )}
-            {r.status !== "converted" && r.kind !== "data_request" && (
+            {r.kind !== "data_request" && (
+              // Stays mounted after conversion so the owner's setup-link dialog isn't lost.
               <CreateStudioButton
                 variant="outline"
                 contactRequestId={r.id}
+                showTrigger={r.status !== "converted"}
                 prefill={{ studioName: r.company ?? "", ownerName: r.name, ownerEmail: r.email ?? "", ownerPhone: r.phone ?? undefined }}
               />
             )}

@@ -11,6 +11,12 @@ import type { FormState } from "@site/actions";
 import { track } from "@site/lib/analytics";
 import { commonMsgs } from "@site/messages/common";
 
+/** The value the visitor submitted last time (kept after a validation error). */
+function submitted(state: FormState, name: string): string | undefined {
+  const v = state.values?.[name];
+  return Array.isArray(v) ? v[0] : v;
+}
+
 /** Sends the page's locale with the form so the server action answers in the same language. */
 export function LocaleField() {
   return <input type="hidden" name="locale" value={useLocale()} />;
@@ -23,6 +29,7 @@ export function TextField({
   hint,
   optional,
   className,
+  defaultValue,
   ...props
 }: Omit<ComponentProps<"input">, "name"> & { name: string; label: string; state: FormState; hint?: ReactNode; optional?: boolean }) {
   const locale = useLocale();
@@ -30,18 +37,41 @@ export function TextField({
   const error = state.errors?.[name];
   return (
     <Field label={label} htmlFor={id} hint={hint} error={error} optional={optional} locale={locale} className={className}>
-      <Input id={id} name={name} required={!optional} aria-invalid={!!error || undefined} aria-describedby={describedBy(id, { hint, error })} {...props} />
+      <Input
+        id={id}
+        name={name}
+        required={!optional}
+        defaultValue={submitted(state, name) ?? defaultValue}
+        aria-invalid={!!error || undefined}
+        aria-describedby={describedBy(id, { hint, error })}
+        {...props}
+      />
     </Field>
   );
 }
 
-export function TextAreaField({ name, label, state, optional, ...props }: Omit<ComponentProps<"textarea">, "name"> & { name: string; label: string; state: FormState; optional?: boolean }) {
+export function TextAreaField({
+  name,
+  label,
+  state,
+  optional,
+  defaultValue,
+  ...props
+}: Omit<ComponentProps<"textarea">, "name"> & { name: string; label: string; state: FormState; optional?: boolean }) {
   const locale = useLocale();
   const id = `f-${name}`;
   const error = state.errors?.[name];
   return (
     <Field label={label} htmlFor={id} error={error} optional={optional} locale={locale}>
-      <Textarea id={id} name={name} required={!optional} aria-invalid={!!error || undefined} aria-describedby={describedBy(id, { error })} {...props} />
+      <Textarea
+        id={id}
+        name={name}
+        required={!optional}
+        defaultValue={submitted(state, name) ?? defaultValue}
+        aria-invalid={!!error || undefined}
+        aria-describedby={describedBy(id, { error })}
+        {...props}
+      />
     </Field>
   );
 }
@@ -52,6 +82,7 @@ export function SelectField({
   state,
   options,
   placeholder,
+  defaultValue,
   ...props
 }: Omit<ComponentProps<"select">, "name"> & { name: string; label: string; state: FormState; options: Array<{ value: string; label: string }>; placeholder?: string }) {
   const locale = useLocale();
@@ -59,7 +90,7 @@ export function SelectField({
   const error = state.errors?.[name];
   return (
     <Field label={label} htmlFor={id} error={error} locale={locale}>
-      <Select id={id} name={name} required defaultValue="" aria-invalid={!!error || undefined} aria-describedby={describedBy(id, { error })} {...props}>
+      <Select id={id} name={name} required defaultValue={submitted(state, name) ?? defaultValue ?? ""} aria-invalid={!!error || undefined} aria-describedby={describedBy(id, { error })} {...props}>
         <option value="" disabled>
           {placeholder ?? commonMsgs[locale].forms.choose}
         </option>
@@ -96,7 +127,12 @@ export function PhoneField({ name, label, state, hint, optional }: { name: strin
   const locale = useLocale();
   const id = `f-${name}`;
   const error = state.errors?.[name];
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(() => submitted(state, name) ?? "");
+  // Show what was submitted again after a validation error (the form reset clears the input).
+  const last = submitted(state, name);
+  useEffect(() => {
+    if (last !== undefined) setValue(last);
+  }, [state, last]);
   return (
     <Field label={label} htmlFor={id} hint={hint} error={error} optional={optional} locale={locale}>
       <PhoneInput id={id} name={name} value={value} onValueChange={setValue} aria-invalid={!!error || undefined} aria-describedby={describedBy(id, { hint, error })} />
@@ -117,7 +153,19 @@ export function HoneypotField() {
 }
 
 /** Multi-select checkbox chips; every checked value is submitted under `name`. */
-export function CheckboxChips({ name, legend, options }: { name: string; legend: string; options: Array<{ value: string; label: string }> }) {
+export function CheckboxChips({
+  name,
+  legend,
+  options,
+  state,
+}: {
+  name: string;
+  legend: string;
+  options: Array<{ value: string; label: string }>;
+  state?: FormState;
+}) {
+  const v = state?.values?.[name];
+  const chosen = Array.isArray(v) ? v : v ? [v] : [];
   return (
     <fieldset className="grid gap-2">
       <legend className="mb-1.5 text-sm font-medium">{legend}</legend>
@@ -127,7 +175,7 @@ export function CheckboxChips({ name, legend, options }: { name: string; legend:
             key={o.value}
             className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-input border border-border bg-surface px-3 text-sm transition-colors duration-150 hover:border-ink/40 has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-bg has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ink md:min-h-9"
           >
-            <input type="checkbox" name={name} value={o.value} className="sr-only" />
+            <input type="checkbox" name={name} value={o.value} defaultChecked={chosen.includes(o.value)} className="sr-only" />
             {o.label}
           </label>
         ))}

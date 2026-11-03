@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SetupLinkHost } from "@admin/components/setup-link-host";
 import { AdminShell } from "@admin/components/shell";
 import { api, getAdmin } from "@admin/lib/api";
 
@@ -16,7 +17,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const newRequests = await countNewRequests();
   return (
     <AdminShell email={email} newRequests={newRequests}>
-      {children}
+      <SetupLinkHost>{children}</SetupLinkHost>
     </AdminShell>
   );
 }

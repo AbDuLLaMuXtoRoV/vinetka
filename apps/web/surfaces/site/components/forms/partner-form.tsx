@@ -62,7 +62,7 @@ export function PartnerForm() {
         <TextField name="email" label={t.fields.email} type="email" autoComplete="email" state={state} optional />
         <TextField name="city" label={t.fields.city} autoComplete="address-level2" state={state} optional />
       </div>
-      <CheckboxChips name="markets" legend={t.fields.marketsShoot} options={MARKETS.map((m) => ({ value: m, label: markets[m] }))} />
+      <CheckboxChips name="markets" legend={t.fields.marketsShoot} options={MARKETS.map((m) => ({ value: m, label: markets[m] }))} state={state} />
       <TextAreaField name="message" label={t.fields.aboutStudio} rows={5} placeholder={t.fields.aboutStudioHint} state={state} />
       <div className="grid gap-3">
         <Button type="submit" size="lg" loading={pending} className="w-fit">

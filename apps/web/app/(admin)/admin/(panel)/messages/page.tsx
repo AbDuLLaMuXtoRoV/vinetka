@@ -51,7 +51,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
               <TD className="max-w-md text-sm">
                 <span className="line-clamp-2">{m.body}</span>
                 {m.orderId && (
-                  <Link href={`/orders/${m.orderId}`} className="text-xs text-muted underline">
+                  <Link href={`/admin/orders/${m.orderId}`} className="text-xs text-muted underline">
                     {t.order}
                   </Link>
                 )}

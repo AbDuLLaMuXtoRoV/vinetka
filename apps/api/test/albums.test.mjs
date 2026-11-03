@@ -40,6 +40,19 @@ describe("album access", () => {
     assert.equal(res.status, 200);
     assert.equal(res.data.name, "Brightside Photo Co.");
   });
+
+  it("branding shows the album state before any sign-in (409 not yet published, 410 closed)", async () => {
+    const notYet = await api.call("GET", "/albums/DANCE7/branding");
+    assert.equal(notYet.status, 409);
+    assert.equal(notYet.data.error, "not_published");
+    assert.ok(notYet.data.publishAt);
+    assert.equal(notYet.data.studio.name, "Brightside Photo Co.");
+
+    const closed = await api.call("GET", "/albums/SENR25/branding");
+    assert.equal(closed.status, 410);
+    assert.equal(closed.data.error, "expired");
+    assert.equal(closed.data.studio.name, "Brightside Photo Co.");
+  });
 });
 
 describe("personal album (SAMPLE)", () => {

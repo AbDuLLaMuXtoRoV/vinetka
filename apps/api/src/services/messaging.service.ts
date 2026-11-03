@@ -30,14 +30,15 @@ export interface SendInput {
 const STOP_WORDS = ["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT"];
 const START_WORDS = ["START", "UNSTOP", "YES"];
 
-/** Local hour in the platform's quiet-hours time zone. */
-function localHour(date: Date, timeZone = "America/Los_Angeles"): number {
+/** Local hour in the quiet-hours time zone (QUIET_HOURS_TZ, default Asia/Tashkent). */
+function localHour(date: Date, timeZone: string): number {
   const h = new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", hourCycle: "h23" }).format(date);
   return Number(h) % 24;
 }
 
-export function inQuietHours(date = new Date()): boolean {
-  const h = localHour(date);
+/** No automated or marketing texts between 21:00 and 08:00 local time. */
+export function inQuietHours(date = new Date(), timeZone = config.quietHoursTimeZone): boolean {
+  const h = localHour(date, timeZone);
   return h >= 21 || h < 8;
 }
 

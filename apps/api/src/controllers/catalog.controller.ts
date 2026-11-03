@@ -1,4 +1,4 @@
-import { err, v } from "../i18n";
+import { err, labels, v } from "../i18n";
 import { Body, Controller, Get, Param, Patch, Post, Req } from "@nestjs/common";
 import type { LabProduct, Package, PassOffer, PriceSheet, PriceSheetItem, Promo, Studio } from "@snapbell/sdk";
 import type { Request } from "express";
@@ -35,6 +35,40 @@ function itemFrom(product: LabProduct, over: Partial<PriceSheetItem> = {}): Pric
     enabled: over.enabled ?? true,
     soldOut: over.soldOut ?? false,
   };
+}
+
+/**
+ * The three packages every new price sheet starts with (onboarding promises them):
+ * Essentials, Family Favorite (featured, includes the digital file) and Everything
+ * (Download All + prints). Built from the sheet's own items and priced below the
+ * items bought separately, so each shows a saving.
+ */
+function starterPackages(items: PriceSheetItem[]): Package[] {
+  const bySku = (key: string) => items.find((i) => i.enabled && i.sku.toUpperCase().endsWith(`-${key}`));
+  const t = labels().starterPackages;
+  const plan: Array<{ key: keyof typeof t; lines: Array<[string, number]>; factor: number; featured: boolean }> = [
+    { key: "essentials", lines: [["810", 1], ["57P", 1], ["WAL8", 1]], factor: 0.7, featured: false },
+    { key: "family", lines: [["810", 1], ["57P", 2], ["WAL8", 1], ["DIG1", 1]], factor: 0.75, featured: true },
+    { key: "everything", lines: [["DIGALL", 1], ["810", 1], ["57P", 1], ["WAL8", 1]], factor: 0.86, featured: false },
+  ];
+  return plan.flatMap(({ key, lines, factor, featured }) => {
+    const resolved = lines.map(([sku, quantity]) => ({ item: bySku(sku), quantity }));
+    if (resolved.some((l) => !l.item)) return [];
+    const separately = resolved.reduce((sum, l) => sum + l.item!.priceCents * l.quantity, 0);
+    // Whole-dollar price below the items bought separately.
+    const priceCents = Math.max(100, Math.floor((separately * factor) / 100) * 100);
+    return [
+      {
+        id: newId("pkg"),
+        name: t[key].name,
+        description: t[key].description,
+        priceCents,
+        lines: resolved.map((l) => ({ itemId: l.item!.id, quantity: l.quantity })),
+        featured,
+        enabled: true,
+      },
+    ];
+  });
 }
 
 const itemInput = z.object({
@@ -150,6 +184,7 @@ export class CatalogController {
     const input = parse(z.object({ name: z.string().trim().min(1).max(120), labId: id }), body);
     const lab = this.repo.labs.get(input.labId);
     if (!lab) throw badRequest("invalid_lab", err().catalog.unknownLab);
+    const items = this.repo.labProducts.filter((p) => p.labId === lab.id).map((p) => itemFrom(p));
     const sheet: PriceSheet = {
       id: newId("ps"),
       studioId: studio.id,
@@ -157,8 +192,8 @@ export class CatalogController {
       labId: lab.id,
       labName: lab.name,
       archived: false,
-      items: this.repo.labProducts.filter((p) => p.labId === lab.id).map((p) => itemFrom(p)),
-      packages: [],
+      items,
+      packages: starterPackages(items),
       jobsUsing: 0,
       updatedAt: nowIso(),
     };
