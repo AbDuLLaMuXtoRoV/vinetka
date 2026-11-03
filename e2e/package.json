@@ -1,0 +1,19 @@
+{
+  "name": "@snapbell/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser end-to-end tests (Playwright) for the whole site: main site, /shop, /studio, /admin.",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@snapbell/config": "workspace:*",
+    "@snapbell/sdk": "workspace:*",
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
+  }
+}

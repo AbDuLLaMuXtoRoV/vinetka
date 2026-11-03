@@ -20,6 +20,8 @@ const env = { ...process.env, NODE_ENV: "production" };
 if (process.argv.includes("--demo")) {
   env.DEMO_MODE ??= "true";
   env.AUTH_SECRET ??= "local-demo-only-secret";
+  // Image, download and upload links go through the website's /v1, as in production.
+  env.PUBLIC_API_URL ??= `http://localhost:${webPort}`;
 }
 env.API_URL ??= `http://127.0.0.1:${apiPort}/v1`;
 

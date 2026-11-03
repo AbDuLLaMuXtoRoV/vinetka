@@ -15,7 +15,8 @@
     "db:migrate": "pnpm --filter @snapbell/db migrate",
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
     "start:all": "node scripts/start.mjs --demo",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "e2e": "pnpm --filter @snapbell/e2e test"
   },
   "devDependencies": {
     "@snapbell/sdk": "workspace:*",
