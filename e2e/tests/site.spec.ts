@@ -44,7 +44,6 @@ test.describe("home", () => {
       "One platform, set up the way your picture day actually runs.",
       "Run the day, fill the store, remind the families.",
       "Families see proofs. Nobody walks away with the originals.",
-      "Slide to your yearly sales. See what you keep.",
       "What changes when ordering gets easy",
       "Your next picture day can sell itself.",
     ]) {
@@ -111,12 +110,13 @@ test.describe("navigation", () => {
     await expect(page).toHaveURL(/\/features$/);
   });
 
-  test("desktop top links: Pricing, Resources (Blog, Help, Switch) and Contact", async ({ page }) => {
+  test("desktop top links: Resources (Blog, Help, Switch) and Contact; no Pricing link", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/");
     const header = page.getByRole("banner");
-    await header.getByRole("link", { name: "Pricing" }).click();
-    await expect(page).toHaveURL(/\/pricing$/);
+    // Partner terms are discussed privately: there is no public pricing page or link.
+    await expect(header.getByRole("link", { name: "Pricing" })).toHaveCount(0);
+    await expect(page.getByRole("contentinfo").getByRole("link", { name: "Pricing" })).toHaveCount(0);
     for (const [label, url] of [
       ["Blog", /\/blog$/],
       ["Help center", /\/help$/],
@@ -175,14 +175,14 @@ test.describe("navigation", () => {
 test.describe("languages", () => {
   test("footer switcher en → ru → uz → en changes URL, text and <html lang>, and the choice persists", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/pricing");
+    await page.goto("/features");
     expect(await htmlLang(page)).toBe("en-US");
     const switcher = () => page.getByRole("contentinfo").getByRole("combobox", { name: /Language|Язык|Til/ });
 
     await switcher().selectOption("ru");
-    await expect(page).toHaveURL(/\/ru\/pricing$/);
+    await expect(page).toHaveURL(/\/ru\/features$/);
     await expect.poll(() => htmlLang(page)).toBe("ru-RU");
-    await expect(page.getByRole("banner").getByRole("link", { name: "Цены" })).toBeVisible();
+    await expect(page.getByRole("banner").getByRole("link", { name: "Контакты" })).toBeVisible();
 
     // The choice persists: an unprefixed URL now opens in Russian.
     await page.goto("/");
@@ -203,67 +203,92 @@ test.describe("languages", () => {
   });
 
   test("hreflang alternates are present and /en/… redirects to the unprefixed URL", async ({ page }) => {
-    await page.goto("/pricing");
+    await page.goto("/features");
     for (const [lang, href] of [
-      ["en", /\/pricing$/],
-      ["ru", /\/ru\/pricing$/],
-      ["uz", /\/uz\/pricing$/],
-      ["x-default", /\/pricing$/],
+      ["en", /\/features$/],
+      ["ru", /\/ru\/features$/],
+      ["uz", /\/uz\/features$/],
+      ["x-default", /\/features$/],
     ] as const) {
       await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`)).toHaveAttribute("href", href);
     }
-    const res = await page.goto("/en/pricing");
+    const res = await page.goto("/en/features");
     expect(res?.status()).toBe(200);
-    await expect(page).toHaveURL(`${BASE_URL}/pricing`);
+    await expect(page).toHaveURL(`${BASE_URL}/features`);
   });
 });
 
 // ---------------------------------------------------------------------------
-// 4. Calculators and interactive pages
+// 3b. No public studio pricing (partner terms are discussed privately)
 // ---------------------------------------------------------------------------
 
-test.describe("calculators and interactive sections", () => {
-  test("home fee teaser: moving the slider changes 'what you keep'", async ({ page }) => {
-    await page.goto("/");
-    const label = page.getByText("What you keep after platform and card fees");
-    const amount = label.locator("xpath=following-sibling::p[1]");
-    const before = (await amount.textContent())?.trim();
-    const slider = page.getByRole("slider", { name: "Your yearly sales" });
-    await slider.focus();
-    for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowRight");
-    await expect(amount).not.toHaveText(before!);
+test.describe("no public studio pricing", () => {
+  test("the old pricing URLs redirect permanently to the contact page in the same language", async ({ request }) => {
+    for (const [path, expected] of [
+      ["/pricing", "/contact"],
+      ["/en/pricing", "/contact"],
+      ["/ru/pricing", "/ru/contact"],
+      ["/uz/pricing", "/uz/contact"],
+      ["/help/fees-and-payouts", "/help/payouts"],
+      ["/ru/help/fees-and-payouts", "/ru/help/payouts"],
+    ] as const) {
+      const res = await request.get(path, { maxRedirects: 0 });
+      expect(res.status(), path).toBe(308);
+      expect(new URL(res.headers()["location"]!, BASE_URL).pathname, path).toBe(expected);
+    }
   });
 
-  test("pricing calculator: average order, lab cost and the comparison all update", async ({ page }) => {
-    await page.goto("/pricing");
-    const calc = page.locator("#fc-aov").locator("xpath=ancestor::div[contains(@class,'rounded-card')][1]");
-    const row = (label: RegExp) => calc.locator("dl > div").filter({ has: page.locator("dt", { hasText: label }) }).locator("dd");
-    const card = row(/^Card processing \(/);
-    const lab = row(/^Lab costs$/);
-    const keep = row(/^What you keep$/);
+  // Fee wording that must never come back. A bare "8%" would also match results such as
+  // "68% of families ordered", so percentages only count when they stand alone.
+  const FORBIDDEN: Array<string | RegExp> = [
+    /(^|[^\d.,])[86] ?%/,
+    /platform fee/i,
+    /monthly fee/i,
+    /pay only when you sell/i,
+    /card processing/i,
+    // The old fee-tier threshold. (The demo form asks for the visitor's own yearly volume,
+    // e.g. "Over $250K": that is their sales, not our fee.)
+    /\$250,000|250 000 \$|250 000 US\$|250 000 dollar/i,
+    /комисси[яюи] платформы/i,
+    /абонентск/i,
+    /эквайринг/i,
+    /platforma komissiya/i,
+    /oylik toʻlov/i,
+    /karta orqali toʻlov/i,
+    /calculator|калькулятор|kalkulyator/i,
+  ];
 
-    const cardBefore = await card.textContent();
-    await page.locator("#fc-aov").fill("100");
-    await expect(card).not.toHaveText(cardBefore!);
+  for (const prefix of ["", "/ru", "/uz"]) {
+    test(`no studio fees anywhere on the main pages (${prefix || "/en"})`, async ({ page }) => {
+      for (const path of ["", "/features", "/features/marketing", "/contact", "/switch", "/demo", "/about", "/help", "/help/payouts", "/terms", "/blog"]) {
+        await page.goto(`${prefix}${path}` || "/");
+        const text = await page.locator("body").innerText();
+        for (const pattern of FORBIDDEN) {
+          const hit = typeof pattern === "string" ? text.includes(pattern) : pattern.exec(text)?.[0];
+          expect(hit ? `${prefix}${path}: "${hit}"` : null, `${prefix}${path} ${pattern}`).toBeNull();
+        }
+      }
+    });
+  }
 
-    const labBefore = await lab.textContent();
-    const keepBefore = await keep.textContent();
-    await page.locator("#fc-lab").fill("30");
-    await expect(lab).not.toHaveText(labBefore!);
-    await expect(keep).not.toHaveText(keepBefore!);
-
-    // The comparison is on by default in the full calculator.
-    const comparison = calc.getByText(/per year than a platform charging/);
-    await expect(comparison).toContainText("15%");
-    const theirFee = page.getByRole("slider", { name: "Your current platform's fee" });
-    await theirFee.focus();
-    await page.keyboard.press("ArrowRight");
-    await expect(comparison).toContainText("16%");
-
-    await page.locator("#fc-compare").click();
-    await expect(comparison).toBeHidden();
+  test("the payouts help article points to the contact page for partner terms", async ({ page }) => {
+    // The same sentence also closes every page in the CTA band, so match the article's paragraph.
+    for (const [path, paragraph] of [
+      ["/help/payouts", /^Partner terms are agreed with each studio.*Contact us and we'll walk you through partner terms\./],
+      ["/ru/help/payouts", /^Условия партнёрства мы согласуем.*Свяжитесь с нами — расскажем об условиях партнёрства\./],
+      ["/uz/help/payouts", /^Hamkorlik shartlarini.*Biz bilan bogʻlaning — hamkorlik shartlari haqida aytib beramiz\./],
+    ] as const) {
+      await page.goto(path);
+      await expect(page.locator("p").filter({ hasText: paragraph })).toBeVisible();
+    }
   });
+});
 
+// ---------------------------------------------------------------------------
+// 4. Interactive pages
+// ---------------------------------------------------------------------------
+
+test.describe("interactive sections", () => {
   test("markets: #sports selects Sports, clicking a tab updates the hash", async ({ page }) => {
     await page.goto("/markets#sports");
     await expect(page.getByRole("tab", { name: "Sports" })).toHaveAttribute("aria-selected", "true");
@@ -272,10 +297,8 @@ test.describe("calculators and interactive sections", () => {
     await expect(page).toHaveURL(/\/markets#dance$/);
   });
 
-  test("pricing FAQ accordion opens and closes", async ({ page }) => {
-    await page.goto("/pricing");
-    const faq = page.getByRole("heading", { level: 2 }).filter({ hasText: /question|FAQ/i });
-    void faq;
+  test("check-in FAQ accordion opens and closes", async ({ page }) => {
+    await page.goto("/features/check-in");
     const firstQuestion = page.locator("[data-state] > h3 button, h3 > button[aria-expanded]").first();
     await firstQuestion.scrollIntoViewIfNeeded();
     await expect(firstQuestion).toHaveAttribute("aria-expanded", "false");

@@ -8,10 +8,10 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const taglines = defineMessages(
-  { line: "Check-in · Smart Match · Family Store · No monthly fee" },
+  { line: "Check-in · Smart Match · Family Store · Partner labs" },
   {
-    ru: { line: "Регистрация · Smart Match · Family Store · Без абонентской платы" },
-    uz: { line: "Roʻyxatga olish · Smart Match · Family Store · Oylik toʻlov yoʻq" },
+    ru: { line: "Регистрация · Smart Match · Family Store · Лаборатории-партнёры" },
+    uz: { line: "Roʻyxatga olish · Smart Match · Family Store · Hamkor laboratoriyalar" },
   },
 );
 

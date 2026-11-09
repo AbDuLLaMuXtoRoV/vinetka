@@ -1,4 +1,4 @@
-import { PLATFORM_FEE_STANDARD_BPS, formatters, passCredit } from "@snapbell/sdk";
+import { formatters, passCredit } from "@snapbell/sdk";
 import { Badge } from "@snapbell/ui/badge";
 import { BellRing, CalendarClock, Mail, MessageSquare, Moon, Package, Send, Tag, Ticket } from "lucide-react";
 import type { Metadata } from "next";
@@ -108,7 +108,6 @@ export default async function MarketingFeaturePage({ params }: PageProps<"/[loca
                 <Badge tone="sage">{p.used}</Badge>
               </div>
             ))}
-            <p className="text-sm text-muted">{t.promo.note(fmt.percent(PLATFORM_FEE_STANDARD_BPS / 10_000))}</p>
           </div>
         </div>
       </Section>

@@ -15,7 +15,6 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/switch">
 type Cell = "yes" | "no" | "partial";
 /** Paper / typical platforms / Snapbell, in the same order as the translated row labels. */
 const CELLS: Array<[Cell, Cell, Cell]> = [
-  ["yes", "partial", "yes"],
   ["no", "partial", "yes"],
   ["no", "partial", "yes"],
   ["no", "partial", "yes"],
@@ -23,7 +22,6 @@ const CELLS: Array<[Cell, Cell, Cell]> = [
   ["partial", "partial", "yes"],
   ["no", "yes", "yes"],
   ["no", "yes", "yes"],
-  ["yes", "no", "yes"],
 ];
 
 function CellIcon({ value, locale }: { value: Cell; locale: Locale }) {

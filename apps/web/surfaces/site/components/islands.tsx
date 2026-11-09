@@ -1,16 +1,7 @@
 "use client";
 
-import { FeeCalculator } from "@snapbell/ui/commerce/fee-calculator";
 import { Tabs } from "@snapbell/ui/disclosure";
-import { useLocale } from "@snapbell/ui/locale";
 import { useEffect, useState, type ReactNode } from "react";
-import { track } from "@site/lib/analytics";
-
-/** FeeCalculator (localized by LocaleProvider) that reports `calculator_used` on first interaction. */
-export function TrackedFeeCalculator({ variant, source }: { variant: "teaser" | "full"; source: string }) {
-  const locale = useLocale();
-  return <FeeCalculator variant={variant} onUse={() => track("calculator_used", { variant, source, locale })} />;
-}
 
 /**
  * Tabs whose selection mirrors the URL hash, so ads can deep-link to

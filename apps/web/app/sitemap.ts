@@ -11,7 +11,6 @@ const STATIC_ROUTES = [
   { path: "/features/family-store", priority: 0.8 },
   { path: "/features/marketing", priority: 0.8 },
   { path: "/markets", priority: 0.8 },
-  { path: "/pricing", priority: 0.9 },
   { path: "/switch", priority: 0.7 },
   { path: "/demo", priority: 0.7 },
   { path: "/contact", priority: 0.7 },

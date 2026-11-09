@@ -1,11 +1,10 @@
-import { DEMO_CODES, PLATFORM_FEE_STANDARD_BPS, PLATFORM_FEE_VOLUME_BPS, VOLUME_TIER_THRESHOLD_CENTS, formatters } from "@snapbell/sdk";
+import { DEMO_CODES } from "@snapbell/sdk";
 import { Button } from "@snapbell/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@snapbell/ui/disclosure";
 import { ArrowRight, Camera, Check, ClipboardList, EyeOff, Images, ScanFace, ShieldCheck, ShoppingBag, Stamp } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CaseStudyCard, CheckList, FeatureBlock, LogoStrip, MediaPanel, SmsBubbles, StepList } from "@site/components/blocks";
-import { TrackedFeeCalculator } from "@site/components/islands";
 import { JsonLd } from "@site/components/json-ld";
 import { PhoneFrame, StoreAlbumScreen } from "@site/components/phone-mockup";
 import { Section, SectionHeading } from "@site/components/section";
@@ -29,9 +28,6 @@ const STEP_ICONS = [ClipboardList, Camera, ScanFace, ShoppingBag];
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const locale = await getLocale(params);
   const t = homeMsgs[locale];
-  const fmt = formatters(locale);
-  const pct = (bps: number) => fmt.percent(bps / 10_000);
-  const threshold = fmt.money(VOLUME_TIER_THRESHOLD_CENTS, { whole: true });
   const markets = getMarkets(locale);
   const sampleStore = storeLink(locale, `/a/${DEMO_CODES.personal}`);
   const protectedPhoto = photoUri({ seed: "protect-1", watermark: PROOF_WATERMARK, overlay: t.protect.overlay });
@@ -61,12 +57,6 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             applicationCategory: "BusinessApplication",
             operatingSystem: "Web, iOS, Android",
             description: commonMsgs[locale].siteDescription,
-            offers: {
-              "@type": "Offer",
-              price: "0",
-              priceCurrency: "USD",
-              description: t.offer(pct(PLATFORM_FEE_STANDARD_BPS), threshold, pct(PLATFORM_FEE_VOLUME_BPS)),
-            },
           },
         ]}
       />
@@ -112,11 +102,11 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           locale={locale}
           note={
             <>
-              <span>{t.trust.noMonthly}</span>
+              <span>{t.trust.labs}</span>
               <span aria-hidden>·</span>
-              <span>{t.trust.noSetup}</span>
+              <span>{t.trust.languages}</span>
               <span aria-hidden>·</span>
-              <span>{t.trust.noContract}</span>
+              <span>{t.trust.team}</span>
             </>
           }
         />
@@ -245,26 +235,8 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
         />
       </Section>
 
-      {/* 7. Fee calculator teaser */}
-      <Section labelledBy="fees-heading">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div className="grid content-start gap-5">
-            <SectionHeading
-              id="fees-heading"
-              eyebrow={t.fees.eyebrow}
-              title={t.fees.title}
-              lead={t.fees.lead(pct(PLATFORM_FEE_STANDARD_BPS), threshold, pct(PLATFORM_FEE_VOLUME_BPS))}
-            />
-            <Link href={localePath(locale, "/pricing")} className={linkClass}>
-              {t.fees.link} <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          </div>
-          <TrackedFeeCalculator variant="teaser" source="home" />
-        </div>
-      </Section>
-
-      {/* 8. Case studies */}
-      <Section tone="sunken" labelledBy="cases-heading">
+      {/* 7. Case studies (default tone: the protection section above is sunken) */}
+      <Section labelledBy="cases-heading">
         <SectionHeading id="cases-heading" eyebrow={t.cases.eyebrow} title={t.cases.title} className="mb-10" />
         <div className="grid gap-6 md:grid-cols-3">
           {markets.slice(0, 3).map((m) => (
@@ -279,7 +251,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           </Button>
         </div>
       </Section>
-      {/* 9. CTA band is rendered by the locale layout on every page. */}
+      {/* 8. CTA band ("Become a partner") is rendered by the locale layout on every page. */}
     </>
   );
 }

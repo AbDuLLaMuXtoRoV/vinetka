@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 /**
- * URL-based locales for SEO: English at unprefixed paths (/pricing), Russian
+ * URL-based locales for SEO: English at unprefixed paths (/contact), Russian
  * and Uzbek under /ru and /uz. proxy.ts rewrites unprefixed paths to /en
  * internally, so every page lives under app/[locale].
  */
@@ -13,7 +13,7 @@ export const PREFIXED_LOCALES = LOCALES.filter((l) => l !== "en");
 
 export const OG_LOCALE: Record<Locale, string> = { en: "en_US", ru: "ru_RU", uz: "uz_UZ" };
 
-/** "/pricing" → "/ru/pricing" (unchanged for English). Keeps any #hash or ?query. */
+/** "/contact" → "/ru/contact" (unchanged for English). Keeps any #hash or ?query. */
 export function localePath(locale: Locale, path: string): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
   if (locale === "en") return clean;
@@ -24,8 +24,8 @@ export function localePath(locale: Locale, path: string): string {
 
 /**
  * Splits a pathname into its locale and the unprefixed path. Accepts the
- * internal /en/… form too (what prerendered English pages see), so "/en/pricing"
- * and "/pricing" both give "/pricing".
+ * internal /en/… form too (what prerendered English pages see), so "/en/contact"
+ * and "/contact" both give "/contact".
  */
 export function splitLocale(pathname: string): { locale: Locale; path: string } {
   const [, first = "", ...rest] = pathname.split("/");
@@ -46,7 +46,7 @@ export function withLang(url: string, locale: Locale): string {
   return `${base}${sep}lang=${locale}${hash ? `#${hash}` : ""}`;
 }
 
-/** Canonical + hreflang alternates for a page path (unprefixed, e.g. "/pricing"). */
+/** Canonical + hreflang alternates for a page path (unprefixed, e.g. "/contact"). */
 export function alternates(locale: Locale, path: string): NonNullable<Metadata["alternates"]> {
   return {
     canonical: localePath(locale, path),

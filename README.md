@@ -107,7 +107,7 @@ Every surface is available in **English, Russian and Uzbek** (Latin script).
 
 | Surface | How the language is chosen |
 |---|---|
-| Main site | URL: `/pricing`, `/ru/pricing`, `/uz/pricing`, with hreflang alternates and a localized sitemap |
+| Main site | URL: `/contact`, `/ru/contact`, `/uz/contact`, with hreflang alternates and a localized sitemap |
 | `/shop`, `/studio`, `/admin` | `sb_locale` cookie (set by any switcher on the site or `?lang=ru`), otherwise the browser language. Album links in texts and flyers keep working in any language |
 | API | `Accept-Language` localizes every error message. Texts and emails to parents use the parent's saved language |
 
@@ -133,6 +133,8 @@ Studio-entered data (studio, school, job and product names, message templates) i
 Every variable is documented in [.env.example](.env.example).
 
 ## Decisions made while building (please confirm)
+
+- **Studio fees are not published.** The public site shows no pricing page, fee calculator or fee figures; partner terms are agreed privately (the old `/pricing` URLs redirect to `/contact`). The fee model below is what the platform computes once a studio is onboarded, and studios see their own breakdown in the Studio app.
 
 - **Fee tiers are marginal.** 8% on a studio's first $250K of yearly sales and 6% above it, so crossing the threshold never lowers the total fee. Each order uses the rate for the studio's year-to-date sales.
 - **Card processing** (2.9% + 30¢) is passed through to the studio at cost. When Pass credit is redeemed, card fees apply only to the amount charged at that checkout (the Pass itself was a separate card charge).

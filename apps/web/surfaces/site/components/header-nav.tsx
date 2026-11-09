@@ -33,7 +33,6 @@ export function DesktopNav({ sampleStoreUrl }: { sampleStoreUrl: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const productId = useId();
   const resourcesId = useId();
-  const pricingHref = localePath(locale, "/pricing");
   const contactHref = localePath(locale, "/contact");
 
   useEffect(() => setOpen(null), [pathname]);
@@ -77,9 +76,6 @@ export function DesktopNav({ sampleStoreUrl }: { sampleStoreUrl: string }) {
   return (
     <div ref={ref} className="relative hidden items-center gap-1 lg:flex">
       {trigger("product", t.product, productId)}
-      <Link href={pricingHref} className={linkClass(pricingHref)} aria-current={pathname === pricingHref ? "page" : undefined}>
-        {t.pricing}
-      </Link>
       {trigger("resources", t.resources, resourcesId)}
       <Link href={contactHref} className={linkClass(contactHref)} aria-current={pathname === contactHref ? "page" : undefined}>
         {t.contact}
@@ -195,9 +191,6 @@ export function MobileNav({ studioLoginUrl }: { studioLoginUrl: string }) {
               </Link>
             ))}
           </div>
-          <Link href={localePath(locale, "/pricing")} className={cn(item, "font-medium")} onClick={close}>
-            {t.pricing}
-          </Link>
           <div className="grid gap-1">
             <p className="px-3 text-xs font-semibold tracking-wide text-muted uppercase">{t.resources}</p>
             {resourcesNav(locale).map((r) => (

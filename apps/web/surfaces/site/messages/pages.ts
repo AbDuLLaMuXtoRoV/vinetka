@@ -17,7 +17,6 @@ export const switchMsgs = defineMessages(
     cols: { feature: "Feature", paper: "Paper forms", typical: "Typical platforms" },
     cell: { yes: "Yes", partial: "Sometimes", no: "No" },
     rows: [
-      { feature: "No monthly fee", note: "Many platforms charge a subscription or per-job fee" },
       { feature: "Parents order from a text message", note: "" },
       { feature: "Automatic face matching with review queue", note: "" },
       { feature: "Offline check-in app", note: "" },
@@ -25,7 +24,6 @@ export const switchMsgs = defineMessages(
       { feature: "Picture Day Pass pre-pay", note: "Paper pre-pay means envelopes of cash" },
       { feature: "Automatic reminders with quiet hours", note: "" },
       { feature: "No cash or checks to reconcile", note: "" },
-      { feature: "Fee falls to 6% as you grow", note: "" },
     ],
     disclaimer: "“Typical platforms” reflects common features across online school-photo platforms; individual products vary.",
     steps: {
@@ -55,7 +53,6 @@ export const switchMsgs = defineMessages(
       cols: { feature: "Возможность", paper: "Бумажные бланки", typical: "Типичные платформы" },
       cell: { yes: "Да", partial: "Иногда", no: "Нет" },
       rows: [
-        { feature: "Без абонентской платы", note: "Многие платформы берут подписку или плату за съёмку" },
         { feature: "Родители заказывают прямо из SMS", note: "" },
         { feature: "Автоматическое распознавание лиц с очередью проверки", note: "" },
         { feature: "Приложение для регистрации без интернета", note: "" },
@@ -63,7 +60,6 @@ export const switchMsgs = defineMessages(
         { feature: "Предоплата Picture Day Pass", note: "Бумажная предоплата — это конверты с наличными" },
         { feature: "Автоматические напоминания с тихими часами", note: "" },
         { feature: "Не нужно сверять наличные и чеки", note: "" },
-        { feature: "Комиссия снижается до 6% по мере роста", note: "" },
       ],
       disclaimer: "«Типичные платформы» — это распространённые возможности онлайн-платформ для школьной фотографии; конкретные продукты различаются.",
       steps: {
@@ -92,7 +88,6 @@ export const switchMsgs = defineMessages(
       cols: { feature: "Imkoniyat", paper: "Qogʻoz blankalar", typical: "Odatiy platformalar" },
       cell: { yes: "Ha", partial: "Baʼzan", no: "Yoʻq" },
       rows: [
-        { feature: "Oylik toʻlov yoʻq", note: "Koʻp platformalar obuna yoki har bir suratga olish uchun haq oladi" },
         { feature: "Ota-onalar SMS xabardan buyurtma beradi", note: "" },
         { feature: "Tekshiruv navbatiga ega avtomatik yuzni aniqlash", note: "" },
         { feature: "Oflayn roʻyxatga olish ilovasi", note: "" },
@@ -100,7 +95,6 @@ export const switchMsgs = defineMessages(
         { feature: "Picture Day Pass oldindan toʻlovi", note: "Qogʻozdagi oldindan toʻlov — naqd pul solingan konvertlar demakdir" },
         { feature: "Tinch soatlarga rioya qiluvchi avtomatik eslatmalar", note: "" },
         { feature: "Naqd pul va cheklarni solishtirish shart emas", note: "" },
-        { feature: "Oʻsishingiz bilan komissiya 6% gacha kamayadi", note: "" },
       ],
       disclaimer: "«Odatiy platformalar» maktab suratlari uchun onlayn platformalardagi keng tarqalgan imkoniyatlarni bildiradi; alohida mahsulotlar farq qiladi.",
       steps: {
@@ -123,12 +117,12 @@ export const demoMsgs = defineMessages(
     meta: {
       title: "Book a demo",
       ogTitle: "Book a Snapbell demo",
-      description: "See Snapbell with a picture-day specialist: check-in, Smart Match, the Family Store and pricing for your market, in 30 minutes.",
+      description: "See Snapbell with a picture-day specialist: check-in, Smart Match, the Family Store and partner terms for your market, in 30 minutes.",
     },
     hero: {
       eyebrow: "Book a demo",
       title: "See your next picture day, start to finish, in 30 minutes.",
-      lead: "A specialist walks through your market's workflow, answers pricing questions and helps you plan a first job. No slides.",
+      lead: "A specialist walks through your market's workflow, walks you through partner terms and helps you plan a first job. No slides.",
       perks: ["30 minutes", "Video call", "Real photographer on our team"],
     },
   },
@@ -137,12 +131,12 @@ export const demoMsgs = defineMessages(
       meta: {
         title: "Записаться на демо",
         ogTitle: "Запишитесь на демо Snapbell",
-        description: "Посмотрите Snapbell вместе со специалистом по дню съёмки: регистрация, Smart Match, Family Store и цены для вашего направления — за 30 минут.",
+        description: "Посмотрите Snapbell вместе со специалистом по дню съёмки: регистрация, Smart Match, Family Store и условия партнёрства для вашего направления — за 30 минут.",
       },
       hero: {
         eyebrow: "Записаться на демо",
         title: "Ваш следующий день съёмки от начала до конца — за 30 минут.",
-        lead: "Специалист покажет сценарий для вашего направления, ответит на вопросы о ценах и поможет спланировать первую съёмку. Без слайдов.",
+        lead: "Специалист покажет сценарий для вашего направления, расскажет об условиях партнёрства и поможет спланировать первую съёмку. Без слайдов.",
         perks: ["30 минут", "Видеозвонок", "Настоящий фотограф из нашей команды"],
       },
     },
@@ -150,12 +144,12 @@ export const demoMsgs = defineMessages(
       meta: {
         title: "Demoga yozilish",
         ogTitle: "Snapbell demosiga yoziling",
-        description: "Snapbellni suratga olish kuni boʻyicha mutaxassis bilan koʻring: roʻyxatga olish, Smart Match, Family Store va yoʻnalishingiz uchun narxlar — 30 daqiqada.",
+        description: "Snapbellni suratga olish kuni boʻyicha mutaxassis bilan koʻring: roʻyxatga olish, Smart Match, Family Store va yoʻnalishingiz uchun hamkorlik shartlari — 30 daqiqada.",
       },
       hero: {
         eyebrow: "Demoga yozilish",
         title: "Keyingi suratga olish kuningiz boshidan oxirigacha — 30 daqiqada.",
-        lead: "Mutaxassis yoʻnalishingiz uchun ish jarayonini koʻrsatadi, narxlar haqidagi savollarga javob beradi va birinchi suratga olishni rejalashtirishga yordam beradi. Slaydlarsiz.",
+        lead: "Mutaxassis yoʻnalishingiz uchun ish jarayonini koʻrsatadi, hamkorlik shartlari haqida aytib beradi va birinchi suratga olishni rejalashtirishga yordam beradi. Slaydlarsiz.",
         perks: ["30 daqiqa", "Video qoʻngʻiroq", "Jamoamizdagi haqiqiy fotograf"],
       },
     },
@@ -227,7 +221,7 @@ export const aboutMsgs = defineMessages(
       eyebrow: "Our mission",
       title: "Help independent studios grow, without taking a monthly cut of their effort.",
       body: [
-        "We only make money when our studios do. That's why there's no subscription: every feature we build has to help a family find, love and order their photos.",
+        "We succeed when our studios do. That's why every feature we build has to help a family find, love and order their photos.",
         "We also take children's privacy seriously. Originals stay private, face data is deleted after the season, and parents control their messages and their data.",
       ],
     },
@@ -246,7 +240,7 @@ export const aboutMsgs = defineMessages(
     contact: {
       eyebrow: "Contact",
       title: "Talk to a person",
-      lead: "Questions about pricing, migration or partnerships? We reply within one business day.",
+      lead: "Questions about partner terms, migration or anything else? We reply within one business day.",
       email: "Email",
       address: "Address",
       company: "Company",
@@ -270,7 +264,7 @@ export const aboutMsgs = defineMessages(
         eyebrow: "Наша миссия",
         title: "Помогать независимым студиям расти, не забирая ежемесячную долю их труда.",
         body: [
-          "Мы зарабатываем, только когда зарабатывают наши студии. Поэтому у нас нет подписки: каждая функция должна помогать семье найти, полюбить и заказать свои фото.",
+          "Мы растём, только когда растут наши студии. Поэтому каждая функция должна помогать семье найти, полюбить и заказать свои фото.",
           "Мы серьёзно относимся к приватности детей. Оригиналы остаются закрытыми, данные о лицах удаляются после сезона, а родители сами управляют сообщениями и своими данными.",
         ],
       },
@@ -289,7 +283,7 @@ export const aboutMsgs = defineMessages(
       contact: {
         eyebrow: "Контакты",
         title: "Поговорите с человеком",
-        lead: "Вопросы о ценах, переезде или партнёрстве? Ответим в течение одного рабочего дня.",
+        lead: "Вопросы об условиях партнёрства, переезде или о чём-то ещё? Ответим в течение одного рабочего дня.",
         email: "Email",
         address: "Адрес",
         company: "Компания",
@@ -312,7 +306,7 @@ export const aboutMsgs = defineMessages(
         eyebrow: "Bizning maqsadimiz",
         title: "Mustaqil studiyalarning mehnatidan oylik ulush olmasdan, ularning oʻsishiga yordam berish.",
         body: [
-          "Biz faqat studiyalarimiz daromad qilgandagina daromad qilamiz. Shuning uchun obuna yoʻq: biz yaratadigan har bir imkoniyat oilaga suratlarini topish, yoqtirish va buyurtma qilishda yordam berishi kerak.",
+          "Biz faqat studiyalarimiz oʻsgandagina oʻsamiz. Shuning uchun biz yaratadigan har bir imkoniyat oilaga suratlarini topish, yoqtirish va buyurtma qilishda yordam berishi kerak.",
           "Bolalar maxfiyligiga ham jiddiy qaraymiz. Asl suratlar yopiq qoladi, yuz maʼlumotlari mavsumdan keyin oʻchiriladi, ota-onalar esa xabarlar va maʼlumotlarini oʻzlari boshqaradi.",
         ],
       },
@@ -331,7 +325,7 @@ export const aboutMsgs = defineMessages(
       contact: {
         eyebrow: "Aloqa",
         title: "Inson bilan gaplashing",
-        lead: "Narxlar, koʻchish yoki hamkorlik boʻyicha savollar bormi? Bir ish kuni ichida javob beramiz.",
+        lead: "Hamkorlik shartlari, koʻchish yoki boshqa savollar bormi? Bir ish kuni ichida javob beramiz.",
         email: "Email",
         address: "Manzil",
         company: "Kompaniya",
@@ -353,7 +347,7 @@ export const contactMsgs = defineMessages(
     hero: {
       eyebrow: "Become a partner",
       title: "Sell school, sports and event photos with Snapbell. We set everything up for you.",
-      lead: "Tell us about your studio. Our team creates your account, brands your Family Store and helps you run your first picture day — no monthly fee.",
+      lead: "Tell us about your studio. Our team creates your account, brands your Family Store and helps you run your first picture day. Contact us and we'll walk you through partner terms.",
     },
     steps: {
       eyebrow: "How it works",
@@ -384,7 +378,7 @@ export const contactMsgs = defineMessages(
       hero: {
         eyebrow: "Стать партнёром",
         title: "Продавайте школьные, спортивные и событийные фото со Snapbell. Всё настроим за вас.",
-        lead: "Расскажите о своей студии. Наша команда создаст аккаунт, оформит ваш Family Store в фирменном стиле и поможет провести первый день съёмки — без абонентской платы.",
+        lead: "Расскажите о своей студии. Наша команда создаст аккаунт, оформит ваш Family Store в фирменном стиле и поможет провести первый день съёмки. Свяжитесь с нами — расскажем об условиях партнёрства.",
       },
       steps: {
         eyebrow: "Как это работает",
@@ -414,7 +408,7 @@ export const contactMsgs = defineMessages(
       hero: {
         eyebrow: "Hamkor boʻlish",
         title: "Maktab, sport va tadbir suratlarini Snapbell bilan soting. Hammasini siz uchun sozlaymiz.",
-        lead: "Studiyangiz haqida aytib bering. Jamoamiz hisobingizni yaratadi, Family Store doʻkoningizni brendingizda bezatadi va birinchi suratga olish kunini oʻtkazishga yordam beradi — oylik toʻlovsiz.",
+        lead: "Studiyangiz haqida aytib bering. Jamoamiz hisobingizni yaratadi, Family Store doʻkoningizni brendingizda bezatadi va birinchi suratga olish kunini oʻtkazishga yordam beradi. Biz bilan bogʻlaning — hamkorlik shartlari haqida aytib beramiz.",
       },
       steps: {
         eyebrow: "Qanday ishlaydi",

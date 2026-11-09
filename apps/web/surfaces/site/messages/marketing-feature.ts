@@ -55,7 +55,6 @@ export const marketingFeatureMsgs = defineMessages(
         { code: "FREESHIP", rule: "Free shipping over $40", used: "21 used" },
         { code: "GOEAGLES", rule: "$5 off · Eagles U12 only · 50 max", used: "3 of 50" },
       ],
-      note: (pct: string) => `Discounts lower your platform fee too: the ${pct} is calculated on what families actually pay for products and shipping, after any promo.`,
     },
   },
   {
@@ -112,7 +111,6 @@ export const marketingFeatureMsgs = defineMessages(
           { code: "FREESHIP", rule: "Бесплатная доставка от $40", used: "использован 21 раз" },
           { code: "GOEAGLES", rule: "Скидка $5 · только Eagles U12 · не более 50", used: "3 из 50" },
         ],
-        note: (pct) => `Скидки снижают и вашу комиссию платформы: ${pct} считаются от суммы, которую семьи реально платят за товары и доставку после промокода.`,
       },
     },
     uz: {
@@ -168,7 +166,6 @@ export const marketingFeatureMsgs = defineMessages(
           { code: "FREESHIP", rule: "$40 dan ortiq xaridga bepul yetkazish", used: "21 marta ishlatilgan" },
           { code: "GOEAGLES", rule: "$5 chegirma · faqat Eagles U12 · koʻpi bilan 50", used: "50 tadan 3 tasi" },
         ],
-        note: (pct) => `Chegirmalar platforma komissiyangizni ham kamaytiradi: ${pct} oilalar promokoddan keyin mahsulot va yetkazib berish uchun amalda toʻlagan summadan hisoblanadi.`,
       },
     },
   },

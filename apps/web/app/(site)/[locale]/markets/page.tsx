@@ -9,7 +9,7 @@ import { PageHero, Section } from "@site/components/section";
 import { getMarkets } from "@site/lib/cms";
 import { getLocale, localePath, pageMetadata } from "@site/lib/i18n";
 import { photoUri } from "@site/lib/placeholder";
-import { marketsPageMsgs } from "@site/messages/pricing";
+import { marketsPageMsgs } from "@site/messages/markets";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/markets">): Promise<Metadata> {
   const locale = await getLocale(params);

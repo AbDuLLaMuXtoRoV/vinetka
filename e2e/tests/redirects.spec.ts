@@ -43,7 +43,8 @@ test.describe("redirects stay on the site", () => {
       ["/shop/a/SAMPLE", "/shop/verify"],
       ["/studio/home", "/studio/login"],
       ["/admin/studios", "/admin/login"],
-      ["/en/pricing", "/pricing"],
+      ["/en/contact", "/contact"],
+      ["/en/pricing", "/contact"],
       ["/shop?lang=uz", "/shop"],
       ["/go/store?to=/account&lang=en", "/shop/account"],
     ] as const) {

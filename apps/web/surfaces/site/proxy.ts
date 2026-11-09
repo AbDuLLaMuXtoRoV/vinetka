@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Locale routing for the marketing site (every page lives under app/[locale]):
- * - English is served at unprefixed URLs: /pricing is rewritten to /en/pricing internally.
+ * - English is served at unprefixed URLs: /contact is rewritten to /en/contact internally.
  * - /en/… is never public: 308 to the unprefixed URL (one canonical English URL per page).
  * - Someone who explicitly picked Russian or Uzbek (sb_locale cookie, set by the
  *   language switcher) is sent from an unprefixed URL to /ru/… or /uz/….

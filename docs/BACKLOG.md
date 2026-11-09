@@ -2,14 +2,14 @@
 
 Each page and screen in the build plan is one ticket. "Built" means the page exists, type-checks, builds and renders against the demo API; the main paths are covered by `pnpm smoke`. Integrations that need third-party accounts are tracked in the [launch checklist](#qa-and-launch-checklist).
 
-## Marketing site: `apps/web/app/(site)` + `apps/web/surfaces/site` (14 pages + legal), all built
+## Marketing site: `apps/web/app/(site)` + `apps/web/surfaces/site` (13 pages + legal), all built
 
 | # | Route | Code |
 |---|---|---|
-| 1 | `/` (9 sections in plan order) | `app/page.tsx` |
+| 1 | `/` (plan sections, minus the fee calculator teaser) | `app/page.tsx` |
 | 2–5 | `/features`, `/features/check-in`, `/features/family-store`, `/features/marketing` | `app/features/**` |
 | 6 | `/markets` (tabs follow `#hash`) | `app/markets/page.tsx` |
-| 7 | `/pricing` (calculator, tiers, money flow, FAQ + JSON-LD) | `app/pricing/page.tsx` |
+| 7 | ~~`/pricing`~~ removed: studio fees are not shown publicly; partner terms are discussed privately. `/pricing` (and `/ru`, `/uz`) 308 → `/contact` | `next.config.ts` redirects |
 | 8–11 | `/switch`, `/demo`, `/signup` (→ studio handoff), `/find-my-photos` (→ store) | `app/<route>/page.tsx`, `components/forms/*`, `app/actions.ts` |
 | 12–13 | `/blog`, `/blog/[slug]`, `/help`, `/help/[slug]` | `lib/cms.ts`, `content/*.ts` |
 | 14 | `/about` | `app/about/page.tsx` |

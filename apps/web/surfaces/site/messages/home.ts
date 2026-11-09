@@ -3,12 +3,11 @@ import { defineMessages } from "@snapbell/sdk";
 export const homeMsgs = defineMessages(
   {
     meta: {
-      title: "Snapbell — school and sports photo sales, no monthly fee",
-      ogTitle: "Snapbell — picture-day sales without the monthly fee",
+      title: "Snapbell — school and sports photo sales for photographers",
+      ogTitle: "Snapbell — from picture day to paid orders",
     },
-    offer: (std: string, threshold: string, vol: string) => `No monthly fee. ${std} platform fee on the first ${threshold} of yearly sales, ${vol} above.`,
     hero: {
-      badge: "No monthly fee. Pay only when you sell.",
+      badge: "For school, sports and event photographers",
       title: "From picture day to paid orders, without the paper.",
       lead: "Check in every child on your phone, let Smart Match sort the photos, and send families a link that goes from text message to paid order in four taps.",
       partner: "Become a partner",
@@ -16,7 +15,7 @@ export const homeMsgs = defineMessages(
       perks: ["We set up your studio with you", "Your brand, not ours", "Free migration"],
       phoneLabel: "The Family Store on a phone: Ava's album with four watermarked photos and a Shop these photos button",
     },
-    trust: { noMonthly: "No monthly fee", noSetup: "No setup fee", noContract: "No contract" },
+    trust: { labs: "Printing and delivery by partner labs", languages: "English, Russian and Uzbek", team: "A real team helps you set up" },
     how: {
       eyebrow: "How it works",
       title: "Four steps. Most of them happen on their own.",
@@ -71,13 +70,6 @@ export const homeMsgs = defineMessages(
       blurCaption: "Blur on focus loss",
       signed: "Signed preview links expire automatically",
     },
-    fees: {
-      eyebrow: "Simple pricing",
-      title: "Slide to your yearly sales. See what you keep.",
-      lead: (std: string, threshold: string, vol: string) =>
-        `${std} on your first ${threshold} a year, ${vol} after that, card processing at cost. No monthly fee, no setup fee, no per-photo charges.`,
-      link: "Full pricing and calculator",
-    },
     cases: {
       eyebrow: "Results",
       title: "What changes when ordering gets easy",
@@ -87,12 +79,11 @@ export const homeMsgs = defineMessages(
   {
     ru: {
       meta: {
-        title: "Snapbell — продажа школьных и спортивных фото без абонентской платы",
-        ogTitle: "Snapbell — продажи после дня съёмки без абонентской платы",
+        title: "Snapbell — продажа школьных и спортивных фото для фотографов",
+        ogTitle: "Snapbell — от дня съёмки до оплаченных заказов",
       },
-      offer: (std, threshold, vol) => `Без абонентской платы. Комиссия платформы ${std} с первых ${threshold} продаж за год, ${vol} — сверх этой суммы.`,
       hero: {
-        badge: "Без абонентской платы. Платите, только когда продаёте.",
+        badge: "Для школьных, спортивных и событийных фотографов",
         title: "От дня съёмки до оплаченных заказов — без бумажек.",
         lead: "Отмечайте каждого ребёнка в телефоне, доверьте сортировку фото Smart Match и отправьте семьям ссылку: от SMS до оплаченного заказа — четыре касания.",
         partner: "Стать партнёром",
@@ -100,7 +91,7 @@ export const homeMsgs = defineMessages(
         perks: ["Настроим студию вместе с вами", "Ваш бренд, а не наш", "Бесплатный переезд"],
         phoneLabel: "Family Store на телефоне: альбом Авы с четырьмя фото с водяными знаками и кнопкой «Купить эти фото»",
       },
-      trust: { noMonthly: "Без абонентской платы", noSetup: "Без платы за подключение", noContract: "Без договора" },
+      trust: { labs: "Печать и доставка — через лаборатории-партнёры", languages: "Русский, узбекский и английский", team: "Настроить всё помогает живая команда" },
       how: {
         eyebrow: "Как это работает",
         title: "Четыре шага. Большинство из них проходит само.",
@@ -155,13 +146,6 @@ export const homeMsgs = defineMessages(
         blurCaption: "Размытие при потере фокуса",
         signed: "Подписанные ссылки на превью истекают автоматически",
       },
-      fees: {
-        eyebrow: "Простые цены",
-        title: "Укажите продажи за год — и увидите, сколько останется вам.",
-        lead: (std, threshold, vol) =>
-          `${std} с первых ${threshold} продаж за год, дальше ${vol}, эквайринг по себестоимости. Без абонентской платы, без платы за подключение и без оплаты за каждое фото.`,
-        link: "Все цены и калькулятор",
-      },
       cases: {
         eyebrow: "Результаты",
         title: "Что меняется, когда заказывать становится легко",
@@ -170,12 +154,11 @@ export const homeMsgs = defineMessages(
     },
     uz: {
       meta: {
-        title: "Snapbell — maktab va sport suratlarini oylik toʻlovsiz soting",
-        ogTitle: "Snapbell — suratga olish kunidan keyingi savdo, oylik toʻlovsiz",
+        title: "Snapbell — fotograflar uchun maktab va sport suratlarini sotish",
+        ogTitle: "Snapbell — suratga olish kunidan toʻlangan buyurtmalargacha",
       },
-      offer: (std, threshold, vol) => `Oylik toʻlov yoʻq. Yillik savdoning dastlabki ${threshold} qismiga ${std}, undan yuqorisiga ${vol} platforma komissiyasi.`,
       hero: {
-        badge: "Oylik toʻlov yoʻq. Faqat sotganingizda toʻlaysiz.",
+        badge: "Maktab, sport va tadbir fotograflari uchun",
         title: "Suratga olish kunidan toʻlangan buyurtmalargacha — qogʻozsiz.",
         lead: "Har bir bolani telefonda belgilang, suratlarni Smart Match saralasin, oilalarga esa havola yuboring: SMS xabardan toʻlangan buyurtmagacha atigi toʻrt bosish.",
         partner: "Hamkor boʻlish",
@@ -183,7 +166,7 @@ export const homeMsgs = defineMessages(
         perks: ["Studiyangizni siz bilan birga sozlaymiz", "Bizning emas, sizning brendingiz", "Bepul koʻchish"],
         phoneLabel: "Telefondagi Family Store: Avaning albomi, suv belgili toʻrtta surat va «Shu suratlarni xarid qilish» tugmasi",
       },
-      trust: { noMonthly: "Oylik toʻlov yoʻq", noSetup: "Ulanish toʻlovi yoʻq", noContract: "Shartnoma yoʻq" },
+      trust: { labs: "Chop etish va yetkazib berish — hamkor laboratoriyalar orqali", languages: "Oʻzbek, rus va ingliz tillarida", team: "Sozlashda haqiqiy jamoa yordam beradi" },
       how: {
         eyebrow: "Qanday ishlaydi",
         title: "Toʻrt qadam. Aksariyati oʻz-oʻzidan bajariladi.",
@@ -237,13 +220,6 @@ export const homeMsgs = defineMessages(
         blurAlt: "Brauzer varagʻi faolligini yoʻqotgani uchun xiralashgan oʻsha surat",
         blurCaption: "Faollik yoʻqolganda xiralashish",
         signed: "Imzolangan havolalar muddati avtomatik tugaydi",
-      },
-      fees: {
-        eyebrow: "Oddiy narxlar",
-        title: "Yillik savdo hajmingizni belgilang — sizda qancha qolishini koʻring.",
-        lead: (std, threshold, vol) =>
-          `Yiliga dastlabki ${threshold} uchun ${std}, undan keyin ${vol}, karta toʻlovlari tannarxda. Oylik toʻlov, ulanish toʻlovi va har bir surat uchun toʻlov yoʻq.`,
-        link: "Barcha narxlar va kalkulyator",
       },
       cases: {
         eyebrow: "Natijalar",

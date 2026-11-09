@@ -17,21 +17,21 @@ export const helpCategoryCopy: Record<Locale, Record<HelpCategory, { label: stri
     "getting-started": { label: "Getting started", description: "Set up your studio, brand and payouts." },
     jobs: { label: "Jobs", description: "Rosters, uploads, matching and publishing." },
     store: { label: "Store", description: "Price sheets, packages and photo protection." },
-    payments: { label: "Payments", description: "Fees, payouts, refunds and tax." },
+    payments: { label: "Payments", description: "Payouts, refunds and tax." },
     parents: { label: "Parents", description: "Finding photos, ordering and delivery." },
   },
   ru: {
     "getting-started": { label: "Начало работы", description: "Настройте студию, бренд и выплаты." },
     jobs: { label: "Съёмки", description: "Списки участников, загрузка, сопоставление и публикация." },
     store: { label: "Магазин", description: "Прайс-листы, пакеты и защита фото." },
-    payments: { label: "Платежи", description: "Комиссии, выплаты, возвраты и налоги." },
+    payments: { label: "Платежи", description: "Выплаты, возвраты и налоги." },
     parents: { label: "Родителям", description: "Поиск фото, заказ и доставка." },
   },
   uz: {
     "getting-started": { label: "Ishni boshlash", description: "Studiya, brend va toʻlovlarni sozlang." },
     jobs: { label: "Suratga olishlar", description: "Ishtirokchilar roʻyxati, yuklash, moslashtirish va eʼlon qilish." },
     store: { label: "Doʻkon", description: "Narxlar roʻyxati, toʻplamlar va suratlarni himoya qilish." },
-    payments: { label: "Toʻlovlar", description: "Komissiyalar, toʻlovlar, pulni qaytarish va soliq." },
+    payments: { label: "Toʻlovlar", description: "Toʻlovlar, pulni qaytarish va soliq." },
     parents: { label: "Ota-onalar uchun", description: "Suratlarni topish, buyurtma berish va yetkazib berish." },
   },
 };
@@ -233,7 +233,7 @@ export const helpSources: HelpSource[] = [
         title: "Build a price sheet and packages",
         summary: "Set prices per product and see your profit live.",
         body: [
-          { type: "p", text: "Each row shows the lab cost, your price, the platform and card fees, and what you keep. If a price doesn't cover lab cost plus fees, the row is flagged before you can save." },
+          { type: "p", text: "Each row shows the lab cost, your price and what you keep. If a price doesn't cover your costs, the row is flagged before you can save." },
           { type: "p", text: "Packages bundle products at one price. The Family Store shows parents how much a package saves versus buying items separately." },
         ],
       },
@@ -241,7 +241,7 @@ export const helpSources: HelpSource[] = [
         title: "Создание прайс-листа и пакетов",
         summary: "Устанавливайте цены на товары и сразу видите свою прибыль.",
         body: [
-          { type: "p", text: "В каждой строке видны стоимость лаборатории, ваша цена, комиссия платформы и эквайринг, а также то, что остаётся вам. Если цена не покрывает стоимость лаборатории и комиссии, строка будет отмечена ещё до сохранения." },
+          { type: "p", text: "В каждой строке видны стоимость лаборатории, ваша цена и то, что остаётся вам. Если цена не покрывает ваши расходы, строка будет отмечена ещё до сохранения." },
           { type: "p", text: "Пакеты объединяют несколько товаров по одной цене. Family Store показывает родителям, сколько они экономят на пакете по сравнению с покупкой товаров по отдельности." },
         ],
       },
@@ -249,7 +249,7 @@ export const helpSources: HelpSource[] = [
         title: "Narxlar roʻyxati va toʻplamlar tuzish",
         summary: "Har bir mahsulot narxini belgilang va foydangizni darhol koʻring.",
         body: [
-          { type: "p", text: "Har bir qatorda laboratoriya xarajati, sizning narxingiz, platforma komissiyasi va karta orqali toʻlov xizmati haqi hamda sizda qoladigan summa koʻrinadi. Agar narx laboratoriya xarajati va komissiyalarni qoplamasa, qator saqlashdan oldin belgilanadi." },
+          { type: "p", text: "Har bir qatorda laboratoriya xarajati, sizning narxingiz va sizda qoladigan summa koʻrinadi. Agar narx xarajatlaringizni qoplamasa, qator saqlashdan oldin belgilanadi." },
           { type: "p", text: "Toʻplamlar bir nechta mahsulotni bitta narxda birlashtiradi. Family Store ota-onalarga toʻplam mahsulotlarni alohida sotib olishga nisbatan qancha tejashini koʻrsatadi." },
         ],
       },
@@ -284,31 +284,31 @@ export const helpSources: HelpSource[] = [
     },
   },
   {
-    slug: "fees-and-payouts",
+    slug: "payouts",
     category: "payments",
     updatedAt: "2026-10-02",
     copy: {
       en: {
-        title: "Fees, payouts and when you get paid",
-        summary: "8% up to $250K a year, 6% above, card processing at cost.",
+        title: "Payouts and when you get paid",
+        summary: "Payouts arrive on the schedule you choose. Partner terms are agreed with each studio.",
         body: [
-          { type: "p", text: "There is no monthly fee. On each order, Snapbell keeps a platform fee of 8% on your first $250,000 of sales in a calendar year and 6% on everything above that. Card processing (2.9% + 30¢) is passed through at cost. Sales tax is collected and remitted for you." },
+          { type: "p", text: "Partner terms are agreed with each studio individually when we set up your account. Contact us and we'll walk you through partner terms. Sales tax is collected and remitted for you." },
           { type: "p", text: "Payouts arrive on the schedule you choose in Stripe — daily, weekly or monthly. You can see every upcoming payout in Reports." },
         ],
       },
       ru: {
-        title: "Комиссии, выплаты и когда вы получаете деньги",
-        summary: "8% до 250 000 $ в год, 6% сверх этого, эквайринг по себестоимости.",
+        title: "Выплаты и когда вы получаете деньги",
+        summary: "Выплаты приходят по выбранному вами графику. Условия партнёрства согласуются с каждой студией.",
         body: [
-          { type: "p", text: "Абонентской платы нет. С каждого заказа Snapbell удерживает комиссию платформы: 8% с первых 250 000 $ продаж за календарный год и 6% со всего, что выше. Эквайринг (2,9% + 30¢) передаётся по себестоимости. Налог с продаж собирается и перечисляется за вас." },
+          { type: "p", text: "Условия партнёрства мы согласуем с каждой студией индивидуально, когда создаём аккаунт. Свяжитесь с нами — расскажем об условиях партнёрства. Налог с продаж собирается и перечисляется за вас." },
           { type: "p", text: "Выплаты приходят по графику, который вы выбрали в Stripe: ежедневно, еженедельно или ежемесячно. Все предстоящие выплаты видны в разделе «Отчёты»." },
         ],
       },
       uz: {
-        title: "Komissiyalar, toʻlovlar va pulni qachon olasiz",
-        summary: "Yiliga 250 000 dollargacha 8%, undan yuqorisiga 6%, karta toʻlovlari tannarxda.",
+        title: "Toʻlovlar va pulni qachon olasiz",
+        summary: "Toʻlovlar siz tanlagan jadval boʻyicha tushadi. Hamkorlik shartlari har bir studiya bilan alohida kelishiladi.",
         body: [
-          { type: "p", text: "Oylik toʻlov yoʻq. Har bir buyurtmadan Snapbell platforma komissiyasini oladi: kalendar yilidagi dastlabki 250 000 dollarlik savdodan 8% va undan yuqorisidan 6%. Karta orqali toʻlov xizmati haqi (2,9% + 30¢) tannarxda oʻtkaziladi. Savdo soligʻi siz uchun yigʻiladi va davlatga oʻtkaziladi." },
+          { type: "p", text: "Hamkorlik shartlarini hisobingizni yaratayotganda har bir studiya bilan alohida kelishamiz. Biz bilan bogʻlaning — hamkorlik shartlari haqida aytib beramiz. Savdo soligʻi siz uchun yigʻiladi va davlatga oʻtkaziladi." },
           { type: "p", text: "Toʻlovlar Stripe hisobingizda tanlagan jadval boʻyicha tushadi: har kuni, har hafta yoki har oy. Barcha kelgusi toʻlovlarni «Hisobotlar» boʻlimida koʻrishingiz mumkin." },
         ],
       },

@@ -56,7 +56,6 @@ export function footerColumns(locale: Locale): Array<{ title: string; links: Arr
         { href: p("/features/check-in"), label: t.links.checkIn },
         { href: p("/features/family-store"), label: t.links.familyStore },
         { href: p("/features/marketing"), label: t.links.marketing },
-        { href: p("/pricing"), label: t.links.pricing },
       ],
     },
     {

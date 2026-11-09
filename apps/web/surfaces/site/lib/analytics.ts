@@ -5,7 +5,6 @@
 export type AnalyticsEvent =
   | "contact_submitted"
   | "demo_booked"
-  | "calculator_used"
   | "store_code_entered";
 
 type Props = Record<string, string | number | boolean | null | undefined>;

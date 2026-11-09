@@ -4,13 +4,12 @@ import { defineMessages } from "@snapbell/sdk";
 export const commonMsgs = defineMessages(
   {
     siteDescription:
-      "Snapbell is the all-in-one platform for school, sports and event photographers: check-in app, face matching, a branded Family Store and automatic reminders. No monthly fee — you pay only when you sell.",
-    defaultTitle: "Snapbell — school and sports photo sales, no monthly fee",
+      "Snapbell is the all-in-one platform for school, sports and event photographers: check-in app, face matching, a branded Family Store and automatic reminders.",
+    defaultTitle: "Snapbell — school and sports photo sales for photographers",
     skipToContent: "Skip to content",
     homeAria: "Snapbell home",
     nav: {
       product: "Product",
-      pricing: "Pricing",
       resources: "Resources",
       findPhotos: "Find my photos",
       signIn: "Sign in",
@@ -42,7 +41,7 @@ export const commonMsgs = defineMessages(
     },
     markets: { schools: "Schools", sports: "Sports", dance: "Dance", preschool: "Preschool", seniors: "Seniors", events: "Events" },
     footer: {
-      tagline: "Check-in, matching, a branded store and automatic reminders for school, sports and event photographers. No monthly fee.",
+      tagline: "Check-in, matching, a branded store and automatic reminders for school, sports and event photographers.",
       nav: "Footer",
       columns: { product: "Product", markets: "Markets", resources: "Resources", company: "Company" },
       links: {
@@ -50,7 +49,6 @@ export const commonMsgs = defineMessages(
         checkIn: "Check-in app",
         familyStore: "Family Store",
         marketing: "Marketing",
-        pricing: "Pricing",
         blog: "Blog",
         help: "Help center",
         switch: "Switch to Snapbell",
@@ -72,7 +70,7 @@ export const commonMsgs = defineMessages(
     },
     cta: {
       title: "Your next picture day can sell itself.",
-      body: "Tell us about your studio and we'll set up your account, brand and price sheets with you. No monthly fee, no setup fee, no contract — you only pay when families order.",
+      body: "Tell us about your studio and we'll set up your account, brand and price sheets with you. Contact us and we'll walk you through partner terms.",
       partner: "Become a partner",
       demo: "Book a demo",
     },
@@ -121,13 +119,12 @@ export const commonMsgs = defineMessages(
   {
     ru: {
       siteDescription:
-        "Snapbell — платформа «всё в одном» для школьных, спортивных и событийных фотографов: приложение для регистрации, распознавание лиц, фирменный Family Store и автоматические напоминания. Без абонентской платы — вы платите, только когда продаёте.",
-      defaultTitle: "Snapbell — продажа школьных и спортивных фото без абонентской платы",
+        "Snapbell — платформа «всё в одном» для школьных, спортивных и событийных фотографов: приложение для регистрации, распознавание лиц, фирменный Family Store и автоматические напоминания.",
+      defaultTitle: "Snapbell — продажа школьных и спортивных фото для фотографов",
       skipToContent: "Перейти к содержимому",
       homeAria: "Snapbell — на главную",
       nav: {
         product: "Продукт",
-        pricing: "Цены",
         resources: "Ресурсы",
         findPhotos: "Найти мои фото",
         signIn: "Войти",
@@ -159,7 +156,7 @@ export const commonMsgs = defineMessages(
       },
       markets: { schools: "Школы", sports: "Спорт", dance: "Танцы", preschool: "Детские сады", seniors: "Выпускники", events: "Мероприятия" },
       footer: {
-        tagline: "Регистрация, сопоставление, фирменный магазин и автоматические напоминания для школьных, спортивных и событийных фотографов. Без абонентской платы.",
+        tagline: "Регистрация, сопоставление, фирменный магазин и автоматические напоминания для школьных, спортивных и событийных фотографов.",
         nav: "Нижнее меню",
         columns: { product: "Продукт", markets: "Направления", resources: "Ресурсы", company: "Компания" },
         links: {
@@ -167,7 +164,6 @@ export const commonMsgs = defineMessages(
           checkIn: "Приложение для регистрации",
           familyStore: "Family Store",
           marketing: "Маркетинг",
-          pricing: "Цены",
           blog: "Блог",
           help: "Справочный центр",
           switch: "Переход на Snapbell",
@@ -189,7 +185,7 @@ export const commonMsgs = defineMessages(
       },
       cta: {
         title: "Ваш следующий день съёмки может продавать сам.",
-        body: "Расскажите нам о своей студии — мы создадим аккаунт и вместе с вами настроим бренд и прайс-листы. Без абонентской платы, без платы за подключение и без договора — вы платите, только когда семьи делают заказы.",
+        body: "Расскажите нам о своей студии — мы создадим аккаунт и вместе с вами настроим бренд и прайс-листы. Свяжитесь с нами — расскажем об условиях партнёрства.",
         partner: "Стать партнёром",
         demo: "Записаться на демо",
       },
@@ -237,13 +233,12 @@ export const commonMsgs = defineMessages(
     },
     uz: {
       siteDescription:
-        "Snapbell — maktab, sport va tadbir fotograflari uchun yagona platforma: roʻyxatga olish ilovasi, yuzni aniqlash, brendingizdagi Family Store va avtomatik eslatmalar. Oylik toʻlov yoʻq — faqat sotganingizda toʻlaysiz.",
-      defaultTitle: "Snapbell — maktab va sport suratlarini oylik toʻlovsiz soting",
+        "Snapbell — maktab, sport va tadbir fotograflari uchun yagona platforma: roʻyxatga olish ilovasi, yuzni aniqlash, brendingizdagi Family Store va avtomatik eslatmalar.",
+      defaultTitle: "Snapbell — fotograflar uchun maktab va sport suratlarini sotish",
       skipToContent: "Asosiy mazmunga oʻtish",
       homeAria: "Snapbell bosh sahifasi",
       nav: {
         product: "Mahsulot",
-        pricing: "Narxlar",
         resources: "Resurslar",
         findPhotos: "Suratlarimni topish",
         signIn: "Kirish",
@@ -275,7 +270,7 @@ export const commonMsgs = defineMessages(
       },
       markets: { schools: "Maktablar", sports: "Sport", dance: "Raqs", preschool: "Bogʻchalar", seniors: "Bitiruvchilar", events: "Tadbirlar" },
       footer: {
-        tagline: "Maktab, sport va tadbir fotograflari uchun roʻyxatga olish, moslashtirish, brendli doʻkon va avtomatik eslatmalar. Oylik toʻlov yoʻq.",
+        tagline: "Maktab, sport va tadbir fotograflari uchun roʻyxatga olish, moslashtirish, brendli doʻkon va avtomatik eslatmalar.",
         nav: "Pastki menyu",
         columns: { product: "Mahsulot", markets: "Yoʻnalishlar", resources: "Resurslar", company: "Kompaniya" },
         links: {
@@ -283,7 +278,6 @@ export const commonMsgs = defineMessages(
           checkIn: "Roʻyxatga olish ilovasi",
           familyStore: "Family Store",
           marketing: "Marketing",
-          pricing: "Narxlar",
           blog: "Blog",
           help: "Yordam markazi",
           switch: "Snapbellga oʻtish",
@@ -305,7 +299,7 @@ export const commonMsgs = defineMessages(
       },
       cta: {
         title: "Keyingi suratga olish kuningiz oʻzi sotishi mumkin.",
-        body: "Studiyangiz haqida aytib bering — hisobingizni yaratamiz, brend va narxlar roʻyxatini siz bilan birga sozlaymiz. Oylik toʻlov, ulanish toʻlovi va shartnoma yoʻq — faqat oilalar buyurtma berganda toʻlaysiz.",
+        body: "Studiyangiz haqida aytib bering — hisobingizni yaratamiz, brend va narxlar roʻyxatini siz bilan birga sozlaymiz. Biz bilan bogʻlaning — hamkorlik shartlari haqida aytib beramiz.",
         partner: "Hamkor boʻlish",
         demo: "Demoga yozilish",
       },

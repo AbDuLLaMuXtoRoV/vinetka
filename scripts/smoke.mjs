@@ -169,7 +169,7 @@ await section("Internal admin", async () => {
 await section("Marketing site", async () => {
   for (const [path, needle] of [
     ["/", "/contact"],
-    ["/pricing", "250"],
+    ["/contact", "/contact"],
     ["/markets", null],
     ["/features/family-store", null],
     ["/find-my-photos", null],
@@ -183,6 +183,10 @@ await section("Marketing site", async () => {
   }
   const home = await page(`${SITE}/`);
   check(!home.text.includes("Start free"), 'no studio self-signup ("Start free") on the home page');
+  // Partner terms are discussed privately: no public pricing page or fee figures.
+  const pricing = await page(`${SITE}/pricing`);
+  check(pricing.status === 308 && new URL(pricing.location ?? "/", SITE).pathname === "/contact", `/pricing → ${pricing.status} ${pricing.location ?? ""}`);
+  check(!/platform fee|monthly fee|\b8%/i.test(home.text), "home page shows no studio fees");
   // /signup on the main site is for parents (shop customers); studios have no self-signup.
   for (const path of ["/signin", "/signup", "/uz/signup"]) await expectPage(`${SITE}${path}`, null, null, `main-site ${path} (parents)`);
 });
@@ -271,7 +275,7 @@ await section("Languages (en / ru / uz)", async () => {
   const home = await page(`${SITE}/`);
   // React renders the attribute as hrefLang; HTML attribute names are case-insensitive.
   check(/hreflang="ru"/i.test(home.text) && /hreflang="uz"/i.test(home.text), "marketing / has ru + uz hreflang alternates");
-  for (const [path, want] of [["/ru/pricing", "ru-RU"], ["/uz/pricing", "uz-Latn-UZ"]]) {
+  for (const [path, want] of [["/ru/contact", "ru-RU"], ["/uz/contact", "uz-Latn-UZ"]]) {
     const p = await page(`${SITE}${path}`);
     check(p.status === 200 && lang(p.text) === want, `marketing ${path} → lang=${lang(p.text)}`);
   }
