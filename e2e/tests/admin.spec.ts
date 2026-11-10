@@ -342,7 +342,9 @@ test.describe("admin: message log", () => {
     await page.getByLabel("Status").selectOption("");
     await page.getByLabel("Search").fill("shipped");
     await page.getByRole("button", { name: "Filter" }).click();
-    expect(await page.locator("tbody tr").count()).toBeGreaterThan(0);
+    // Wait for the filtered page before counting (count() doesn't wait).
+    await expect(page).toHaveURL(/q=shipped/);
+    await expect(page.locator("tbody tr").first()).toBeVisible();
 
     // Message rows that belong to an order link to that order in the admin.
     const orderLink = page.locator("tbody").getByRole("link", { name: "order" }).first();

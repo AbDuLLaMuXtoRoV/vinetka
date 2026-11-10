@@ -40,7 +40,9 @@ export function ParentAuthForm({ mode }: { mode: "signin" | "signup" }) {
   const [devCode, setDevCode] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [pending, start] = useTransition();
+  // The code boxes appear before sending finishes: keep them usable then, lock only while verifying.
+  const [sending, startSend] = useTransition();
+  const [verifying, startVerify] = useTransition();
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -64,7 +66,7 @@ export function ParentAuthForm({ mode }: { mode: "signin" | "signup" }) {
 
   const send = (dest: string) => {
     setError(null);
-    start(async () => {
+    startSend(async () => {
       const res = await sendParentCode({ locale, channel, destination: dest });
       if (!res.ok) {
         setError(res.message);
@@ -97,7 +99,7 @@ export function ParentAuthForm({ mode }: { mode: "signin" | "signup" }) {
 
   const verify = (value: string) => {
     setError(null);
-    start(async () => {
+    startVerify(async () => {
       const next = new URLSearchParams(window.location.search).get("next") ?? undefined;
       const res = await verifyParentCode({
         locale,
@@ -140,9 +142,9 @@ export function ParentAuthForm({ mode }: { mode: "signin" | "signup" }) {
             else setError(t.errors.badCode);
           }}
         >
-          <CodeInput value={code} onChange={setCode} onComplete={verify} mode="numeric" label={t.form.codeLabel} invalid={!!error} disabled={pending} autoFocus />
+          <CodeInput value={code} onChange={setCode} onComplete={verify} mode="numeric" label={t.form.codeLabel} invalid={!!error} disabled={verifying} autoFocus />
           {error && <Alert tone="danger" title={error} />}
-          <Button type="submit" size="lg" block loading={pending} disabled={code.length < 6}>
+          <Button type="submit" size="lg" block loading={verifying} disabled={code.length < 6}>
             {t.form.verify}
           </Button>
         </form>
@@ -152,7 +154,7 @@ export function ParentAuthForm({ mode }: { mode: "signin" | "signup" }) {
               {t.form.resendIn(resendIn)}
             </span>
           ) : (
-            <button type="button" onClick={() => send(destination)} disabled={pending} className="min-h-11 font-medium underline underline-offset-4 hover:no-underline">
+            <button type="button" onClick={() => send(destination)} disabled={sending || verifying} className="min-h-11 font-medium underline underline-offset-4 hover:no-underline">
               {t.form.resend}
             </button>
           )}
@@ -228,7 +230,7 @@ export function ParentAuthForm({ mode }: { mode: "signin" | "signup" }) {
           </div>
         )}
         {error && <Alert tone="danger" title={error} />}
-        <Button type="submit" size="lg" block loading={pending}>
+        <Button type="submit" size="lg" block loading={sending}>
           {t.form.sendCode}
         </Button>
       </form>

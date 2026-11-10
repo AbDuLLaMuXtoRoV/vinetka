@@ -14,6 +14,7 @@ import { canSeeMoney, getSession, load } from "@studio/lib/api";
 import { getLocale } from "@studio/lib/i18n";
 import { getLabels } from "@studio/lib/labels";
 import { homeMsgs } from "@studio/messages/home";
+import { studioHref } from "@studio/lib/paths";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: homeMsgs[await getLocale()].metaTitle };
@@ -116,7 +117,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               home.todos
                 .filter((td) => td.count > 0)
                 .map((td) => (
-                  <Link key={`${td.kind}-${td.href}`} href={td.href} className="flex min-h-11 items-center justify-between gap-3 rounded-input px-3 hover:bg-ink/5">
+                  <Link key={`${td.kind}-${td.href}`} href={studioHref(td.href)} className="flex min-h-11 items-center justify-between gap-3 rounded-input px-3 hover:bg-ink/5">
                     <span className="text-sm">{td.label}</span>
                     <Badge tone={td.kind === "review" || td.kind === "stripe" ? "warning" : "neutral"}>{fmt.number(td.count)}</Badge>
                   </Link>

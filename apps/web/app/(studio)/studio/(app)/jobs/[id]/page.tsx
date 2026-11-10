@@ -9,6 +9,7 @@ import { env } from "@studio/lib/env";
 import { getLocale } from "@studio/lib/i18n";
 import { jobsMsgs } from "@studio/messages/jobs";
 import { JobActions } from "./job-actions";
+import { studioHref } from "@studio/lib/paths";
 
 export default async function JobOverview({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -61,7 +62,7 @@ export default async function JobOverview({ params }: { params: Promise<{ id: st
             <ul className="grid gap-1">
               {job.checklist.map((item) => (
                 <li key={item.key}>
-                  <Link href={item.href} className="flex min-h-11 items-center gap-3 rounded-input px-2 hover:bg-ink/5">
+                  <Link href={studioHref(item.href)} className="flex min-h-11 items-center gap-3 rounded-input px-2 hover:bg-ink/5">
                     {item.done ? <CircleCheck className="size-5 text-success" aria-label={t.done} /> : <CircleDashed className="size-5 text-muted" aria-label={t.notDone} />}
                     <span className={item.done ? "text-sm text-muted line-through" : "text-sm"}>{item.label}</span>
                   </Link>

@@ -40,8 +40,13 @@ test.describe("1. code entry", () => {
     // iOS fills one-time codes from SMS in one go; the boxes must split it.
     await page.goto("/shop");
     await ready(page);
-    await page.getByLabel("Album code, character 1 of 6").fill("ZZZZZ9");
-    await expect(page.getByLabel("Album code, character 6 of 6")).toHaveValue("9");
+    // "networkidle" doesn't mean React has hydrated; under load WebKit can get the paste
+    // before the boxes are interactive. Repeat the paste until they are; the assertion
+    // (the whole code split across all six boxes) is unchanged.
+    await expect(async () => {
+      await page.getByLabel("Album code, character 1 of 6").fill("ZZZZZ9");
+      await expect(page.getByLabel("Album code, character 6 of 6")).toHaveValue("9", { timeout: 2_000 });
+    }).toPass({ timeout: 20_000 });
     await expect(page.getByRole("alert").filter({ hasText: "We couldn't find that code" })).toBeVisible();
   });
 

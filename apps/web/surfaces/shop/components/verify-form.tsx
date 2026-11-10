@@ -50,7 +50,10 @@ export function VerifyForm({
   const [devCode, setDevCode] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [pending, start] = useTransition();
+  // Separate states: the code boxes must stay usable while a code is being *sent*
+  // (they appear before that finishes), and lock only while a code is being verified.
+  const [sending, startSend] = useTransition();
+  const [verifying, startVerify] = useTransition();
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -60,7 +63,7 @@ export function VerifyForm({
 
   const send = (dest: string) => {
     setError(null);
-    start(async () => {
+    startSend(async () => {
       const res = await sendCode(dest, channel, albumCode || undefined);
       if (!res.ok) {
         setError(res.message);
@@ -94,7 +97,7 @@ export function VerifyForm({
 
   const verify = (code: string) => {
     setError(null);
-    start(async () => {
+    startVerify(async () => {
       const res = await verifyCode({
         destination,
         code,
@@ -261,7 +264,7 @@ export function VerifyForm({
 
           {error && <Alert tone="danger">{error}</Alert>}
 
-          <Button type="submit" size="lg" block loading={pending}>
+          <Button type="submit" size="lg" block loading={sending}>
             {t.sendCode}
           </Button>
         </form>
@@ -281,7 +284,7 @@ export function VerifyForm({
             onComplete={verify}
             invalid={!!error}
             autoFocus
-            disabled={pending}
+            disabled={verifying}
           />
           {devCode && (
             <p className="rounded-input bg-sunken px-3 py-2 text-center text-xs text-muted">
@@ -290,7 +293,7 @@ export function VerifyForm({
             </p>
           )}
           {error && <Alert tone="danger">{error}</Alert>}
-          <Button type="submit" size="lg" block loading={pending} disabled={otp.length !== 6}>
+          <Button type="submit" size="lg" block loading={verifying} disabled={otp.length !== 6}>
             {mode === "signin"
               ? a.signinSubmit
               : mode === "signup"
@@ -310,7 +313,7 @@ export function VerifyForm({
             </button>
             <button
               type="button"
-              disabled={resendIn > 0 || pending}
+              disabled={resendIn > 0 || sending || verifying}
               onClick={() => send(destination)}
               className="tap px-1 font-medium underline underline-offset-4 disabled:text-muted disabled:no-underline"
               aria-live="polite"
