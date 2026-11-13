@@ -129,18 +129,18 @@ export function CheckoutForm({ cart: initial, initialContact, shippingOptions }:
   });
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-start">
-      <form className="grid gap-8" onSubmit={(e) => e.preventDefault()} noValidate>
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_22rem] lg:items-start">
+      <form className="grid grid-cols-1 gap-8" onSubmit={(e) => e.preventDefault()} noValidate>
         <h1 className="text-xl font-semibold md:text-2xl">{t.title}</h1>
 
-        <section aria-labelledby="contact-h" className="grid gap-4">
+        <section aria-labelledby="contact-h" className="grid grid-cols-1 gap-4">
           <h2 id="contact-h" className="text-base font-semibold">
             {t.contact}
           </h2>
           <Field label={t.fullName} htmlFor="co-name" error={errors.name} locale={locale}>
             <Input {...field("name")} autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
           </Field>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Field label={t.email} htmlFor="co-email" error={errors.email} hint={t.emailHint} locale={locale}>
               <Input {...field("email")} type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </Field>
@@ -150,7 +150,7 @@ export function CheckoutForm({ cart: initial, initialContact, shippingOptions }:
           </div>
         </section>
 
-        <section aria-labelledby="delivery-h" className="grid gap-4">
+        <section aria-labelledby="delivery-h" className="grid grid-cols-1 gap-4">
           <h2 id="delivery-h" className="text-base font-semibold">
             {t.delivery}
           </h2>
@@ -177,7 +177,7 @@ export function CheckoutForm({ cart: initial, initialContact, shippingOptions }:
           )}
 
           {method === "home" && (
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <Field label={t.street} htmlFor="co-line1" error={errors.line1} locale={locale}>
                 <Input {...field("line1")} autoComplete="address-line1" value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })} />
               </Field>
@@ -214,7 +214,7 @@ export function CheckoutForm({ cart: initial, initialContact, shippingOptions }:
           )}
         </section>
 
-        <section aria-labelledby="payment-h" className="grid gap-4">
+        <section aria-labelledby="payment-h" className="grid grid-cols-1 gap-4">
           <h2 id="payment-h" className="flex items-center gap-2 text-base font-semibold">
             {t.payment} <Lock className="size-4 text-muted" aria-hidden />
           </h2>
@@ -244,9 +244,9 @@ export function CheckoutForm({ cart: initial, initialContact, shippingOptions }:
         </section>
       </form>
 
-      <aside aria-label={t.summary} className="grid gap-4 rounded-card border border-border bg-surface p-5 lg:sticky lg:top-20">
+      <aside aria-label={t.summary} className="grid grid-cols-1 gap-4 rounded-card border border-border bg-surface p-5 lg:sticky lg:top-20">
         <h2 className="text-base font-semibold">{t.summary}</h2>
-        <ul className="grid gap-2 text-sm">
+        <ul className="grid grid-cols-1 gap-2 text-sm">
           {cart.items.map((i) => (
             <li key={i.id} className="flex justify-between gap-3">
               <span className="min-w-0">
@@ -303,14 +303,14 @@ function TestModePayment({ amountCents, busy, onPay }: { amountCents: number; bu
   const t = useMessages(checkoutMsgs);
   const amount = useFormatters().money(amountCents);
   return (
-    <div className="grid gap-3 rounded-card border border-dashed border-warning bg-warning/8 p-4">
+    <div className="grid grid-cols-1 gap-3 rounded-card border border-dashed border-warning bg-warning/8 p-4">
       <div className="flex items-center gap-2">
         <Badge tone="warning">
           <FlaskConical aria-hidden /> {t.testMode}
         </Badge>
-        <p className="text-xs text-muted">{t.testNote}</p>
+        <p className="text-xs text-muted [overflow-wrap:anywhere]">{t.testNote}</p>
       </div>
-      <div className="grid gap-2 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
         <Button variant="secondary" size="lg" loading={busy} onClick={() => onPay("apple_pay")} aria-label={t.payWith(amount, "Apple Pay")}>
           Apple Pay
         </Button>

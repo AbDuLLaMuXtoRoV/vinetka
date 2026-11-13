@@ -190,7 +190,7 @@ export function Customizer({
   ];
 
   return (
-    <div className="mx-auto grid max-w-content lg:grid-cols-[1fr_24rem] lg:gap-8 lg:px-4 lg:py-6">
+    <div className="mx-auto grid grid-cols-1 max-w-content lg:grid-cols-[1fr_24rem] lg:gap-8 lg:px-4 lg:py-6">
       <div className="flex items-center gap-2 px-2 pt-2 lg:col-span-2 lg:px-0 lg:pt-0">
         <Button variant="ghost" size="icon" asChild>
           <Link href={`/shop/a/${album.code}/shop`} aria-label={m.back}>
@@ -204,14 +204,14 @@ export function Customizer({
       </div>
 
       <div className="bg-sunken/50 p-6 lg:rounded-card">
-        <div className="grid h-[calc(100dvh-33rem)] min-h-52 place-items-center lg:h-[32rem]" style={{ containerType: "size" }}>
+        <div className="grid grid-cols-1 h-[calc(100dvh-33rem)] min-h-52 place-items-center lg:h-[32rem]" style={{ containerType: "size" }}>
           {preview}
         </div>
       </div>
 
       <section
         aria-label={m.panelLabel}
-        className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-10 grid gap-4 rounded-t-sheet border-t border-border bg-surface px-4 pt-2 pb-4 shadow-overlay md:bottom-0 lg:static lg:rounded-card lg:border lg:pt-4 lg:shadow-none"
+        className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-10 grid grid-cols-1 gap-4 rounded-t-sheet border-t border-border bg-surface px-4 pt-2 pb-4 shadow-overlay md:bottom-0 lg:static lg:rounded-card lg:border lg:pt-4 lg:shadow-none"
       >
         <div className="mx-auto h-1.5 w-10 rounded-full bg-ink/15 lg:hidden" aria-hidden />
         <div role="tablist" aria-label={m.optionsLabel} className="grid grid-flow-col gap-1 rounded-input bg-sunken p-1">
@@ -232,7 +232,7 @@ export function Customizer({
 
         <div id={`panel-${tab}`} role="tabpanel" className="min-h-28">
           {tab === "photo" && (
-            <div className="grid gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {slots > 1 && (
                 <div className="flex gap-2">
                   {Array.from({ length: slots }, (_, i) => (
@@ -280,7 +280,7 @@ export function Customizer({
           )}
 
           {tab === "crop" && (
-            <div className="grid gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <div className="flex justify-between text-sm">
                 <span>{m.zoom}</span>
                 <span className="text-muted tabular-nums">{Math.round(zoom * 100)}%</span>
@@ -291,8 +291,8 @@ export function Customizer({
           )}
 
           {tab === "style" && (
-            <div className="grid gap-4">
-              <fieldset className="grid gap-2">
+            <div className="grid grid-cols-1 gap-4">
+              <fieldset className="grid grid-cols-1 gap-2">
                 <legend className="mb-2 text-sm font-medium">{m.background}</legend>
                 <div className="flex flex-wrap gap-2">
                   {BACKGROUNDS.map((b) => (
@@ -309,7 +309,7 @@ export function Customizer({
                   ))}
                 </div>
               </fieldset>
-              <fieldset className="grid gap-2">
+              <fieldset className="grid grid-cols-1 gap-2">
                 <legend className="mb-2 text-sm font-medium">{m.theme}</legend>
                 <div className="flex flex-wrap gap-2">
                   {THEMES.map((id) => (
@@ -336,7 +336,7 @@ export function Customizer({
           )}
 
           {tab === "text" && (
-            <div className="grid gap-2">
+            <div className="grid grid-cols-1 gap-2">
               <label htmlFor="name-text" className="text-sm font-medium">
                 {m.nameLabel}
               </label>
@@ -355,17 +355,17 @@ export function Customizer({
 
         <div className="flex items-center gap-3">
           <div className="flex items-center rounded-input border border-border" role="group" aria-label={m.quantity}>
-            <button type="button" className="grid size-11 place-items-center disabled:opacity-40" onClick={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} aria-label={m.decrease}>
+            <button type="button" className="grid grid-cols-1 size-11 place-items-center disabled:opacity-40" onClick={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1} aria-label={m.decrease}>
               <Minus className="size-4" aria-hidden />
             </button>
             <span className="w-6 text-center tabular-nums" aria-live="polite">
               {quantity}
             </span>
-            <button type="button" className="grid size-11 place-items-center" onClick={() => setQuantity((q) => Math.min(20, q + 1))} aria-label={m.increase}>
+            <button type="button" className="grid grid-cols-1 size-11 place-items-center" onClick={() => setQuantity((q) => Math.min(20, q + 1))} aria-label={m.increase}>
               <Plus className="size-4" aria-hidden />
             </button>
           </div>
-          <Button size="lg" className="flex-1" loading={pending} onClick={save}>
+          <Button size="lg" className="h-auto min-h-12 min-w-0 flex-1 py-2 text-center whitespace-normal" loading={pending} onClick={save}>
             {lowRes && <TriangleAlert aria-hidden />}
             {editing ? m.update : m.add} · {fmt.money(unit * quantity)}
           </Button>

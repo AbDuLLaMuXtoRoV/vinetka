@@ -48,7 +48,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/about">
 
       <Section id="contact" tone="sunken" labelledBy="contact-heading">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.3fr]">
-          <div className="grid content-start gap-6">
+          <div className="grid grid-cols-1 content-start gap-6">
             <SectionHeading id="contact-heading" eyebrow={t.contact.eyebrow} title={t.contact.title} lead={t.contact.lead} />
             <dl className="grid gap-4">
               <div className="flex gap-3">

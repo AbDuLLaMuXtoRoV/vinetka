@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@snapbell/ui/button";
-import { INTL_LOCALE } from "@snapbell/sdk";
 import { cn } from "@snapbell/ui/lib/cn";
-import { useLocale } from "@snapbell/ui/locale";
+import { useFormatters, useLocale } from "@snapbell/ui/locale";
 import { CalendarCheck } from "lucide-react";
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { requestDemo, type FormState } from "@site/actions";
@@ -28,7 +27,8 @@ function upcomingDays(): Date[] {
 
 export function DemoForm({ calendarUrl, markets }: { calendarUrl: string | null; markets: Array<{ value: string; label: string }> }) {
   const locale = useLocale();
-  const tag = INTL_LOCALE[locale];
+  // Locale-aware and runtime-independent (Chromium has no Uzbek date data).
+  const fmt = useFormatters();
   const t = formMsgs[locale];
   const [state, action, pending] = useActionState(requestDemo, idle);
   const [days, setDays] = useState<Date[]>([]);
@@ -109,8 +109,8 @@ export function DemoForm({ calendarUrl, markets }: { calendarUrl: string | null;
                   day === i ? "border-ink bg-ink text-bg" : "border-border bg-surface hover:border-ink/40",
                 )}
               >
-                <span className="text-xs opacity-80">{d.toLocaleDateString(tag, { weekday: "short" })}</span>
-                <span className="font-semibold">{d.toLocaleDateString(tag, { month: "short", day: "numeric" })}</span>
+                <span className="text-xs opacity-80">{fmt.date(d, { weekday: "short" })}</span>
+                <span className="font-semibold">{fmt.date(d, { month: "short", day: "numeric" })}</span>
               </button>
             ))}
           </div>
@@ -128,7 +128,7 @@ export function DemoForm({ calendarUrl, markets }: { calendarUrl: string | null;
                     slot === value ? "border-ink bg-accent font-semibold text-accent-ink" : "border-border bg-surface hover:border-ink/40",
                   )}
                 >
-                  {time.toLocaleTimeString(tag, { hour: "numeric", minute: "2-digit" })}
+                  {fmt.date(time, { hour: "numeric", minute: "2-digit" })}
                 </button>
               );
             })}

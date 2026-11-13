@@ -54,9 +54,9 @@ export default async function OrderPage({
   const firstName = order.contact.name.split(" ")[0] || null;
 
   return (
-    <div className="mx-auto grid max-w-3xl gap-8 px-4 pt-6 pb-12">
+    <div className="mx-auto grid grid-cols-1 max-w-3xl gap-8 px-4 pt-6 pb-12">
       {placed && <OrderPlacedTracker orderId={order.id} totalCents={order.split.chargedCents} />}
-      <header className="grid gap-3">
+      <header className="grid grid-cols-1 gap-3">
         {placed ? (
           <div className="flex items-center gap-3">
             <CircleCheck className="size-9 shrink-0 text-success" aria-hidden />
@@ -86,7 +86,7 @@ export default async function OrderPage({
           </Alert>
         ))}
 
-      <section aria-labelledby="track-h" className="grid gap-5 rounded-card border border-border bg-surface p-5 md:p-6">
+      <section aria-labelledby="track-h" className="grid grid-cols-1 gap-5 rounded-card border border-border bg-surface p-5 md:p-6">
         <h2 id="track-h" className="flex items-center gap-2 text-base font-semibold">
           {order.delivery.method === "school_pickup" ? <School className="size-5" aria-hidden /> : <Truck className="size-5" aria-hidden />}
           {order.delivery.method === "school_pickup" ? t.toSchool : t.toYou}
@@ -107,7 +107,7 @@ export default async function OrderPage({
       </section>
 
       {order.downloads.length > 0 && (
-        <section aria-labelledby="dl-h" className="grid gap-3">
+        <section aria-labelledby="dl-h" className="grid grid-cols-1 gap-3">
           <h2 id="dl-h" className="text-base font-semibold">
             {t.downloadsReady}
           </h2>
@@ -126,11 +126,11 @@ export default async function OrderPage({
         </section>
       )}
 
-      <section aria-labelledby="items-h" className="grid gap-4 rounded-card border border-border bg-surface p-5 md:p-6">
+      <section aria-labelledby="items-h" className="grid grid-cols-1 gap-4 rounded-card border border-border bg-surface p-5 md:p-6">
         <h2 id="items-h" className="text-base font-semibold">
           {t.items}
         </h2>
-        <ul className="grid gap-4">
+        <ul className="grid grid-cols-1 gap-4">
           {order.items.map((item) => (
             <li key={item.id} className="flex items-center gap-4">
               {thumbs[item.photoIds[0] ?? ""] ? (

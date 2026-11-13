@@ -64,7 +64,7 @@ export function PageHero({ eyebrow, title, lead, children, aside }: { eyebrow?: 
       <div className={cn("mx-auto grid max-w-content gap-10", aside && "lg:grid-cols-[1.1fr_1fr] lg:items-center")}>
         <div className="grid content-start gap-5">
           {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-          <h1 className="font-display text-3xl text-balance lg:text-4xl">{title}</h1>
+          <h1 className="font-display text-2xl text-balance md:text-3xl lg:text-4xl">{title}</h1>
           {lead && <p className="max-w-2xl text-lg text-muted text-pretty">{lead}</p>}
           {children}
         </div>

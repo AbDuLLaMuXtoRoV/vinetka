@@ -27,7 +27,7 @@ export default async function FindMyPhotosPage({ params }: PageProps<"/[locale]/
           <FindPhotosForm />
         </div>
 
-        <div className="grid content-start gap-6">
+        <div className="grid grid-cols-1 content-start gap-6">
           <h2 className="text-xl font-semibold">{t.whereTitle}</h2>
           <div className="grid gap-4">
             <div className="flex gap-4 rounded-card bg-sunken p-5">

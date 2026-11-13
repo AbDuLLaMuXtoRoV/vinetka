@@ -1,4 +1,5 @@
 import type { Cents } from "./types";
+import { uzDate, uzMoney, uzNumber, uzPercent, uzRelative } from "./uz-format";
 
 /**
  * Languages: English (source), Russian, Uzbek (Latin script).
@@ -76,7 +77,9 @@ function memo<T>(key: string, make: () => T): T {
   return v;
 }
 const pluralRules = (l: Locale) => memo(`pr:${l}`, () => new Intl.PluralRules(INTL_LOCALE[l]));
-const numberFormat = (l: Locale) => memo(`nf:${l}`, () => new Intl.NumberFormat(INTL_LOCALE[l]));
+// Uzbek bypasses Intl: Chromium has no uz locale data (see uz-format.ts).
+const numberFormat = (l: Locale): { format: (n: number) => string } =>
+  l === "uz" ? { format: (n) => uzNumber(n) } : memo(`nf:${l}`, () => new Intl.NumberFormat(INTL_LOCALE[l]));
 
 const DAY = 86_400_000;
 
@@ -122,23 +125,29 @@ export function formatters(locale: Locale) {
     const dateTime = new Intl.DateTimeFormat(tag, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
     const rtf = new Intl.RelativeTimeFormat(tag, { numeric: "auto" });
     const pct = (digits: number) => new Intl.NumberFormat(tag, { style: "percent", maximumFractionDigits: digits });
+    const uz = locale === "uz";
 
     return {
       locale,
-      money: (cents: Cents, opts: { whole?: boolean } = {}) => (opts.whole ? moneyWhole : moneyCents).format(cents / 100),
+      money: (cents: Cents, opts: { whole?: boolean } = {}) =>
+        uz ? uzMoney(cents / 100, opts.whole ? 0 : 2) : (opts.whole ? moneyWhole : moneyCents).format(cents / 100),
       number: (n: number) => numberFormat(locale).format(n),
-      percent: (fraction: number, digits = 0) => pct(digits).format(fraction),
+      percent: (fraction: number, digits = 0) => (uz ? uzPercent(fraction, digits) : pct(digits).format(fraction)),
       date: (iso: string | Date, opts?: Intl.DateTimeFormatOptions) =>
-        (opts ? new Intl.DateTimeFormat(tag, opts) : dateShort).format(new Date(iso)),
-      dateTime: (iso: string | Date) => dateTime.format(new Date(iso)),
+        uz
+          ? uzDate(new Date(iso), opts ?? { month: "short", day: "numeric", year: "numeric" })
+          : (opts ? new Intl.DateTimeFormat(tag, opts) : dateShort).format(new Date(iso)),
+      dateTime: (iso: string | Date) =>
+        uz ? uzDate(new Date(iso), { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : dateTime.format(new Date(iso)),
       /** "in 3 days", "через 3 дня", "3 kundan keyin". */
       relative: (iso: string | Date, now: Date = new Date()) => {
         const diff = new Date(iso).getTime() - now.getTime();
         const abs = Math.abs(diff);
-        if (abs < 3_600_000) return rtf.format(Math.round(diff / 60_000), "minute");
-        if (abs < DAY) return rtf.format(Math.round(diff / 3_600_000), "hour");
-        if (abs < 30 * DAY) return rtf.format(Math.round(diff / DAY), "day");
-        return rtf.format(Math.round(diff / (30 * DAY)), "month");
+        const rel = (value: number, unit: "minute" | "hour" | "day" | "month") => (uz ? uzRelative(value, unit) : rtf.format(value, unit));
+        if (abs < 3_600_000) return rel(Math.round(diff / 60_000), "minute");
+        if (abs < DAY) return rel(Math.round(diff / 3_600_000), "hour");
+        if (abs < 30 * DAY) return rel(Math.round(diff / DAY), "day");
+        return rel(Math.round(diff / (30 * DAY)), "month");
       },
       /** Deadline countdown for album headers and job cards. */
       countdown: (deadline: string | Date | null, now: Date = new Date()): Countdown | null => {

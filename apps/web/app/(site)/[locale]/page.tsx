@@ -64,9 +64,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       {/* 1. Hero */}
       <section className="overflow-hidden px-4 pt-10 pb-16 md:px-6 md:pt-16 md:pb-24">
         <div className="mx-auto grid max-w-content items-center gap-12 lg:grid-cols-[1.15fr_1fr]">
-          <div className="grid content-start gap-6">
+          <div className="grid grid-cols-1 content-start gap-6">
             <p className="w-fit rounded-full bg-accent px-3 py-1 text-sm font-semibold text-accent-ink">{t.hero.badge}</p>
-            <h1 className="font-display text-3xl text-balance lg:text-4xl">{t.hero.title}</h1>
+            <h1 className="font-display text-2xl text-balance md:text-3xl lg:text-4xl">{t.hero.title}</h1>
             <p className="max-w-xl text-lg text-muted text-pretty">{t.hero.lead}</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg">

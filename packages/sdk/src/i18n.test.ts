@@ -57,3 +57,36 @@ describe("defineMessages", () => {
     expect(m.uz.n(2)).toBe("2");
   });
 });
+
+describe("Uzbek formatting without browser locale data", () => {
+  // Chromium ships no uz CLDR data, so these must not depend on Intl("uz").
+  const d = new Date("2026-11-24T10:00:00Z");
+  const uz = formatters("uz");
+
+  it("formats dates like CLDR uz", () => {
+    const tz = { timeZone: "Asia/Tashkent" } as const;
+    expect(uz.date(d, { year: "numeric", month: "short", day: "numeric", ...tz })).toBe("24-noy, 2026");
+    expect(uz.date(d, { month: "short", day: "numeric", weekday: "short", ...tz })).toBe("Sesh, 24-noy");
+    expect(uz.date(d, { weekday: "long", month: "long", day: "numeric", ...tz })).toBe("seshanba, 24-noyabr");
+    expect(uz.date(d, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", ...tz })).toBe("24-noy, 15:00");
+    expect(uz.date(d, { weekday: "short", ...tz })).toBe("Sesh");
+  });
+
+  it("matches full ICU (Node, Safari) for the default date", () => {
+    expect(uz.date(d)).toBe(new Intl.DateTimeFormat("uz-Latn-UZ", { year: "numeric", month: "short", day: "numeric" }).format(d));
+  });
+
+  it("formats money, numbers and percentages", () => {
+    expect(uz.money(1_999).replace(/\s/g, " ")).toBe("19,99 US$");
+    expect(uz.money(250_000_00, { whole: true }).replace(/\s/g, " ")).toBe("250 000 US$");
+    expect(uz.number(12_345).replace(/\s/g, " ")).toBe("12 345");
+    expect(uz.percent(0.125, 1)).toBe("12,5%");
+  });
+
+  it("formats relative times", () => {
+    const now = new Date("2026-11-01T12:00:00Z");
+    expect(uz.relative(new Date(now.getTime() + 3 * 86_400_000), now)).toBe("3 kundan keyin");
+    expect(uz.relative(new Date(now.getTime() - 2 * 3_600_000), now)).toBe("2 soat oldin");
+    expect(uz.relative(new Date(now.getTime() + 86_400_000), now)).toBe("ertaga");
+  });
+});
